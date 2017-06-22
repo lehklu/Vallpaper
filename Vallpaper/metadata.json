@@ -1,0 +1,24 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "werner.lechner.2@gmail.com",
+                "Name": "Werner Lechner"
+            }
+        ],
+        "Category": "Utilities",
+        "Icon": "preferences-desktop-wallpaper",
+        "Id": "at.lehklu.plasmoid.vallpaper",
+        "License": "GPLv2+",
+        "Name": "Vallpaper",
+
+        "ServiceTypes": [
+            "Plasma/Wallpaper"
+        ],
+        "Version": "1.0.0",
+        "Website": "http://www.lehklu.at/"
+    },
+    "Keywords": "",
+    "X-KDE-ParentApp": "",
+    "X-Plasma-MainScript": "ui/main.qml"
+}
