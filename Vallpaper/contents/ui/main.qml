@@ -117,7 +117,7 @@ Rectangle {
 
             // onStatusChanged: handleOnBufferReady(index, source, status)
 
-            Component.onCompleted: resetProps()
+            Component.onCompleted: { resetProps(); if(! changePeriodically) { checkIntervals(); } }
 
             function resetProps() {
 
@@ -276,7 +276,7 @@ Rectangle {
             }
 
             imageI.isSolitarySource = mediaFrame.count<=1;
-            imageI.source = mediaFrame.count==0?"":imageRepeater.itemAt($vdNo).source;
+            imageI.source = mediaFrame.count==0?"":imageI.source;
 
             loadedPathsVdNo=$vdNo;
         }
@@ -299,6 +299,8 @@ Rectangle {
         activeImage.source="";
         activeImage.timestamp = -1;
         activeImage.isSolitarySource=false;
+
+        if(! changePeriodically) { checkIntervals(); };
     }
 
     function action_open() {
