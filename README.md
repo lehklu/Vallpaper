@@ -1,2 +1,2 @@
 # Vallpaper
-Plasma 5 wallpaper for different desktops
+Plasma5 different wallpaper (slideshow, color) for each desktop
