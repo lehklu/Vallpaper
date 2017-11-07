@@ -16,7 +16,7 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  2.010-1301, USA.
  */
 
-import QtQuick 2.1
+import QtQuick 2.7
 import QtQuick.Controls 1.1
 import QtQuick.Controls.Styles 1.4
 import QtQuick.Dialogs 1.2
@@ -55,6 +55,10 @@ Item {
     property var activeTab
     property bool pauseHandleCfgPropsChanged: false
 
+    SystemPalette {
+        id: sysPalette
+    }
+
     KWindowSystem.KWindowSystem {
         id: kWindowSystem
     }
@@ -65,8 +69,8 @@ Item {
         height: parent.height
         style: TabViewStyle {
             tab: Rectangle {
-                color: styleData.selected ? "lightgrey" :"grey"
-                border.color:  styleData.selected ? "white" :"black"
+                color: styleData.selected ? sysPalette.highlight:sysPalette.midlight
+                border.color:  styleData.selected ? sysPalette.highlightedText:sysPalette.text
                 border.width:  styleData.selected ? 2 : 1
                 implicitWidth: Math.max(text.width + 25, 80)
                 implicitHeight: 30
@@ -74,7 +78,7 @@ Item {
                     id: text
                     anchors.centerIn: parent
                     text: styleData.title
-                    color: styleData.selected ? "#1d1d85" : "lightgrey"
+                    color: styleData.selected ? sysPalette.highlightedText:sysPalette.text
                 }
             }
         }
@@ -247,347 +251,354 @@ Item {
                     cfgColorHex=$color.toString() // ==> als #ffaa00
                 }
 
-                ColumnLayout {
-                    width: parent.width
-                    height: parent.height
-                    spacing: units.largeSpacing
-                    anchors.left: parent.left
-                    anchors.top: parent.top
-                    anchors.right: parent.right
-                    anchors.bottom: parent.bottom
-                    anchors.margins: units.largeSpacing / 2
+                Rectangle { // provide background color for view
+                    color: sysPalette.window
+                    border.width: 1
+                    border.color: sysPalette.text
 
-                    Row {
-                        // color
-                        // color
-                        // color
-                        spacing: units.smallSpacing
+                    ColumnLayout {
+                        width: parent.width
+                        height: parent.height
+                        spacing: units.largeSpacing
+                        anchors.left: parent.left
+                        anchors.top: parent.top
+                        anchors.right: parent.right
+                        anchors.bottom: parent.bottom
+                        anchors.margins: units.largeSpacing / 2
 
-                        Label {
-                            width: units.gridUnit * 6
-                            anchors.verticalCenter: colorButton.verticalCenter
-                            text: "Background"
-                        }
+                        Row {
+                            // color
+                            // color
+                            // color
+                            spacing: units.smallSpacing
 
-                        Button {
-                            id: colorButton
-                            width: units.gridUnit * 3
-                            text: " " // needed to it gets a proper height...
-                            onClicked: { colorDialog.color=cfgColorHex; colorDialog.open() }
-
-                            Rectangle {
-                                id: colorRect
-                                anchors.centerIn: parent
-                                width: parent.width - 2 * units.smallSpacing
-                                height: theme.mSize(theme.defaultFont).height
-                                color: cfgColorHex
+                            Label {
+                                width: units.gridUnit * 6
+                                anchors.verticalCenter: colorButton.verticalCenter
+                                text: "Background"
                             }
-                        }
-                    }
 
-                    Row {
-                        // Borders top/bottom
-                        // Borders top/bottom
-                        // Borders top/bottom
-                        spacing: units.smallSpacing
+                            Button {
+                                id: colorButton
+                                width: units.gridUnit * 3
+                                text: " " // needed to it gets a proper height...
+                                onClicked: { colorDialog.color=cfgColorHex; colorDialog.open() }
 
-                        Label {
-                            width: units.gridUnit * 6
-                            anchors.verticalCenter: borderTSpinBox.verticalCenter
-                            text: "Borders"
-                        }
-
-                        SpinBox {
-                            id: borderTSpinBox
-
-                            suffix: "px"
-                            decimals: 0
-
-                            maximumValue: myConnector.height
-
-                            Component.onCompleted:  value=cfgBorderTop
-                            onValueChanged:         cfgBorderTop=value
-                        }
-
-                        Label {
-                            width: units.gridUnit * 6
-                            anchors.verticalCenter: borderTSpinBox.verticalCenter
-                            text: "top (max. " + borderTSpinBox.maximumValue + ")"
-                        }
-
-                        SpinBox {
-                            id: borderBSpinBox
-
-                            suffix: "px"
-                            decimals: 0
-
-                            maximumValue: myConnector.height
-
-                            Component.onCompleted:  value=cfgBorderBottom
-                            onValueChanged:         cfgBorderBottom=value
-                        }
-
-                        Label {
-                            width: units.gridUnit * 6
-                            anchors.verticalCenter: borderBSpinBox.verticalCenter
-                            text: "bottom (max. " + borderBSpinBox.maximumValue + ")"
-                        }
-                    }
-
-                    Row {
-                        // left/right
-                        // left/right
-                        // left/right
-                        spacing: units.smallSpacing
-
-                        Label {
-                            width: units.gridUnit * 6
-                            anchors.verticalCenter: borderLSpinBox.verticalCenter
-                            text: ""
-                        }
-
-                        SpinBox {
-                            id: borderLSpinBox
-
-                            suffix: "px"
-                            decimals: 0
-
-                            maximumValue: myConnector.width
-
-                            Component.onCompleted:  value=cfgBorderLeft
-                            onValueChanged:         cfgBorderLeft=value
-                        }
-
-                        Label {
-                            width: units.gridUnit * 6
-                            anchors.verticalCenter: borderLSpinBox.verticalCenter
-                            text: "left (max. " + borderLSpinBox.maximumValue + ")"
-                        }
-
-                        SpinBox {
-                            id: borderRSpinBox
-
-                            suffix: "px"
-                            decimals: 0
-
-                            maximumValue: myConnector.width
-
-                            Component.onCompleted:  value=cfgBorderRight
-                            onValueChanged:         cfgBorderRight=value
-                        }
-
-                        Label {
-                            width: units.gridUnit * 6
-                            anchors.verticalCenter: borderRSpinBox.verticalCenter
-                            text: "right (max. " + borderRSpinBox.maximumValue + ")"
-                        }
-                    }
-
-                    Row {
-                        // interval
-                        // interval
-                        // interval
-                        spacing: units.smallSpacing
-
-                        Label {
-                            width: units.gridUnit * 6
-                            anchors.verticalCenter: intervalSpinBox.verticalCenter
-                            text: "Interval"
-                        }
-
-                        SpinBox {
-                            id: intervalSpinBox
-
-                            suffix: "s"
-                            decimals: 0
-
-                            // Once a day should be high enough
-                            maximumValue: 24*(60*60)
-
-                            Component.onCompleted:  value=cfgInterval
-                            onValueChanged:         cfgInterval=value
-                        }
-                    }
-
-                    Row {
-                        // fillMode
-                        // fillMode
-                        // fillMode
-                        spacing: units.smallSpacing
-
-                        Label {
-                            id: labelFillMode
-                            width: units.gridUnit * 6
-                            anchors.verticalCenter: colFillMode.verticalCenter
-                            text: "Fill mode"
-                        }
-
-                        Column {
-                            id: colFillMode
-
-                            ComboBox {
-                                id: cbFillMode
-                                width: units.gridUnit * 15
-                                currentIndex: indexFromFillMode(cfgFillMode)
-                                model:
-                                [
-                                    { "text": "Fill",                           "value": Image.Stretch },
-                                    { "text": "Fit",                            "value": Image.PreserveAspectFit },
-                                    { "text": "Fill - preserve aspect ratio",   "value": Image.PreserveAspectCrop },
-                                    { "text": "Tile",                           "value": Image.Tile },
-                                    { "text": "Tile vertically",                "value": Image.TileVertically },
-                                    { "text": "Tile horizontally",              "value": Image.TileHorizontally },
-                                    { "text": "As is",                          "value": Image.Pad }
-                                ]
-
-                                onActivated: cfgFillMode = model[index].value // index === param von onActivated
-
-                                function indexFromFillMode($fillMode) {
-
-                                    for(var i in model)
-                                    {
-                                        if(model[i].value==$fillMode) return i;
-                                    }
-
-                                    return -1;
+                                Rectangle {
+                                    id: colorRect
+                                    anchors.centerIn: parent
+                                    width: parent.width - 2 * units.smallSpacing
+                                    height: theme.mSize(theme.defaultFont).height
+                                    color: cfgColorHex
                                 }
                             }
                         }
-                    }
 
-                    Row {
-                        // effects
-                        // effects
-                        // effects
-                        spacing: units.smallSpacing
-
-                        Label {
-                            id: labelEffects
-                            width: units.gridUnit * 6
-                            anchors.verticalCenter: colEffectAnchor.verticalCenter
-                            text: "Effects"
-                        }
-
-                        // geDesaturation
-                        // geDesaturation
-                        // geDesaturation
-                        Column {
-                            id: colEffectAnchor
-                            width: units.gridUnit * 6
+                        Row {
+                            // Borders top/bottom
+                            // Borders top/bottom
+                            // Borders top/bottom
+                            spacing: units.smallSpacing
 
                             Label {
-                                width: parent.width
-                                horizontalAlignment: Text.AlignHCenter
-                                text: "Desaturate"
+                                width: units.gridUnit * 6
+                                anchors.verticalCenter: borderTSpinBox.verticalCenter
+                                text: "Borders"
                             }
 
-                            Slider {
-                                width: parent.width
-                                updateValueWhileDragging: false
+                            SpinBox {
+                                id: borderTSpinBox
 
-                                Component.onCompleted:  value=cfgGeDesaturate
-                                onValueChanged:         cfgGeDesaturate=value
+                                suffix: "px"
+                                decimals: 0
+
+                                maximumValue: myConnector.height
+
+                                Component.onCompleted:  value=cfgBorderTop
+                                onValueChanged:         cfgBorderTop=value
                             }
-                        }
-
-                        // geFastBlur
-                        // geFastBlur
-                        // geFastBlur
-                        Column {
-                            width: units.gridUnit * 6
 
                             Label {
-                                width: parent.width
-                                horizontalAlignment: Text.AlignHCenter
-                                text: "Blur"
+                                width: units.gridUnit * 6
+                                anchors.verticalCenter: borderTSpinBox.verticalCenter
+                                text: "top (max. " + borderTSpinBox.maximumValue + ")"
                             }
 
-                            Slider {
-                                width: parent.width
-                                updateValueWhileDragging: false
+                            SpinBox {
+                                id: borderBSpinBox
 
-                                Component.onCompleted:  value=cfgGeFastBlur
-                                onValueChanged:         cfgGeFastBlur=value
+                                suffix: "px"
+                                decimals: 0
+
+                                maximumValue: myConnector.height
+
+                                Component.onCompleted:  value=cfgBorderBottom
+                                onValueChanged:         cfgBorderBottom=value
                             }
-                        }
-
-                        // geColorOverlay
-                        // geColorOverlay
-                        // geColorOverlay
-                        Column {
-                            width: units.gridUnit * 6
 
                             Label {
-                                width: parent.width
-                                horizontalAlignment: Text.AlignHCenter
-                                text: "Colorize"
-                            }
-
-                            Slider {
-                                width: parent.width
-                                updateValueWhileDragging: false
-
-                                Component.onCompleted:  value=cfgGeColorOverlayAlpha
-                                onValueChanged:         cfgGeColorOverlayAlpha=value
+                                width: units.gridUnit * 6
+                                anchors.verticalCenter: borderBSpinBox.verticalCenter
+                                text: "bottom (max. " + borderBSpinBox.maximumValue + ")"
                             }
                         }
-                    }
 
-                    // paths
-                    // paths
-                    // paths
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        spacing: units.smallSpacing / 2
+                        Row {
+                            // left/right
+                            // left/right
+                            // left/right
+                            spacing: units.smallSpacing
 
-                        Label {
-                            text: "Picture sources"
+                            Label {
+                                width: units.gridUnit * 6
+                                anchors.verticalCenter: borderLSpinBox.verticalCenter
+                                text: ""
+                            }
+
+                            SpinBox {
+                                id: borderLSpinBox
+
+                                suffix: "px"
+                                decimals: 0
+
+                                maximumValue: myConnector.width
+
+                                Component.onCompleted:  value=cfgBorderLeft
+                                onValueChanged:         cfgBorderLeft=value
+                            }
+
+                            Label {
+                                width: units.gridUnit * 6
+                                anchors.verticalCenter: borderLSpinBox.verticalCenter
+                                text: "left (max. " + borderLSpinBox.maximumValue + ")"
+                            }
+
+                            SpinBox {
+                                id: borderRSpinBox
+
+                                suffix: "px"
+                                decimals: 0
+
+                                maximumValue: myConnector.width
+
+                                Component.onCompleted:  value=cfgBorderRight
+                                onValueChanged:         cfgBorderRight=value
+                            }
+
+                            Label {
+                                width: units.gridUnit * 6
+                                anchors.verticalCenter: borderRSpinBox.verticalCenter
+                                text: "right (max. " + borderRSpinBox.maximumValue + ")"
+                            }
                         }
 
-                        ScrollView {
+                        Row {
+                            // interval
+                            // interval
+                            // interval
+                            spacing: units.smallSpacing
+
+                            Label {
+                                width: units.gridUnit * 6
+                                anchors.verticalCenter: intervalSpinBox.verticalCenter
+                                text: "Interval"
+                            }
+
+                            SpinBox {
+                                id: intervalSpinBox
+
+                                suffix: "s"
+                                decimals: 0
+
+                                // Once a day should be high enough
+                                maximumValue: 24*(60*60)
+
+                                Component.onCompleted:  value=cfgInterval
+                                onValueChanged:         cfgInterval=value
+                            }
+                        }
+
+                        Row {
+                            // fillMode
+                            // fillMode
+                            // fillMode
+                            spacing: units.smallSpacing
+
+                            Label {
+                                id: labelFillMode
+                                width: units.gridUnit * 6
+                                anchors.verticalCenter: colFillMode.verticalCenter
+                                text: "Fill mode"
+                            }
+
+                            Column {
+                                id: colFillMode
+
+                                ComboBox {
+                                    id: cbFillMode
+                                    width: units.gridUnit * 15
+                                    currentIndex: indexFromFillMode(cfgFillMode)
+                                    model:
+                                    [
+                                        { "text": "Fill",                           "value": Image.Stretch },
+                                        { "text": "Fit",                            "value": Image.PreserveAspectFit },
+                                        { "text": "Fill - preserve aspect ratio",   "value": Image.PreserveAspectCrop },
+                                        { "text": "Tile",                           "value": Image.Tile },
+                                        { "text": "Tile vertically",                "value": Image.TileVertically },
+                                        { "text": "Tile horizontally",              "value": Image.TileHorizontally },
+                                        { "text": "As is",                          "value": Image.Pad }
+                                    ]
+
+                                    onActivated: cfgFillMode = model[index].value // index === param von onActivated
+
+                                    function indexFromFillMode($fillMode) {
+
+                                        for(var i in model)
+                                        {
+                                            if(model[i].value==$fillMode) return i;
+                                        }
+
+                                        return -1;
+                                    }
+                                }
+                            }
+                        }
+
+                        Row {
+                            // effects
+                            // effects
+                            // effects
+                            spacing: units.smallSpacing
+
+                            Label {
+                                id: labelEffects
+                                width: units.gridUnit * 6
+                                anchors.verticalCenter: colEffectAnchor.verticalCenter
+                                text: "Effects"
+                            }
+
+                            // geDesaturation
+                            // geDesaturation
+                            // geDesaturation
+                            Column {
+                                id: colEffectAnchor
+                                width: units.gridUnit * 6
+
+                                Label {
+                                    width: parent.width
+                                    horizontalAlignment: Text.AlignHCenter
+                                    text: "Desaturate"
+                                }
+
+                                Slider {
+                                    width: parent.width
+                                    updateValueWhileDragging: false
+
+                                    Component.onCompleted:  value=cfgGeDesaturate
+                                    onValueChanged:         cfgGeDesaturate=value
+                                }
+                            }
+
+                            // geFastBlur
+                            // geFastBlur
+                            // geFastBlur
+                            Column {
+                                width: units.gridUnit * 6
+
+                                Label {
+                                    width: parent.width
+                                    horizontalAlignment: Text.AlignHCenter
+                                    text: "Blur"
+                                }
+
+                                Slider {
+                                    width: parent.width
+                                    updateValueWhileDragging: false
+
+                                    Component.onCompleted:  value=cfgGeFastBlur
+                                    onValueChanged:         cfgGeFastBlur=value
+                                }
+                            }
+
+                            // geColorOverlay
+                            // geColorOverlay
+                            // geColorOverlay
+                            Column {
+                                width: units.gridUnit * 6
+
+                                Label {
+                                    width: parent.width
+                                    horizontalAlignment: Text.AlignHCenter
+                                    text: "Colorize"
+                                }
+
+                                Slider {
+                                    width: parent.width
+                                    updateValueWhileDragging: false
+
+                                    Component.onCompleted:  value=cfgGeColorOverlayAlpha
+                                    onValueChanged:         cfgGeColorOverlayAlpha=value
+                                }
+                            }
+                        }
+
+                        // paths
+                        // paths
+                        // paths
+                        ColumnLayout {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
-                            frameVisible: true
+                            spacing: units.smallSpacing / 2
 
-                            ListView {
-                                width: parent.width
-                                model: cfgPathsModel
+                            Label {
+                                text: "Picture sources"
+                            }
 
-                                delegate: RowLayout {
+                            ScrollView {
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+                                frameVisible: true
+
+                                ListView {
                                     width: parent.width
+                                    model: cfgPathsModel
 
-                                    Button {
-                                        id: removePathButton
-                                        iconName: "bookmark-remove"
-                                        onClicked: removePathAt(model.index)
-                                    }
+                                    delegate: RowLayout {
+                                        width: parent.width
 
-                                    Text {
-                                        id: pathText
-                                        Layout.fillWidth: true
-                                        text: model.path
+                                        Button {
+                                            id: removePathButton
+                                            iconName: "bookmark-remove"
+                                            onClicked: removePathAt(model.index)
+                                        }
+
+                                        Text {
+                                            id: pathText
+                                            Layout.fillWidth: true
+                                            text: model.path
+                                            color: sysPalette.text
+                                        }
                                     }
                                 }
                             }
-                        }
 
-                        ColumnLayout {
-                            Layout.alignment: Qt.AlignCenter
+                            ColumnLayout {
+                                Layout.alignment: Qt.AlignCenter
 
-                            Row {
-                                spacing: units.smallSpacing
+                                Row {
+                                    spacing: units.smallSpacing
 
-                                Button {
-                                    iconName: "folder-new"
-                                    onClicked: { folderDialog.open(); }
-                                    text: "Add folder..."
-                                }
+                                    Button {
+                                        iconName: "folder-new"
+                                        onClicked: { folderDialog.open(); }
+                                        text: "Add folder..."
+                                    }
 
-                                Button {
-                                    iconName: "file-new"
-                                    onClicked: { fileDialog.open(); }
-                                    text: "Add files..."
+                                    Button {
+                                        iconName: "file-new"
+                                        onClicked: { fileDialog.open(); }
+                                        text: "Add files..."
+                                    }
                                 }
                             }
                         }

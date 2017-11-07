@@ -2,7 +2,7 @@
 Encoding=UTF-8
 Keywords=different wallpaper per desktop
 Icon=preferences-desktop-wallpaper
-Name=Vallpaper 1.0.1
+Name=Vallpaper 1.0.2
 Type=Service
 
 X-KDE-ServiceTypes=Plasma/Wallpaper

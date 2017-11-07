@@ -10,7 +10,7 @@
         "Icon": "preferences-desktop-wallpaper",
         "Id": "at.lehklu.plasmoid.vallpaper",
         "License": "GPLv2+",
-        "Name": "Vallpaper 1.0.1",
+        "Name": "Vallpaper 1.0.2",
 
         "ServiceTypes": [
             "Plasma/Wallpaper"
