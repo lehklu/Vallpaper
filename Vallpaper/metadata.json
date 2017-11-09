@@ -12,9 +12,8 @@
         "Icon": "preferences-desktop-wallpaper",
         "Id": "at.lehklu.plasmoid.vallpaper",
         "License": "GPLv2+",
-        "Website": "http://www.lehklu.at/"
-
-        "ServiceTypes": ["Plasma/Wallpaper"],
+        "Website": "http://www.lehklu.at/",
+        "ServiceTypes": ["Plasma/Wallpaper"]
     },
     "Keywords": "",
     "X-KDE-ParentApp": "",

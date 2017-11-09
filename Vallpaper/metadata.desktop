@@ -3,9 +3,7 @@ Name=Vallpaper 1.1.0
 Icon=preferences-desktop-wallpaper
 Type=Service
 
-Encoding=UTF-8
-Keywords=different wallpaper per desktop
-Icon=preferences-desktop-wallpaper
+X-KDE-ServiceTypes=Plasma/Wallpaper
 
 X-KDE-PluginInfo-Author=Werner Lechner
 X-KDE-PluginInfo-Email=werner.lechner.2@gmail.com
@@ -13,9 +11,10 @@ X-KDE-PluginInfo-Name=at.lehklu.plasmoid.vallpaper
 X-KDE-PluginInfo-Version=1.1.0
 X-KDE-PluginInfo-Website=http://www.lehklu.at/
 X-KDE-PluginInfo-Category=
-
-
-X-KDE-ServiceTypes=Plasma/Wallpaper
-X-KDE-ParentApp=
+X-KDE-PluginInfo-License=GPLv2+
 
 X-Plasma-MainScript=ui/main.qml
+
+Encoding=UTF-8
+Keywords=different wallpaper per desktop
+X-KDE-ParentApp=
