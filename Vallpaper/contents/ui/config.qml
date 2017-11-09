@@ -49,7 +49,8 @@ Item {
         "geDesaturate": 0.0,
         "geFastBlur": 0.0,
         "geColorOverlayAlpha": 0.0,
-        "paths": []
+        "paths": [],
+        "orUrl": ""
         } // siehe auch main.qml
 
     property var activeTab
@@ -106,6 +107,7 @@ Item {
                 property var cfgGeFastBlur
                 property var cfgGeColorOverlayAlpha
                 property var cfgPathsModel: ListModel {}
+                property var cfgOrUrl
 
                 onCfgColorHexChanged:               handleCfgPropsChanged()
                 onCfgBorderTopChanged:              handleCfgPropsChanged()
@@ -118,6 +120,7 @@ Item {
                 onCfgGeFastBlurChanged:             handleCfgPropsChanged()
                 onCfgGeColorOverlayAlphaChanged:    handleCfgPropsChanged()
                 // onCfgPathsModelChanged:                  handleCfgPropsChanged()
+                onCfgOrUrlChanged:                  handleCfgPropsChanged()
 
                 onVisibleChanged: { if(visible) { activeTab=this; } }
 
@@ -187,6 +190,7 @@ Item {
                     cfgGeFastBlur=$cfgO.geFastBlur;
                     cfgGeColorOverlayAlpha=$cfgO.geColorOverlayAlpha;
                     cfgPathsModel_fromConfig($cfgO);
+                    cfgOrUrl=$cfgO.orUrl;
 
                     pauseHandleCfgPropsChanged=false;
                 }
@@ -203,6 +207,7 @@ Item {
                     $cfgO.geDesaturate=cfgGeDesaturate;
                     $cfgO.geFastBlur=cfgGeFastBlur;
                     $cfgO.geColorOverlayAlpha=cfgGeColorOverlayAlpha;
+                    $cfgO.orUrl=cfgOrUrl;
                     cfgPathsModel_toConfig($cfgO);
                 }
 
@@ -542,16 +547,26 @@ Item {
                             }
                         }
 
-                        // paths
-                        // paths
-                        // paths
+                        // paths or url
+                        // paths or url
+                        // paths or url
                         ColumnLayout {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
                             spacing: units.smallSpacing / 2
 
-                            Label {
-                                text: "Picture sources"
+                            RowLayout {
+                                anchors.fill: parent
+
+                                Label {
+                                    text: "Local picture sources   ###  or Url:"
+                                }
+
+                                TextField {
+                                    Layout.fillWidth: true
+                                    Component.onCompleted:  text=cfgOrUrl
+                                    onTextChanged: cfgOrUrl=text
+                                }
                             }
 
                             ScrollView {
@@ -676,5 +691,5 @@ Item {
                 }
             }
         }
-    } */
+    } /**/
 }

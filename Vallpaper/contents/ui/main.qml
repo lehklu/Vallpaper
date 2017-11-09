@@ -56,7 +56,8 @@ Rectangle {
         "geDesaturate": 0.0,
         "geFastBlur": 0.0,
         "geColorOverlayAlpha": 0.0,
-        "paths": []
+        "paths": [],
+        "orUrl": ""
         } // siehe auch config.qml
 
     property bool changePeriodically: true
@@ -264,34 +265,51 @@ Rectangle {
 
         var imageI=imageRepeater.itemAt($vdNo);
 
-        if($vdNo!=loadedPathsVdNo)
+        imageI.timestamp = $timestamp;
+
+        if(isSourceUrl($vdNo))
         {
-            mediaFrame.clear();
-
-            var paths = tabCfg[$vdNo].paths;
-
-            for(var i in paths)
+            // from url
+            imageI.cache = false;
+            imageI.source = ""; // trigger reload
+            imageI.source = tabCfg[$vdNo].orUrl;
+        }
+        else
+        {
+            // from local pictures
+            if($vdNo!=loadedPathsVdNo)
             {
-                mediaFrame.add(paths[i].path, true); // path, recursive
+                mediaFrame.clear();
+
+                var paths = tabCfg[$vdNo].paths;
+
+                for(var i in paths)
+                {
+                    mediaFrame.add(paths[i].path, true); // path, recursive
+                }
+
+                imageI.isSolitarySource = mediaFrame.count<=1;
+                imageI.source = mediaFrame.count==0?"":imageI.source;
+
+                loadedPathsVdNo=$vdNo;
             }
 
-            imageI.isSolitarySource = mediaFrame.count<=1;
-            imageI.source = mediaFrame.count==0?"":imageI.source;
+            mediaFrame.get(function($$filePath) {
+                /*
+                * folder = ohne
+                * files = mit 'file://'
+                * gebraucht wird mit
+                */
+                var path=$$filePath.startsWith('file://')?$$filePath:'file://'+$$filePath;
 
-            loadedPathsVdNo=$vdNo;
+                imageI.source = path;
+            });
         }
+    }
 
-        mediaFrame.get(function($$filePath) {
-            /*
-             * folder = ohne
-             * files = mit 'file://'
-             * gebraucht wird mit
-             */
-            var path=$$filePath.startsWith('file://')?$$filePath:'file://'+$$filePath;
+    function isSourceUrl($vdNo) {
 
-            imageI.source = path;
-            imageI.timestamp = $timestamp;
-        });
+        return tabCfg[$vdNo].orUrl!==undefined && tabCfg[$vdNo].orUrl.length>0;
     }
 
     function action_next() {
@@ -347,5 +365,5 @@ Rectangle {
                 }
             }
         }
-    } */
+    } /**/
 }

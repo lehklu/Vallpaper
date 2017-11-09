@@ -6,17 +6,15 @@
                 "Name": "Werner Lechner"
             }
         ],
+        "Name": "Vallpaper 1.1.0",
+        "Version": "1.1.0",
         "Category": "Utilities",
         "Icon": "preferences-desktop-wallpaper",
         "Id": "at.lehklu.plasmoid.vallpaper",
         "License": "GPLv2+",
-        "Name": "Vallpaper 1.0.2",
-
-        "ServiceTypes": [
-            "Plasma/Wallpaper"
-        ],
-        "Version": "1.0.1",
         "Website": "http://www.lehklu.at/"
+
+        "ServiceTypes": ["Plasma/Wallpaper"],
     },
     "Keywords": "",
     "X-KDE-ParentApp": "",
