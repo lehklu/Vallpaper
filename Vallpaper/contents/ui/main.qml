@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017  Werner Lechner <werner.lechner.2@gmail.com>
+ *  Copyright 2018  Werner Lechner <werner.lechner.2@gmail.com>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
  */
 
 import QtQuick 2.5
-import QtQuick.Controls 1.3
-import QtQuick.Controls.Styles 1.2
+import QtQuick.Controls 1.3 /* 1.3 2.2 */
+import QtQuick.Controls.Styles 1.2 /* 1.2 1.4 */
 
 import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.components 2.0 as PlasmaComponents
@@ -32,6 +32,7 @@ import QtGraphicalEffects 1.0
 
 Rectangle {
     id: root
+
     property var myConnector: wallpaper
     property var myActionTextPrefix: '<Vallpaper> '
     color: activeColor
@@ -175,6 +176,16 @@ Rectangle {
     // Graphical effects
     // Graphical effects
 
+    /**
+    Label {
+        id: labelSource
+        color: "#ffffffff"
+        background: Rectangle {
+            color: "#ff000000"
+        }
+    }
+    /**/
+
     Timer {
         id: timer
         interval: 1000 * 1
@@ -234,6 +245,7 @@ Rectangle {
         activeGeColorOverlay='#' + ("00" + coaIntValue.toString(16)).substr(-2) + activeColor.substr(-6);
 
         activeImage=imageRepeater.itemAt(activeVdNo);
+        //labelSource.text=activeImage.source;
     }
 
     function checkIntervals() {
@@ -272,7 +284,9 @@ Rectangle {
             // from url
             imageI.cache = false;
             imageI.source = ""; // trigger reload
+            gc();
             imageI.source = tabCfg[$vdNo].orUrl;
+            //labelSource.text=activeImage.source;
         }
         else
         {
@@ -300,9 +314,10 @@ Rectangle {
                 * files = mit 'file://'
                 * gebraucht wird mit
                 */
-                var path=$$filePath.startsWith('file://')?$$filePath:'file://'+$$filePath;
+                var path=$$filePath.indexOf('file://')===0?$$filePath:'file://'+$$filePath;
 
                 imageI.source = path;
+                //labelSource.text=activeImage.source;
             });
         }
     }

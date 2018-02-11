@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017  Werner Lechner <werner.lechner.2@gmail.com>
+ *  Copyright 2018  Werner Lechner <werner.lechner.2@gmail.com>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  2.010-1301, USA.
  */
 
-import QtQuick 2.7
+import QtQuick 2.5
 import QtQuick.Controls 1.1
 import QtQuick.Controls.Styles 1.4
 import QtQuick.Dialogs 1.2
