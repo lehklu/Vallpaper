@@ -64,25 +64,33 @@ Item {
         id: kWindowSystem
     }
 
+/**/ColumnLayout {
+			anchors.fill: parent
+
+		ComboBox {
+  		id: cbDesktop
+  		Layout.fillWidth: true
+
+			Component.onCompleted: {
+
+				var m=[];
+				for(var i=0; i<kWindowSystem.numberOfDesktops; i++)
+      	{
+      		m.push({"text": "Desktop "+ (i+1) +" - " + kWindowSystem.desktopName(i+1)});
+				}
+				model=m;
+
+    		currentIndex=kWindowSystem.currentDesktop-1
+			}
+
+			onActivated: tabView.currentIndex=index
+    }
+
     TabView {
         id: tabView
-        width: parent.width
-        height: parent.height
-        style: TabViewStyle {
-            tab: Rectangle {
-                color: styleData.selected ? sysPalette.highlight:sysPalette.midlight
-                border.color:  styleData.selected ? sysPalette.highlightedText:sysPalette.text
-                border.width:  styleData.selected ? 2 : 1
-                implicitWidth: Math.max(text.width + 25, 80)
-                implicitHeight: 30
-                Text {
-                    id: text
-                    anchors.centerIn: parent
-                    text: styleData.title
-                    color: styleData.selected ? sysPalette.highlightedText:sysPalette.text
-                }
-            }
-        }
+  			Layout.fillHeight: true
+        Layout.fillWidth: true
+        tabsVisible: false
 
         Component.onCompleted: {
 
@@ -622,6 +630,7 @@ Item {
             }
         }
     }
+/**/} // column layout
 
     FileDialog {
         id: folderDialog
