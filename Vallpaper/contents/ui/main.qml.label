@@ -355,6 +355,13 @@ Rectangle {
         Qt.openUrlExternally(activeImage.source)
     }
 
+		MouseArea {
+			anchors.fill: parent
+			acceptedButtons: Qt.LeftButton
+			onPressAndHold: action_next();
+      onDoubleClicked: action_open();
+		}
+
     /* Dev *
     Rectangle {
         id: llogBackground
