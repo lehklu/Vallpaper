@@ -1,7 +1,4 @@
 # Vallpaper
-Plasma5 different wallpaper (slideshow, color) for each desktop
+KDE/Plasma5 wallpaper: Different background per virtual desktop
+(or use as desktop widget: Vrame)
 
-Install:
-sudo plasmapkg2 -g -t wallpaperplugin --install Vallpaper
-or
-sudo plasmapkg2 -g -t wallpaperplugin --upgrade Vallpaper

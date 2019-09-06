@@ -6,16 +6,21 @@
                 "Name": "Werner Lechner"
             }
         ],
-        "Name": "Vallpaper 2.0.0",
+        "Name": "Vrame 2.0.0",
         "Version": "2.0.0",
         "Category": "Utilities",
         "Icon": "preferences-desktop-wallpaper",
-        "Id": "at.lehklu.plasmoid.vallpaper2",
+        "Id": "at.lehklu.plasmoid.vrame2",
         "License": "GPLv2+",
         "Website": "http://www.lehklu.at/",
-        "ServiceTypes": ["Plasma/Wallpaper"]
+        "ServiceTypes": ["Plasma/Applet"],
+        "Description": "Slideshow for Virtual Desktops",
+        "EnabledByDefault": true
     },
     "X-Plasma-MainScript": "ui/main.qml",
 
-    "X-KDE-ParentApp": ""
+    "X-Plasma-API": "declarativeappletscript",
+    "X-Plasma-Requires-FileDialog": "True",
+    "X-Plasma-Requires-LaunchApp": "Unused",
+    "X-Plasma-StandAloneApp": true
 }

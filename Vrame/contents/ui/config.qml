@@ -99,11 +99,11 @@ function cb_logo($o) {
 /* /Dev */
 
 
-property var myConnector: wallpaper
+property var myConnector: plasmoid
 width: parent.width
 height: parent.height
 
-property var cfg_vallpaper2
+property var cfg_vrame2
 
 property var act_desktop
 property var act_timeslot
@@ -114,14 +114,14 @@ property var act_timeslot
 property var cfgAdapter
 Component.onCompleted: {
 
-	cfgAdapter = new JS.CfgAdapter(this, cfg_vallpaper2);
+	cfgAdapter = new JS.CfgAdapter(this, cfg_vrame2);
 	chooseDesktop__fillModel_activate(kWindowSystem.currentDesktop);
 }
 
 
 function cb_handleConfigChanged($newCfg) {
 
-	cfg_vallpaper2 = $newCfg;
+	cfg_vrame2 = $newCfg;
 }
 															//
 															//

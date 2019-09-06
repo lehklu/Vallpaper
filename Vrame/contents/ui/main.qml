@@ -83,7 +83,7 @@ Rectangle {
 }
 /* /Dev */
 
-property var myConnector: wallpaper
+property var myConnector: plasmoid
 property var myActionTextPrefix: '' // empty
 color: act_timeslot.background
 
@@ -101,7 +101,7 @@ KWindowSystem.KWindowSystem {
 
 Connections {
 	target: myConnector.configuration
-  onVallpaper2Changed: setCfgAdapter()
+  onVrame2Changed: setCfgAdapter()
 }
 
 Component.onCompleted: {
@@ -293,7 +293,7 @@ Timer {
 
 function setCfgAdapter() {
 
-	cfgAdapter = new JS.CfgAdapter(this, myConnector.configuration.vallpaper2);
+	cfgAdapter = new JS.CfgAdapter(this, myConnector.configuration.vrame2);
 	handleDesktopChanged();
 }
 

@@ -6,7 +6,7 @@
 
 <group name="Settings">
 
-  <entry name="vallpaper2" type="StringList">
+  <entry name="vrame2" type="StringList">
     <default></default>
   </entry>
 
