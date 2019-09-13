@@ -84,7 +84,7 @@ Rectangle {
 /* /Dev */
 
 property var myConnector: plasmoid
-property var myActionTextPrefix: '' // empty
+property var myActionTextPrefix: /*SED01*/'' // empty
 color: act_timeslot.background
 
 property var cfgAdapter

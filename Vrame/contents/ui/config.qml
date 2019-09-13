@@ -688,6 +688,8 @@ GroupBox {
 		// p i c t u r e s o u r c e s
 		}
 	}
+
+	Item {} // workaround: without this, layout is unusable on small (height) screens ('Add' buttons at bottom are cut not visible)
 // p r o p e r t i e s
 }
 }

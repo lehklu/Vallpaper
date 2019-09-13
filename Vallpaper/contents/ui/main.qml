@@ -84,7 +84,7 @@ Rectangle {
 /* /Dev */
 
 property var myConnector: wallpaper
-property var myActionTextPrefix: '' // empty
+property var myActionTextPrefix: /*SED01*/'<Vallpaper> '
 color: act_timeslot.background
 
 property var cfgAdapter
