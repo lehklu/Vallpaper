@@ -1030,7 +1030,8 @@ function picturesources__addPathWith($$dlg) {
 
 		for(let i=0; i<$$resultUrls.length; ++i)
 		{
-			w.model.append({ path: $$resultUrls[i] });
+			let desanitized = JS.FILENAME_FROM_URISAFE($$resultUrls[i]);
+			w.model.append({ path: desanitized });
 		}
 		++w.changeFlag;
 	};

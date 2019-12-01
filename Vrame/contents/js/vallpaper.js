@@ -1,3 +1,5 @@
+const URI_ENCODED_PC={"txt": "%", "pc": "%25"};
+
 const CFG_DESKNO_DEFAULT = 0;
 
 const SLOT_DEFAULT = '00:00';
@@ -193,4 +195,26 @@ class TimeslotCfg {
 
 		return clone;
 	}
+}
+
+//
+// Global functions
+//
+
+let FILENAME_TO_URISAFE=function(name) {
+
+	let result = name;
+
+	result = result.replace(new RegExp(URI_ENCODED_PC.txt,"g"), URI_ENCODED_PC.pc);
+
+	return result;
+}
+
+let FILENAME_FROM_URISAFE=function(name) {
+
+	let result = name;
+
+	result = result.replace(new RegExp(URI_ENCODED_PC.pc,"g"), URI_ENCODED_PC.txt);
+
+	return result;
 }

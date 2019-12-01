@@ -206,10 +206,11 @@ Repeater {
 
 				if($$path!=This.source || $wd===0)
 				{
-					This.source = $$path;
+					let resanitized = JS.FILENAME_TO_URISAFE($$path);
+					This.source = resanitized;
 					This.iInfo=$$path;
 					This.sTsFetched = Date.now();
-					//llog.say('next ' + $wd + ' ' + This.sMediaFrame.random + ' ' + $$path);
+					//llog.say('next ' + $wd + ' ' + This.sMediaFrame.random + ' ' + resanitized);
 				}
 				else
 				{
