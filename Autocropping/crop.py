@@ -27,6 +27,6 @@ y = int(y)
 overlap = (x / ratio * n - y) / (n - 1)
 overlap = int(overlap)
 
-out_filenames = os.path.join(dir_path, "cropped-%d.png")
+out_filenames = os.path.join(dir_path, "cropped-%d.jpg")
 cmd = ["convert", filename, "-crop", f"1x{n}+0+{overlap}@", out_filenames]
 subprocess.check_output(cmd)
