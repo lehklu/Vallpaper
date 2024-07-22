@@ -1,0 +1,20 @@
+{
+    "KPackageStructure": "Plasma/Applet",
+    "KPlugin": {
+        "Name": "DesktopIndikator 6.0.1",
+        "Description": "Visualize current virtual desktop (+ date)",
+        "Version": "6.0.1",
+        "Id": "at.lehklu.plasma.desktopindikator6",
+        "Icon": "preferences-desktop-virtual",
+        "Authors": [
+            {
+                "Email": "werner.lechner@lehklu.at",
+                "Name": "Werner Lechner"                
+            }
+        ],
+        "Category": "Utilities",        
+        "License": "GPL-2.0+"
+    },
+    "X-KDE-ParentApp": "org.kde.plasmashell",
+    "X-Plasma-API-Minimum-Version": "6.0"
+}
