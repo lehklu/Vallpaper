@@ -1,40 +1,47 @@
 /*
- *  Copyright 2019  Werner Lechner <werner.lechner.2@gmail.com>
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  2.010-1301, USA.
+ *  Copyright 2024  Werner Lechner <werner.lechner@lehklu.at>
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.3
-import QtQuick.Controls.Styles 1.2
+import org.kde.plasma.plasmoid
+import org.kde.plasma.private.pager 2.0
+import QtQuick
+import QtQuick.Controls
 
-import org.kde.plasma.core 2.0 as PlasmaCore
-import org.kde.plasma.components 2.0 as PlasmaComponents
-import org.kde.kquickcontrolsaddons 2.0
+import org.kde.plasma.core as PlasmaCore
+import org.kde.plasma.components as PlasmaComponents
+import org.kde.kquickcontrolsaddons
 
 import org.kde.plasma.private.mediaframe 2.0
 
-import org.kde.kwindowsystem 1.0 as KWindowSystem
-
-import QtGraphicalEffects 1.0
+import Qt5Compat.GraphicalEffects
 
 import "../js/vallpaper.js" as JS
 
+PlasmoidItem {
+	id: _Root
+
+property var myConnector: plasmoid
+property var myActionTextPrefix: /*SED01*/'' // empty
+
+property var cfgAdapter
+
+property var act_deskCfg
+property var act_image
+property var act_timeslot
+
+	PagerModel {
+        id: _Pager
+
+        enabled: _Root.visible
+        pagerType: PagerModel.VirtualDesktops
+
+        onCurrentPageChanged: { console.log("- - -- -  -");  root.handleDesktopChanged() }
+	}
+
+
 Rectangle {
     id: root
-/* Dev *
+/* Dev */
 Rectangle {
 		z: 1 // z-order
     id: llogBackground
@@ -48,10 +55,7 @@ Rectangle {
     TextArea {
 			id: llog
   		anchors.fill: parent
-      backgroundVisible: false
-      style: TextAreaStyle {
-      	textColor: '#1d1d85'
-        }
+      color: '#1d1d85'
 
       property var lines: []
 
@@ -83,39 +87,29 @@ Rectangle {
 }
 /* /Dev */
 
-property var myConnector: plasmoid
-property var myActionTextPrefix: /*SED01*/'' // empty
 color: act_timeslot.background
-
-property var cfgAdapter
-
-property var act_deskCfg
-property var act_image
-property var act_timeslot
-
-KWindowSystem.KWindowSystem {
-	id: kWindowSystem
-
-  onCurrentDesktopChanged: handleDesktopChanged()
-}
 
 Connections {
 	target: myConnector.configuration
-  onVrame2Changed: setCfgAdapter()
+
+  function onValueChanged() { setCfgAdapter() }
 }
 
 Component.onCompleted: {
 
 	setCfgAdapter();
 
-  myConnector.setAction("open", myActionTextPrefix + "Open image", "document-open");
-  myConnector.setAction("next", myActionTextPrefix + "Next image","user-desktop");
+	llog.say("- - - - - - - - - - - - -");
+	llog.say(myConnector);
+
+  //myConnector.setAction("open", myActionTextPrefix + "Open image", "document-open");
+  //myConnector.setAction("next", myActionTextPrefix + "Next image","user-desktop");
 }
 
 
 Repeater {
 	id: imageRepeater
-  model: kWindowSystem.numberOfDesktops + 1 // + 1 shared default cfg
+  model: 5 + 1 // + 1 shared default cfg
 
   Image {
     // set anchors to allow use of margins
@@ -279,7 +273,7 @@ Timer {
   interval: 1000 * 1
   repeat: true
   running: true
-  onTriggered: refreshAct_Timeslot()
+  onTriggered: root.refreshAct_Timeslot()
 }
 
 
@@ -294,18 +288,30 @@ Timer {
 
 function setCfgAdapter() {
 
-	cfgAdapter = new JS.CfgAdapter(this, myConnector.configuration.vrame2);
+	cfgAdapter = new JS.CfgAdapter(this, myConnector.configuration.vrame6);
 	handleDesktopChanged();
 }
 
 function handleDesktopChanged() {
 
-	act_deskCfg = cfgAdapter.findAppropiateCfg(kWindowSystem.currentDesktop);
+	if( ! cfgAdapter) { return; }
+	//<--
+
+	console.log("b");
+	console.log(cfgAdapter);
+	console.log(_Pager.currentPage);
+
+	act_deskCfg = cfgAdapter.findAppropiateCfg(_Pager.currentPage);
 	act_image = imageRepeater.itemAt(act_deskCfg.deskNo);
 	refreshAct_Timeslot();
 }
 
 function refreshAct_Timeslot() {
+
+	llog.say("- - - - - - - - -");
+	llog.say(plasmoid);
+	llog.say(plasmoid.configuration);
+
 
 	let newSlot = act_deskCfg.findAppropiateTimeslot_now();
 
@@ -349,5 +355,6 @@ MouseArea {
 	acceptedButtons: Qt.LeftButton
 	onPressAndHold: action_next();
   onDoubleClicked: action_open();
+}
 }
 }

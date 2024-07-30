@@ -1,0 +1,20 @@
+{
+    "KPackageStructure": "Plasma/Applet",
+    "KPlugin": {
+        "Name": "Vrame 6.0.1",
+        "Description": "Slideshow for virtual desktops",
+        "Version": "6.0.1",
+        "Id": "at.lehklu.plasma.vrame6",
+        "Icon": "preferences-desktop-virtual",
+        "Authors": [
+            {
+                "Email": "werner.lechner@lehklu.at",
+                "Name": "Werner Lechner"
+            }
+        ],
+        "Category": "Utilities",
+        "License": "GPL-2.0+"
+    },
+    "X-KDE-ParentApp": "org.kde.plasmashell",
+    "X-Plasma-API-Minimum-Version": "6.0"
+}
