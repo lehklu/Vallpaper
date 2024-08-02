@@ -35,7 +35,7 @@ property var act_timeslot
         enabled: _Root.visible
         pagerType: PagerModel.VirtualDesktops
 
-        onCurrentPageChanged: { console.log("- - -- -  -");  root.handleDesktopChanged() }
+        onCurrentPageChanged: { root.handleDesktopChanged() }
 	}
 
 
@@ -88,6 +88,9 @@ Rectangle {
 /* /Dev */
 
 color: act_timeslot.background
+width: parent.width
+height: parent.height
+
 
 Connections {
 	target: myConnector.configuration
@@ -98,9 +101,6 @@ Connections {
 Component.onCompleted: {
 
 	setCfgAdapter();
-
-	llog.say("- - - - - - - - - - - - -");
-	llog.say(myConnector);
 
   //myConnector.setAction("open", myActionTextPrefix + "Open image", "document-open");
   //myConnector.setAction("next", myActionTextPrefix + "Next image","user-desktop");
@@ -163,7 +163,6 @@ Repeater {
 			let mfr = this.sMediaFrame;
 
 			mfr.clear();
-
 			for(let $$path of this.sTimeslot.sources)
 			{
 				mfr.add($$path, true); // path, recursive
@@ -185,6 +184,8 @@ Repeater {
 			let This = this;
 
 			this.sMediaFrame.get(function($$path) {
+
+				console.log($$path);
 
 				if($$path.indexOf(':')<0)
 				{
@@ -297,21 +298,18 @@ function handleDesktopChanged() {
 	if( ! cfgAdapter) { return; }
 	//<--
 
-	console.log("b");
-	console.log(cfgAdapter);
+	console.log("*** handleDesktopChanged()");
 	console.log(_Pager.currentPage);
 
 	act_deskCfg = cfgAdapter.findAppropiateCfg(_Pager.currentPage);
 	act_image = imageRepeater.itemAt(act_deskCfg.deskNo);
 	refreshAct_Timeslot();
+	console.log("*** handleDesktopChanged() exit");
 }
 
 function refreshAct_Timeslot() {
 
-	llog.say("- - - - - - - - -");
-	llog.say(plasmoid);
-	llog.say(plasmoid.configuration);
-
+	console.log("*** refreshAct_Timeslot");
 
 	let newSlot = act_deskCfg.findAppropiateTimeslot_now();
 
@@ -321,7 +319,6 @@ function refreshAct_Timeslot() {
 	}
 
 	act_timeslot = act_image.sTimeslot;
-
 
 	// refresh image
 	// refresh image
