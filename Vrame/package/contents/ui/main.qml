@@ -57,6 +57,12 @@ Rectangle {
   		anchors.fill: parent
       color: '#1d1d85'
 
+	  		Component.onCompleted: {
+
+				text="-1";4
+			say("0");
+		}
+
       property var lines: []
 
 			function sayo($o) {
@@ -100,6 +106,7 @@ Connections {
 
 Component.onCompleted: {
 
+	llog.say("A");
 	setCfgAdapter();
 
   //myConnector.setAction("open", myActionTextPrefix + "Open image", "document-open");
@@ -166,7 +173,7 @@ Repeater {
 			for(let $$path of this.sTimeslot.sources)
 			{
 				mfr.add($$path, true); // path, recursive
-				//llog.say($$path);
+				llog.say($$path);
 			}
 
 			if(mfr.count === 0)
@@ -185,7 +192,7 @@ Repeater {
 
 			this.sMediaFrame.get(function($$path) {
 
-				console.log($$path);
+				llog.say($$path);
 
 				if($$path.indexOf(':')<0)
 				{
@@ -202,10 +209,11 @@ Repeater {
 				if($$path!=This.source || $wd===0)
 				{
 					let resanitized = JS.FILENAME_TO_URISAFE($$path);
+					console.log(resanitized);
 					This.source = resanitized;
 					This.iInfo=$$path;
 					This.sTsFetched = Date.now();
-					//llog.say('next ' + $wd + ' ' + This.sMediaFrame.random + ' ' + resanitized);
+					llog.say('next ' + $wd + ' ' + This.sMediaFrame.random + ' ' + resanitized);
 				}
 				else
 				{
@@ -298,18 +306,18 @@ function handleDesktopChanged() {
 	if( ! cfgAdapter) { return; }
 	//<--
 
-	console.log("*** handleDesktopChanged()");
-	console.log(_Pager.currentPage);
+	llog.say("*** handleDesktopChanged()");
+	llog.say(_Pager.currentPage);
 
 	act_deskCfg = cfgAdapter.findAppropiateCfg(_Pager.currentPage);
 	act_image = imageRepeater.itemAt(act_deskCfg.deskNo);
 	refreshAct_Timeslot();
-	console.log("*** handleDesktopChanged() exit");
+	llog.say("*** handleDesktopChanged() exit");
 }
 
 function refreshAct_Timeslot() {
 
-	console.log("*** refreshAct_Timeslot");
+	llog.say("*** refreshAct_Timeslot");
 
 	let newSlot = act_deskCfg.findAppropiateTimeslot_now();
 

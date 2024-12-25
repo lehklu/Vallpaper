@@ -19,7 +19,7 @@ const JSON_TIMESLOT_DEFAULT = `{
 	"colorizeValue": "#00ffffff",
 	"interval": 0,
 	"random": 0,
-	"sources": ["file://%2Fhome%2FDAT4%2F2_s%2FPictureCrawler%2FZ_Desktop%2FBellevue%2F01%2F"]
+	"sources": ["/home/VboxShared/Qt6/images"]
 }`;
 
 const JSON_CFG_DEFAULT = '{ "deskNo": 0, "timeslots": { "' + SLOT_DEFAULT + '": ' + JSON_TIMESLOT_DEFAULT + ' }}';
