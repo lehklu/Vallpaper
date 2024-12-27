@@ -14,12 +14,110 @@ import org.kde.kcmutils
 SimpleKCM {
 	id: generalPage
 
-    Component.onCompleted: {
-      cb_log("SimpleKCM onCompleted")
-      cb_logo(cfg_vrame6)
+	property var cfg_vrame6
+	property var cfg_vrame6Default
+
+  Component.onCompleted: {
+    cb_log("SimpleKCM onCompleted")
+    cb_logo(cfg_vrame6)
+  }
+
+  Column { // Page
+
+    Rectangle { // Select Desktop
+      anchors.left: parent.left
+      anchors.right: parent.right
+      height: childrenRect.height          
+      
+      border.color: "magenta"
+      color: '#00000000'
+      border.width: 1              
+
+      Column {
+        anchors.left: parent.left
+        anchors.right: parent.right
+
+        RowLayout {
+          anchors.left: parent.left
+          anchors.right: parent.right
+
+		      Label {
+		        text: "For desktop"
+          }
+
+          ComboBox {
+            Layout.fillWidth: true
+            model: [
+              "model1",
+              "model2",
+              "model3"
+			      ]
+          }
+
+          Button {
+		        text: "Add"
+            icon.name: "list-add"
+          }
+
+          Button {
+            icon.name: "edit-delete-remove"
+          }      
+        }
+      }
     }
 
-/* Dev */
+    Rectangle { // Timeline
+      anchors.left: parent.left
+      anchors.right: parent.right
+      height: childrenRect.height          
+      
+      border.color: "blue"
+      color: '#00000000'
+      border.width: 1              
+
+      RowLayout {
+        anchors.left: parent.left
+        anchors.right: parent.right        
+        height: childrenRect.height                  
+
+        Label {
+		      text: "Activated at"
+        }
+
+        ScrollView {
+			    Layout.fillWidth: true
+
+          ListView {
+            orientation: ListView.Horizontal
+            width: parent.width
+            model: ListModel {}
+
+            delegate: Button {
+              text: model.slot
+              checkable: true
+            }
+			    }          
+        }
+
+		    Button {
+			    anchors.top: parent.top
+          icon.name: "list-add"                      
+	  	    text: 'Add'
+		    }
+
+		    Button {
+			    anchors.top: parent.top
+          icon.name: "edit-delete-remove"          
+  		  }        
+      }
+    }
+
+  }
+
+
+
+
+  /* Dev */
 Rectangle {
 		z: 1 // z-order
     id: llogBackground
@@ -77,54 +175,4 @@ function cb_logo($o) {
 	llog.sayo($o);
 }
 /* /Dev */
-
-	property var cfg_vrame6
-	property var cfg_vrame6Default
-
-  ColumnLayout {
-
-  RowLayout { // Manage/Select Desktop
-
-    Rectangle {
-      color: "orange"
-      border.color: "black"
-      border.width: 1              
-    }
-
-		Label {
-		  text: "Desktop"
-    }
-
-    ComboBox {
-		  id: dateDisplayFormat
-      model: [
-        "model1",
-        "model2",
-        "model3"
-			]
-    }
-
-    Button {
-		  text: "Add"
-      icon.name: "list-add"
-    }
-
-    Button {
-      icon.name: "edit-delete-remove"
-    }      
-  }
-
-  RowLayout { // Timeline
-    Label {
-		  text: "Timeline"
-    }    
-  }
-
-  RowLayout { // Settings
-    Label {
-		  text: "Settings"
-    }    
-  }
-
-  }
 }

@@ -7,7 +7,6 @@
 <group name="Settings">
 
   <entry name="vrame6" type="StringList">
-    <default></default>
   </entry>
 
 </group>
