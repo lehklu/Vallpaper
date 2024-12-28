@@ -69,44 +69,59 @@ SimpleKCM {
     Rectangle { // Timeline
       anchors.left: parent.left
       anchors.right: parent.right
-      height: childrenRect.height          
+      height: childrenRect.height
       
       border.color: "blue"
       color: '#00000000'
       border.width: 1              
 
+      Component.onCompleted: { // DEV
+        const model = listTimeslots.model;
+        model.append({"slot": "00:00h"});
+        model.append({"slot": "01:00h"});
+        model.append({"slot": "02:00h"});
+        model.append({"slot": "03:00h"});
+        model.append({"slot": "04:00h"});
+        model.append({"slot": "05:00h"});
+        model.append({"slot": "06:00h"});
+        model.append({"slot": "07:00h"});
+        model.append({"slot": "08:00h"});
+      }
+
       RowLayout {
         anchors.left: parent.left
         anchors.right: parent.right        
-        height: childrenRect.height                  
+        height: childrenRect.height
 
         Label {
 		      text: "Activated at"
         }
 
         ScrollView {
-			    Layout.fillWidth: true
+          Layout.fillWidth: true                      
+          Layout.fillHeight: true
+          height: childrenRect.height + effectiveScrollBarHeight
 
           ListView {
+            id: listTimeslots            
+            height: childrenRect.height          
+            clip: true
             orientation: ListView.Horizontal
-            width: parent.width
             model: ListModel {}
 
             delegate: Button {
               text: model.slot
               checkable: true
             }
-			    }          
+			    }                    
         }
 
 		    Button {
-			    anchors.top: parent.top
           icon.name: "list-add"                      
 	  	    text: 'Add'
 		    }
 
 		    Button {
-			    anchors.top: parent.top
           icon.name: "edit-delete-remove"          
   		  }        
       }
