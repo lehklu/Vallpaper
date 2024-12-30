@@ -22,24 +22,10 @@ SimpleKCM {
     cb_logo(cfg_vrame6)
   }
 
-  Column { // Page
+  ColumnLayout { // Container
+	  anchors.fill: parent  
 
-    Rectangle { // Select Desktop
-      anchors.left: parent.left
-      anchors.right: parent.right
-      height: childrenRect.height          
-      
-      border.color: "magenta"
-      color: '#00000000'
-      border.width: 1              
-
-      Column {
-        anchors.left: parent.left
-        anchors.right: parent.right
-
-        RowLayout {
-          anchors.left: parent.left
-          anchors.right: parent.right
+    RowLayout { // Select Desktop
 
 		      Label {
 		        text: "For desktop"
@@ -62,18 +48,9 @@ SimpleKCM {
           Button {
             icon.name: "edit-delete-remove"
           }      
-        }
-      }
     }
 
-    Rectangle { // Timeline
-      anchors.left: parent.left    
-      anchors.right: parent.right
-      height: childrenRect.height
-      
-      border.color: "blue"
-      color: '#00000000'
-      border.width: 1              
+    RowLayout {
 
       Component.onCompleted: { // DEV
         const model = listTimeslots.model;
@@ -87,16 +64,10 @@ SimpleKCM {
         model.append({"slot": "07:00"});
         model.append({"slot": "08:00"});
         listTimeslots.currentIndex=0;
-      }
-
-      RowLayout {
-        anchors.left: parent.left    
-        anchors.right: parent.right        
-        height: childrenRect.height
+      }      
 
         Item {
           Layout.fillWidth: true
-            Rectangle { anchors.fill: parent; color: "#ffaaaa" } // to visualize the spacer
         }
 
         Label {
@@ -116,16 +87,265 @@ SimpleKCM {
 
 		    Button {
           icon.name: "edit-delete-remove"          
-  		  }        
-      }
+  		  }              
+
     }
 
+    GroupBox {
+	    Layout.fillWidth: true
+	    Layout.fillHeight: true      
+      
+      ColumnLayout {
+		    anchors.fill: parent      
+
+		    RowLayout {
+			
+          Label {
+            text: 'Background'
+          }
+
+			    Button {
+
+  				  Rectangle {
+              anchors.centerIn: parent
+              width: 20
+              height: 20
+
+              color: "cyan"
+  				  }
+	  		  }
+		    }
+
+		    RowLayout {
+
+			    Label {
+            text: 'Borders'
+          }
+
+			    SpinBox {
+            stepSize: 1
+            to: 100
+
+				    value: 0
+			    }
+
+			    Label {
+				    text: 'px top (max. ' + 100 + ')'
+			    }
+
+			    SpinBox {
+            stepSize: 1
+            to: 100
+
+				    value: 0
+			    }
+
+			    Label {
+				    text: 'px bottom (max. ' + 100 + ')'
+			    }
+		    }
+
+  		  RowLayout {
+
+		  	  Label {
+            text: '' // spacer
+          }
+
+			    SpinBox {
+            stepSize: 1
+            to: 100
+
+				    value: 0
+			    }
+
+			    Label {
+  				  text: 'px left (max. ' + 100 + ')'
+	  		  }
+
+			    SpinBox {
+            stepSize: 1
+            to: 100
+
+				    value: 0
+			    }
+
+			    Label {
+				    text: 'px right (max. ' + 100 + ')'
+			    }
+		    }
+
+		    RowLayout {
+
+			    Label {
+				    text: 'Fill mode'
+			    }
+
+			    ComboBox {
+				    currentIndex: 0
+
+				    model:
+        	    [
+                'Fill',
+                'Fit',
+                'Fill - preserve aspect ratio',
+                'Tile',
+                'Tile vertically',
+                'Tile horizontally',
+                'As is'
+              ]
+
+			    }
+
+		    }        
+
+		
+        RowLayout {
+
+			    Label {
+				    text: 'Effects'
+			    }
+
+          ColumnLayout {
+
+            Label {
+              horizontalAlignment: Text.AlignHCenter
+					    text: 'Desaturate'
+				    }
+
+				    Slider {
+  					  value: 0
+				    }
+			    }
+
+          ColumnLayout {
+
+            Label {
+              horizontalAlignment: Text.AlignHCenter
+					    text: 'Blur'
+				    }
+
+				    Slider {
+					    value: 0
+				    }
+			    }
+
+          ColumnLayout {
+
+            Label {
+					    text: 'Colorize'
+				    }
+
+    				Slider {
+  					  value: 0
+				    }
+			    }
+
+			    Button {
+
+				    Rectangle {
+              anchors.centerIn: parent
+              width: 20
+              height: 20
+
+              color: 'magenta'
+				    }
+			    }
+		    }
+
+    		RowLayout {
+			  
+          Label {
+            text: 'Interval'
+			    }
+
+          SpinBox {
+            stepSize: 1
+            to: 100
+  				  value: 0
+			    }
+        }        
+
+
+    		RowLayout {
+
+			    Label {
+            text: 'Image sources'
+			    }
+
+			    CheckBox {
+      	    text: 'shuffle'
+
+      	    checked: true
+
+  		    }
+
+          Item {
+            Layout.fillWidth: true
+          }          
+
+				  Button {
+					  text: 'Add folder...'
+				  }
+
+				  Button {
+					  text: 'Add files...'
+				  }
+
+				  Button {
+					  text: 'Use url...'
+				  }          
+
+        }
+
+		    ColumnLayout {
+			    Layout.fillWidth: true
+          Layout.fillHeight: true
+
+
+          Component.onCompleted: { // DEV
+            const model = listSources.model;
+            model.append({"path": "......................."});
+            model.append({"path": "......................."});
+          }                
+
+			    ScrollView {
+      	    Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.minimumHeight: 100
+
+
+            ListView {
+              id: listSources
+        	    width: parent.width
+              model: ListModel {}
+
+              delegate: RowLayout {
+                width: parent.width
+
+                Button {
+                  icon.name: "edit-delete-remove"
+								}
+
+								Text {
+								  Layout.fillWidth: true
+                  text: model.path
+								}
+							}
+				    }
+
+			    }          
+
+        }
+
+
+      }
+    }
   }
 
 
 
 
-  /* Dev */
+  /* Dev *
 Rectangle {
 		z: 1 // z-order
     id: llogBackground
