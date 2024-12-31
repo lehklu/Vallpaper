@@ -11,16 +11,32 @@ import org.kde.plasma.core as PlasmaCore
 import org.kde.kirigami as Kirigami
 import org.kde.kcmutils
 
+import org.kde.plasma.private.pager
+
+import "../js/vallpaper.js" as JS
+
 SimpleKCM {
-	id: generalPage
+	id: _Root
+
+  property var myPlasmoid: plasmoid
 
 	property var cfg_vrame6
-	property var cfg_vrame6Default
+
+  property var cfgAdapter  
 
   Component.onCompleted: {
     cb_log("SimpleKCM onCompleted")
-    cb_logo(cfg_vrame6)
+
+    cfgAdapter = new JS.CfgAdapter(this, cfg_vrame6);
+    setupDesktopConfigs(_Pager.currentPage);    
   }
+
+	PagerModel {
+        id: _Pager
+
+        enabled: _Root.visible
+        pagerType: PagerModel.VirtualDesktops
+	}
 
   ColumnLayout { // Container
 	  anchors.fill: parent  
@@ -32,12 +48,15 @@ SimpleKCM {
           }
 
           ComboBox {
+            id: _DesktopConfigs
             Layout.fillWidth: true
-            model: [
-              "model1",
-              "model2",
-              "model3"
-			      ]
+            model: ListModel {}
+            textRole: 'displayText'
+
+		        Connections {
+			        id: _DesktopConfigsConnections
+
+		        }            
           }
 
           Button {
@@ -53,7 +72,7 @@ SimpleKCM {
     RowLayout {
 
       Component.onCompleted: { // DEV
-        const model = listTimeslots.model;
+        const model = _Timeslots.model;
         model.append({"slot": "00:00"});
         model.append({"slot": "01:00"});
         model.append({"slot": "02:00"});
@@ -63,7 +82,7 @@ SimpleKCM {
         model.append({"slot": "06:00"});
         model.append({"slot": "07:00"});
         model.append({"slot": "08:00"});
-        listTimeslots.currentIndex=0;
+        _Timeslots.currentIndex=0;
       }      
 
         Item {
@@ -75,7 +94,7 @@ SimpleKCM {
         }
 
         ComboBox {
-          id: listTimeslots                      
+          id: _Timeslots                      
           model: ListModel{}
           textRole: "slot"
         }
@@ -303,7 +322,7 @@ SimpleKCM {
 
 
           Component.onCompleted: { // DEV
-            const model = listSources.model;
+            const model = _ImageSources.model;
             model.append({"path": "......................."});
             model.append({"path": "......................."});
           }                
@@ -315,7 +334,7 @@ SimpleKCM {
 
 
             ListView {
-              id: listSources
+              id: _ImageSources
         	    width: parent.width
               model: ListModel {}
 
@@ -345,7 +364,7 @@ SimpleKCM {
 
 
 
-  /* Dev *
+  /* Dev */
 Rectangle {
 		z: 1 // z-order
     id: llogBackground
@@ -365,7 +384,8 @@ Rectangle {
           implicitWidth: 200
           implicitHeight: 40
           color: '#AAffffff'          
-        }            
+        }
+        wrapMode: TextEdit.Wrap
 
         property int autoclear:0
 
@@ -403,4 +423,92 @@ function cb_logo($o) {
 	llog.sayo($o);
 }
 /* /Dev */
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+function setupDesktopConfigs($currentDeskNo) {
+
+	let activateNo = JS.CFG_DESKNO_DEFAULT;
+
+	// fill model
+	const memConnTarget = _DesktopConfigsConnections.target;
+	_DesktopConfigsConnections.target = null;
+
+	for(const $$cfg of cfgAdapter.getCfgs())
+	{
+		insertDesktopElement(buildDesktopElement($$cfg.deskNo));
+
+		if($$cfg.deskNo === $currentDeskNo)
+		{
+			activateNo = $$cfg.deskNo;
+		}
+	}
+
+	_DesktopConfigsConnections.target = memConnTarget;
+
+
+  // activate current
+  const model = _DesktopConfigs.model;  
+
+	let activateIndex = 0;
+	for(let i = 0; i < model.count; ++i)
+	{
+		if(model.get(i).deskNo === activateNo)
+		{
+			activateIndex = i;
+			break;
+			// <--
+		}
+	}
+
+	if(_DesktopConfigs.currentIndex == activateIndex)
+	{
+		chooseDesktop__handleCurrentIndexChanged();
+	}
+	else
+	{
+		_DesktopConfigs.currentIndex = activateIndex;
+	}
+}
+
+function buildDesktopElement($deskNo) {
+
+	const orderText = '#' + ('  '+$deskNo).slice(-3);
+  const deskName = _Pager.data(_Pager.index($deskNo, 0), 0)
+
+	return {
+		'displayText': (JS.CFG_DESKNO_DEFAULT===$deskNo?'*':deskName),
+    'deskNo': $deskNo,
+    'orderText': orderText
+		}
+}
+
+function insertDesktopElement($desktopElement) {
+
+  const model = _DesktopConfigs.model;
+
+	let idx = 0;
+	while(idx < model.count && $desktopElement.orderText > model.get(idx).orderText)
+	{
+		++idx;
+	}
+
+	if(model.count===0)
+	{
+		model.append($desktopElement);
+	}
+	else
+	{
+		model.insert(idx, $desktopElement);
+	}
+
+	_DesktopConfigs.currentIndex = idx;
+}
+
 }
