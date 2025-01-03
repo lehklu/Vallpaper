@@ -21,14 +21,17 @@ SimpleKCM {
   property var myPlasmoid: plasmoid
 
 	property var cfg_vrame6
+  property var cfg_vrame6Default // unused
 
   property var cfgAdapter  
+
+  property var act_desktop  
 
   Component.onCompleted: {
     cb_log("SimpleKCM onCompleted")
 
     cfgAdapter = new JS.CfgAdapter(this, cfg_vrame6);
-    setupDesktopConfigs(_Pager.currentPage);    
+    desktopConfigs__init(_Pager.currentPage);    
   }
 
 	PagerModel {
@@ -56,34 +59,28 @@ SimpleKCM {
 		        Connections {
 			        id: _DesktopConfigsConnections
 
+              function onCurrentIndexChanged() { desktopConfigs__handleCurrentIndexChanged(); }
+              function onCountChanged() { desktopConfigs__updateButtonsState();}
 		        }            
           }
 
           Button {
+            id: btnAddDesktopConfig
 		        text: "Add"
             icon.name: "list-add"
+
+            onClicked: dlgAddConfig.open()
           }
 
           Button {
+            id: btnRemoveDesktopConfig
             icon.name: "edit-delete-remove"
+
+            onClicked: desktopConfigs__removeConfig()
           }      
     }
 
     RowLayout {
-
-      Component.onCompleted: { // DEV
-        const model = _Timeslots.model;
-        model.append({"slot": "00:00"});
-        model.append({"slot": "01:00"});
-        model.append({"slot": "02:00"});
-        model.append({"slot": "03:00"});
-        model.append({"slot": "04:00"});
-        model.append({"slot": "05:00"});
-        model.append({"slot": "06:00"});
-        model.append({"slot": "07:00"});
-        model.append({"slot": "08:00"});
-        _Timeslots.currentIndex=0;
-      }      
 
         Item {
           Layout.fillWidth: true
@@ -97,15 +94,31 @@ SimpleKCM {
           id: _Timeslots                      
           model: ListModel{}
           textRole: "slot"
+
+          Connections {
+			      id: _TimeslotsConnections
+
+            function onCurrentIndexChanged() { timeslots__handleCurrentIndexChanged(); }
+            function onCountChanged() { timeslots__updateButtonsState();}
+		      }                      
+
+  				property alias desktopConfig: _Root.act_desktop
+				  onDesktopConfigChanged: timeslots__init()
         }
 
 		    Button {
+          id: btnAddTimeslot
           icon.name: "list-add"                      
 	  	    text: 'Add'
+
+          onClicked: dlgAddTimeslot.open()
 		    }
 
 		    Button {
+          id: btnRemoveTimeslot
           icon.name: "edit-delete-remove"          
+
+          onClicked: timeslots__removeTimeslot()
   		  }              
 
     }
@@ -114,6 +127,13 @@ SimpleKCM {
 	    Layout.fillWidth: true
 	    Layout.fillHeight: true      
       
+      background: Rectangle {
+        anchors.fill: parent
+        color: '#00ffffff'
+        border.width: 1
+        radius: 5
+      }
+
       ColumnLayout {
 		    anchors.fill: parent      
 
@@ -368,24 +388,23 @@ SimpleKCM {
 Rectangle {
 		z: 1 // z-order
     id: llogBackground
-    visible: llog.text.length>0
-    width: parent.width * 0.8
-    height: parent.height * 0.3
-    anchors.bottom: parent.bottom
-    //anchors.bottomMargin: 50
-    //anchors.horizontalCenter: parent.horizontalCenter
+    anchors.fill: parent
+    anchors.topMargin: parent.height*0.5
+    color: '#00ff0000'                  
 
-    TextArea {
+    ScrollView {
+      anchors.fill: parent      
+      background: Rectangle {
+        color: '#0000ff00'
+      }      
+
+      TextArea {
         id: llog
-        width: parent.width
-        height: parent.height
-        anchors.fill: parent
         background: Rectangle {
-          implicitWidth: 200
-          implicitHeight: 40
-          color: '#AAffffff'          
+          color: '#88ffffff'
         }
         wrapMode: TextEdit.Wrap
+        horizontalAlignment: TextEdit.AlignRight
 
         property int autoclear:0
 
@@ -410,7 +429,9 @@ Rectangle {
                 clear();
             }
         }
+      }
     }
+    
 }
 
 function cb_log($o) {
@@ -425,14 +446,157 @@ function cb_logo($o) {
 /* /Dev */
 
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Dialog {
+	id: dlgAddConfig
+  width: parent.width * 0.6
+
+	title: 'Add config for'
+  standardButtons: Dialog.Ok | Dialog.Cancel
+
+  onAccepted: {
+
+    const element = _ComboAddConfig.model[_ComboAddConfig.currentIndex];
+    const currentDesktopConfigDeskNo = _DesktopConfigs.model.get(_DesktopConfigs.model.currentIndex).deskNo;
+
+    cfgAdapter.newCfgFor_clone(element.deskNo, currentDesktopConfigDeskNo);
+
+    desktopConfigs__insertElement(element);
+	}
+
+  onVisibleChanged: {
+
+  	if(!visible) { return; }
+    // <--
+
+
+	  const existingDeskNos = [];
+	  for(let i = 0; i < _DesktopConfigs.model.count; ++i)
+	  {
+		  existingDeskNos.push(_DesktopConfigs.model.get(i).deskNo);
+	  }
+
+		const myModel = [];
+		for(let i=0; i<_Pager.count+1; ++i)
+    {
+      const deskNo = i;
+      if(existingDeskNos.includes(deskNo)) { continue; }
+      //<--
+
+
+      myModel.push(desktopConfigs__buildElement(deskNo));
+		}
+	
+  	_ComboAddConfig.model = myModel;
+	}
+
+	ComboBox {
+		id: _ComboAddConfig
+		width: parent.width
+    textRole: 'displayText'    
+	}
+}
+
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function setupDesktopConfigs($currentDeskNo) {
+function timeslots__init() {
+
+	const memConnTarget = _TimeslotsConnections.target;
+	_TimeslotsConnections.target = null;
+
+	_Timeslots.model.clear();
+	const nowTimeslot = act_desktop.findAppropiateTimeslot_now();  
+	const orderedTimeslots = act_desktop.getTimeslots();
+
+	let activateIdx = 0;
+	for(let $$i in orderedTimeslots)
+	{
+		const timeslot = orderedTimeslots[$$i];
+
+		timeslots__insertElement({ 'slot': timeslot });
+
+    if(timeslot===nowTimeslot)
+    {
+      activateIdx = $$i;
+    }
+	}
+
+	_TimeslotsConnections.target = memConnTarget;
+
+
+	// activate
+	if(_Timeslots.currentIndex == activateIdx)
+	{
+		timeslots__handleCurrentIndexChanged();
+	}
+	else
+	{
+		_Timeslots.currentIndex = activateIdx;
+	}  
+
+
+}
+
+function timeslots__insertElement($timeslotsElement) {
+
+  const model = _DesktopConfigs.model;
+
+	let idx = 0;
+	while(idx < model.count && $desktopElement.orderText > model.get(idx).orderText)
+	{
+		++idx;
+	}
+
+	if(model.count===0)
+	{
+		model.append($desktopElement);
+	}
+	else
+	{
+		model.insert(idx, $desktopElement);
+	}
+
+	_DesktopConfigs.currentIndex = idx;
+}
+
+
+
+function desktopConfigs__removeConfig() {
+
+	cfgAdapter.deleteCfg(_DesktopConfigs.model.get(_DesktopConfigs.currentIndex).deskNo);
+
+	_DesktopConfigs.model.remove(_DesktopConfigs.currentIndex);
+
+	_DesktopConfigs.currentIndex = Math.min(_DesktopConfigs.currentIndex, _DesktopConfigs.model.count - 1);
+}
+
+function desktopConfigs__updateButtonsState() {
+
+	btnAddDesktopConfig.enabled = _DesktopConfigs.model.count < _Pager.count+1;
+
+	btnRemoveDesktopConfig.enabled = _DesktopConfigs.currentIndex > JS.CFG_DESKNO_DEFAULT;
+}
+
+
+function desktopConfigs__handleCurrentIndexChanged() {
+
+	desktopConfigs__updateButtonsState();
+
+	act_desktop = cfgAdapter.getCfg(_DesktopConfigs.model.get(_DesktopConfigs.currentIndex).deskNo);
+}
+
+function desktopConfigs__init($currentConfigDeskNo) {
 
 	let activateNo = JS.CFG_DESKNO_DEFAULT;
 
@@ -442,9 +606,9 @@ function setupDesktopConfigs($currentDeskNo) {
 
 	for(const $$cfg of cfgAdapter.getCfgs())
 	{
-		insertDesktopElement(buildDesktopElement($$cfg.deskNo));
+		desktopConfigs__insertElement(desktopConfigs__buildElement($$cfg.deskNo));
 
-		if($$cfg.deskNo === $currentDeskNo)
+		if($$cfg.deskNo === $currentConfigDeskNo)
 		{
 			activateNo = $$cfg.deskNo;
 		}
@@ -469,7 +633,7 @@ function setupDesktopConfigs($currentDeskNo) {
 
 	if(_DesktopConfigs.currentIndex == activateIndex)
 	{
-		chooseDesktop__handleCurrentIndexChanged();
+		desktopConfigs__handleCurrentIndexChanged();
 	}
 	else
 	{
@@ -477,19 +641,18 @@ function setupDesktopConfigs($currentDeskNo) {
 	}
 }
 
-function buildDesktopElement($deskNo) {
+function desktopConfigs__buildElement($deskNo) {
 
 	const orderText = '#' + ('  '+$deskNo).slice(-3);
-  const deskName = _Pager.data(_Pager.index($deskNo, 0), 0)
 
 	return {
-		'displayText': (JS.CFG_DESKNO_DEFAULT===$deskNo?'*':deskName),
+		'displayText': (JS.CFG_DESKNO_DEFAULT===$deskNo?'*':_Pager.data(_Pager.index($deskNo-1, 0), 0)),
     'deskNo': $deskNo,
     'orderText': orderText
 		}
 }
 
-function insertDesktopElement($desktopElement) {
+function desktopConfigs__insertElement($desktopElement) {
 
   const model = _DesktopConfigs.model;
 
