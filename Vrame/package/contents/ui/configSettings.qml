@@ -26,6 +26,7 @@ SimpleKCM {
   property var cfgAdapter  
 
   property var act_desktop  
+  property var act_timeslot
 
   Component.onCompleted: {
     cb_log("SimpleKCM onCompleted")
@@ -524,7 +525,7 @@ function timeslots__init() {
 	{
 		const timeslot = orderedTimeslots[$$i];
 
-		timeslots__insertElement({ 'slot': timeslot });
+		timeslots__insertElement({ 'slot': timeslot.slot });
 
     if(timeslot===nowTimeslot)
     {
@@ -550,25 +551,59 @@ function timeslots__init() {
 
 function timeslots__insertElement($timeslotsElement) {
 
-  const model = _DesktopConfigs.model;
+  const model = _Timeslots.model;
 
 	let idx = 0;
-	while(idx < model.count && $desktopElement.orderText > model.get(idx).orderText)
+	while(idx < model.count && $timeslotsElement.slot > model.get(idx).slot)
 	{
 		++idx;
 	}
 
 	if(model.count===0)
 	{
-		model.append($desktopElement);
+		model.append($timeslotsElement);
 	}
 	else
 	{
-		model.insert(idx, $desktopElement);
+		model.insert(idx, $timeslotsElement);
 	}
 
-	_DesktopConfigs.currentIndex = idx;
+	_Timeslots.currentIndex = idx;
 }
+
+function timeslots__handleCurrentIndexChanged() {
+
+	timetable__updateButtonState();
+
+	act_timeslot = act_desktop.getTimeslot(_Timeslots.model.get(_Timeslots.currentIndex).slot);
+  cb_logo(_Timeslots.model.get(0));
+  cb_log("-----------------");
+  cb_logo(_Timeslots.model.get(_Timeslots.currentIndex).fillMode);
+	cb_log('act_ #' + act_desktop.deskNo + ' @' + act_timeslot.slot);
+}
+
+function timetable__updateButtonState() {
+
+	btnAddTimeslot.enabled = _Timeslots.model.count < 60 * 24;
+
+	btnRemoveTimeslot.enabled = _Timeslots.currentIndex > 0;
+}
+
+function timetable__handleSlotClicked($theClicked, $index) {
+
+	let w = listTimeslots;
+
+	if(w.currentIndex !== $index)
+	{
+		w.currentIndex = $index;
+	}
+	else
+	{
+		$theClicked.checked = true;
+	}
+}
+
+
 
 
 
