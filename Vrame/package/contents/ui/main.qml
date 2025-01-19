@@ -319,7 +319,7 @@ function refreshAct_Timeslot() {
 
 	llog.say("*** refreshAct_Timeslot");
 
-	let newSlot = act_deskCfg.findAppropiateTimeslot_now();
+	let newSlot = act_deskCfg.findAppropiateTimeslotCfg_now();
 
 	if(newSlot !== act_image.sTimeslot)
 	{

@@ -25,8 +25,8 @@ SimpleKCM {
 
   property var cfgAdapter  
 
-  property var act_desktop  
-  property var act_timeslot
+  property var act_desktopCfg  
+  property var act_timeslotCfg
 
   Component.onCompleted: {
     cb_log("SimpleKCM onCompleted")
@@ -94,7 +94,6 @@ SimpleKCM {
         ComboBox {
           id: _Timeslots                      
           model: ListModel{}
-          textRole: "slot"
 
           Connections {
 			      id: _TimeslotsConnections
@@ -103,7 +102,7 @@ SimpleKCM {
             function onCountChanged() { timeslots__updateButtonsState();}
 		      }                      
 
-  				property alias desktopConfig: _Root.act_desktop
+  				property alias desktopConfig: _Root.act_desktopCfg
 				  onDesktopConfigChanged: timeslots__init()
         }
 
@@ -452,6 +451,92 @@ function cb_logo($o) {
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Dialog {
+	id: dlgAddTimeslot
+	width: parent.width * 0.5
+
+	title: 'Add begin time'
+  standardButtons: Dialog.Cancel
+
+  property var excludeSlots: []
+  property string newSlot
+
+  property var handleOnAccepted
+  onAccepted: handleOnAccepted(util__buildElementTimetable(newSlot))
+
+  Component.onCompleted: initModels();
+
+  onVisibleChanged: {
+
+  	if(!visible)
+  		return;
+  		// <--
+
+
+		buildNewSlot();
+		}
+
+	RowLayout {
+
+		ComboBox {
+			id: comboHour
+      model: ListModel {}
+
+			onCurrentIndexChanged: dlgAddTimeslot.buildNewSlot();
+		}
+
+		Label {
+    	text: ':'
+		}
+
+		ComboBox {
+			id: comboMinute
+      model: ListModel {}
+
+			onCurrentIndexChanged: dlgAddTimeslot.buildNewSlot();
+		}
+
+		Button {
+			id: btnAdd
+  		text: 'Add'
+
+  		onClicked: dlgAddTimeslot.accept()
+		}
+  }
+
+  function initModels() {
+
+  	const mh = comboHour.model;
+  	for(let i = 0; i < 24; ++i)
+  	{
+  		const text = ('00'+i).slice(-2);
+  		mh.append({'text': text});
+  	}
+
+		const mm = comboMinute.model;
+  	for(let i = 0; i < 60; ++i)
+  	{
+  		let text = ('00'+i).slice(-2);
+  		mm.append({'text': text});
+  	}
+  }
+
+  function buildNewSlot() {
+
+  	if(comboHour.currentIndex < 0 || comboMinute.currentIndex < 0)
+  		return;
+  		//<--
+
+
+  	let hh = comboHour.model[comboHour.currentIndex].text;
+  	let mm = comboMinute.model[comboMinute.currentIndex].text;
+
+  	newSlot = hh + ':' + mm;
+  	btnAdd.enabled = !excludeSlots.includes(newSlot);
+  }
+}
+
+
 
 Dialog {
 	id: dlgAddConfig
@@ -517,17 +602,17 @@ function timeslots__init() {
 	_TimeslotsConnections.target = null;
 
 	_Timeslots.model.clear();
-	const nowTimeslot = act_desktop.findAppropiateTimeslot_now();  
-	const orderedTimeslots = act_desktop.getTimeslots();
+	const nowTimeslotCfg = act_desktopCfg.findAppropiateTimeslotCfg_now();  
+	const orderedTimeslotCfgs = act_desktopCfg.getTimeslotCfgs();
 
 	let activateIdx = 0;
-	for(let $$i in orderedTimeslots)
+	for(let $$i in orderedTimeslotCfgs)
 	{
-		const timeslot = orderedTimeslots[$$i];
+		const timeslotCfg = orderedTimeslotCfgs[$$i];
 
-		timeslots__insertElement({ 'slot': timeslot.slot });
+		timeslots__insertSlot({"slotmarker": timeslotCfg.slot});
 
-    if(timeslot===nowTimeslot)
+    if(timeslotCfg===nowTimeslotCfg)
     {
       activateIdx = $$i;
     }
@@ -549,23 +634,23 @@ function timeslots__init() {
 
 }
 
-function timeslots__insertElement($timeslotsElement) {
+function timeslots__insertSlot($slot) {
 
   const model = _Timeslots.model;
 
 	let idx = 0;
-	while(idx < model.count && $timeslotsElement.slot > model.get(idx).slot)
+	while(idx < model.count && $slot > model.get(idx))
 	{
 		++idx;
 	}
 
 	if(model.count===0)
 	{
-		model.append($timeslotsElement);
+		model.append($slot);
 	}
 	else
 	{
-		model.insert(idx, $timeslotsElement);
+		model.insert(idx, $slot);
 	}
 
 	_Timeslots.currentIndex = idx;
@@ -575,11 +660,10 @@ function timeslots__handleCurrentIndexChanged() {
 
 	timetable__updateButtonState();
 
-	act_timeslot = act_desktop.getTimeslot(_Timeslots.model.get(_Timeslots.currentIndex).slot);
+	act_timeslotCfg = act_desktopCfg.getTimeslot(_Timeslots.model.get(_Timeslots.currentIndex).slotmarker);
   cb_logo(_Timeslots.model.get(0));
   cb_log("-----------------");
-  cb_logo(_Timeslots.model.get(_Timeslots.currentIndex).fillMode);
-	cb_log('act_ #' + act_desktop.deskNo + ' @' + act_timeslot.slot);
+	cb_log('act_ #' + act_desktopCfg.deskNo + ' @' + act_timeslotCfg.slot);
 }
 
 function timetable__updateButtonState() {
@@ -628,7 +712,7 @@ function desktopConfigs__handleCurrentIndexChanged() {
 
 	desktopConfigs__updateButtonsState();
 
-	act_desktop = cfgAdapter.getCfg(_DesktopConfigs.model.get(_DesktopConfigs.currentIndex).deskNo);
+	act_desktopCfg = cfgAdapter.getCfg(_DesktopConfigs.model.get(_DesktopConfigs.currentIndex).deskNo);
 }
 
 function desktopConfigs__init($currentConfigDeskNo) {

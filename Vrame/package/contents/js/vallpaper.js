@@ -144,7 +144,7 @@ class DesktopCfg {
 		return this.timeslots[$slot];
 	}
 
-	findAppropiateTimeslot_now() {
+	findAppropiateTimeslotCfg_now() {
 
 		let d = new Date();
 		let nowSlot = ('00' + d.getHours()).slice(-2) + ':' + ('00' + d.getMinutes()).slice(-2);
@@ -166,7 +166,7 @@ class DesktopCfg {
 		return this.timeslots[hit];
 	}
 
-	getTimeslots() {
+	getTimeslotCfgs() {
 
 		let keys = Object.keys(this.timeslots).sort();
 
