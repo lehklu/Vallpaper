@@ -453,16 +453,21 @@ function cb_logo($o) {
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Dialog {
 	id: dlgAddTimeslot
-	width: parent.width * 0.5
 
-	title: 'Add begin time'
+	title: 'Add Settings activated at'
   standardButtons: Dialog.Cancel
 
   property var excludeSlots: []
   property string newSlot
 
-  property var handleOnAccepted
-  onAccepted: handleOnAccepted(util__buildElementTimetable(newSlot))
+  onAccepted: {
+
+    const element = {"slotmarker": newSlot};
+
+		cfgAdapter.newTimeslotFor_clone(act_desktopCfg, element.slotmarker, _Timeslots.model.get(_Timeslots.currentIndex).slotmarker);
+
+    timeslots__insertSlot(element);
+	}
 
   Component.onCompleted: initModels();
 
@@ -473,6 +478,13 @@ Dialog {
   		// <--
 
 
+	  let slots = [];
+	  for(let i = 0; i < _Timeslots.model.count; ++i)
+	  {
+		  slots.push( _Timeslots.model.get(i).slotmarker);
+	  }
+	  dlgAddTimeslot.excludeSlots = slots;
+
 		buildNewSlot();
 		}
 
@@ -481,6 +493,7 @@ Dialog {
 		ComboBox {
 			id: comboHour
       model: ListModel {}
+      textRole: 'text'
 
 			onCurrentIndexChanged: dlgAddTimeslot.buildNewSlot();
 		}
@@ -492,6 +505,7 @@ Dialog {
 		ComboBox {
 			id: comboMinute
       model: ListModel {}
+      textRole: 'text'
 
 			onCurrentIndexChanged: dlgAddTimeslot.buildNewSlot();
 		}
@@ -512,6 +526,7 @@ Dialog {
   		const text = ('00'+i).slice(-2);
   		mh.append({'text': text});
   	}
+    comboHour.currentIndex = 0;
 
 		const mm = comboMinute.model;
   	for(let i = 0; i < 60; ++i)
@@ -519,6 +534,7 @@ Dialog {
   		let text = ('00'+i).slice(-2);
   		mm.append({'text': text});
   	}
+    comboMinute.currentIndex = 0;
   }
 
   function buildNewSlot() {
@@ -528,8 +544,8 @@ Dialog {
   		//<--
 
 
-  	let hh = comboHour.model[comboHour.currentIndex].text;
-  	let mm = comboMinute.model[comboMinute.currentIndex].text;
+  	let hh = comboHour.model.get(comboHour.currentIndex).text;
+  	let mm = comboMinute.model.get(comboMinute.currentIndex).text;
 
   	newSlot = hh + ':' + mm;
   	btnAdd.enabled = !excludeSlots.includes(newSlot);
@@ -542,7 +558,7 @@ Dialog {
 	id: dlgAddConfig
   width: parent.width * 0.6
 
-	title: 'Add config for'
+	title: 'Add Settings for'
   standardButtons: Dialog.Ok | Dialog.Cancel
 
   onAccepted: {
@@ -658,7 +674,7 @@ function timeslots__insertSlot($slot) {
 
 function timeslots__handleCurrentIndexChanged() {
 
-	timetable__updateButtonState();
+	timeslots__updateButtonsState();
 
 	act_timeslotCfg = act_desktopCfg.getTimeslot(_Timeslots.model.get(_Timeslots.currentIndex).slotmarker);
   cb_logo(_Timeslots.model.get(0));
@@ -666,25 +682,20 @@ function timeslots__handleCurrentIndexChanged() {
 	cb_log('act_ #' + act_desktopCfg.deskNo + ' @' + act_timeslotCfg.slot);
 }
 
-function timetable__updateButtonState() {
+function timeslots__updateButtonsState() {
 
 	btnAddTimeslot.enabled = _Timeslots.model.count < 60 * 24;
 
 	btnRemoveTimeslot.enabled = _Timeslots.currentIndex > 0;
 }
 
-function timetable__handleSlotClicked($theClicked, $index) {
+function timeslots__removeTimeslot() {
 
-	let w = listTimeslots;
+	cfgAdapter.deleteTimeslot(act_desktopCfg, _Timeslots.model.get(_Timeslots.currentIndex).slot);
 
-	if(w.currentIndex !== $index)
-	{
-		w.currentIndex = $index;
-	}
-	else
-	{
-		$theClicked.checked = true;
-	}
+	_Timeslots.model.remove(_Timeslots.currentIndex);
+
+	_Timeslots.currentIndex = Math.max(0, _Timeslots.currentIndex - 1);
 }
 
 
