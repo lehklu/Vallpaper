@@ -5,7 +5,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import QtQuick.Dialogs as QtDialogs
+import QtQuick.Dialogs
 import org.kde.plasma.plasmoid
 import org.kde.plasma.core as PlasmaCore
 import org.kde.kirigami as Kirigami
@@ -145,42 +145,75 @@ SimpleKCM {
 
 			    Button {
 
+            property alias myCfg: _Root.act_timeslotCfg
+            onMyCfgChanged: myColor = myCfg.background            
+
+            property string myColor
+            onMyColorChanged: cfgAdapter.propagateChange(() => {
+        	    myCfg.background = myColor;
+            });
+
+            onClicked: {
+
+	            dlgSelectColor.selectedColor = myColor;
+              dlgSelectColor.options = myPlasmoid === plasmoid?ColorDialog.ShowAlphaChannel:0;
+	            dlgSelectColor.handleOnAccepted = ($$selectedColor) => {
+	              myColor = $$selectedColor.toString();
+	            };
+
+	            dlgSelectColor.open();
+            }
+
   				  Rectangle {
               anchors.centerIn: parent
               width: 20
               height: 20
 
-              color: "cyan"
+              color: parent.myColor
   				  }
 	  		  }
 		    }
 
 		    RowLayout {
+          id: _Borders
 
+          property var myHeight: Screen.height
+          property var myWidth: Screen.width
+    
 			    Label {
             text: 'Borders'
           }
 
 			    SpinBox {
             stepSize: 1
-            to: 100
+            to: _Borders.myHeight
 
-				    value: 0
+            property alias myCfg: _Root.act_timeslotCfg
+            onMyCfgChanged: value = myCfg.borderTop
+
+            onValueChanged: cfgAdapter.propagateChange(() => {
+        	    myCfg.borderTop = value;
+            });            
 			    }
 
 			    Label {
-				    text: 'px top (max. ' + 100 + ')'
+				    text: 'px top (max. ' + _Borders.myHeight + ')'
 			    }
 
 			    SpinBox {
             stepSize: 1
-            to: 100
+            to: _Borders.myHeight
 
-				    value: 0
+            property alias myCfg: _Root.act_timeslotCfg
+            onMyCfgChanged: value = myCfg.borderBottom
+
+            onValueChanged: cfgAdapter.propagateChange(() => {
+        	    myCfg.borderBottom = value;
+            });                        
 			    }
 
 			    Label {
-				    text: 'px bottom (max. ' + 100 + ')'
+				    text: 'px bottom (max. ' + _Borders.myHeight + ')'
 			    }
 		    }
 
@@ -192,24 +225,34 @@ SimpleKCM {
 
 			    SpinBox {
             stepSize: 1
-            to: 100
+            to: _Borders.myWidth
 
-				    value: 0
+            property alias myCfg: _Root.act_timeslotCfg
+            onMyCfgChanged: value = myCfg.borderLeft
+
+            onValueChanged: cfgAdapter.propagateChange(() => {
+        	    myCfg.borderLeft = value;
+            });                                    
 			    }
 
 			    Label {
-  				  text: 'px left (max. ' + 100 + ')'
+  				  text: 'px left (max. ' + _Borders.myWidth + ')'
 	  		  }
 
 			    SpinBox {
             stepSize: 1
-            to: 100
+            to: _Borders.myWidth
 
-				    value: 0
+            property alias myCfg: _Root.act_timeslotCfg
+            onMyCfgChanged: value = myCfg.borderRight
+
+            onValueChanged: cfgAdapter.propagateChange(() => {
+        	    myCfg.borderRight = value;
+            });                                    
 			    }
 
 			    Label {
-				    text: 'px right (max. ' + 100 + ')'
+				    text: 'px right (max. ' + _Borders.myWidth + ')'
 			    }
 		    }
 
@@ -221,18 +264,41 @@ SimpleKCM {
 
 			    ComboBox {
 				    currentIndex: 0
+            textRole: 'text'
+
+            property alias myCfg: _Root.act_timeslotCfg
+            onMyCfgChanged: currentIndex = indexFromFillMode(myCfg.fillMode)
+
+            onCurrentIndexChanged: cfgAdapter.propagateChange(() => {
+        	    myCfg.fillMode = model[currentIndex].value;
+            });                                                
 
 				    model:
         	    [
-                'Fill',
-                'Fit',
-                'Fill - preserve aspect ratio',
-                'Tile',
-                'Tile vertically',
-                'Tile horizontally',
-                'As is'
+                { 'text': 'Stretch',                           'value': Image.Stretch },
+                { 'text': 'Fit',                            'value': Image.PreserveAspectFit },
+                { 'text': 'Crop',   'value': Image.PreserveAspectCrop },
+                { 'text': 'Tile',                           'value': Image.Tile },
+                { 'text': 'Tile vertically',                'value': Image.TileVertically },
+                { 'text': 'Tile horizontally',              'value': Image.TileHorizontally },
+                { 'text': 'As is',                          'value': Image.Pad }                
               ]
 
+            function indexFromFillMode($mode) {
+
+        	    let idx;
+
+					    for(idx in model)
+              {
+          	    if(model[idx].value===$mode)
+          	    {
+ 							    break;
+ 							    //<--
+          	    }
+					    }
+
+        	    return idx;
+            }              
 			    }
 
 		    }        
@@ -252,7 +318,12 @@ SimpleKCM {
 				    }
 
 				    Slider {
-  					  value: 0
+              property alias myCfg: _Root.act_timeslotCfg
+              onMyCfgChanged: value = myCfg.desaturate
+
+              onValueChanged: cfgAdapter.propagateChange(() => {
+          	    myCfg.desaturate = value;
+              });                                                  
 				    }
 			    }
 
@@ -264,7 +335,12 @@ SimpleKCM {
 				    }
 
 				    Slider {
-					    value: 0
+              property alias myCfg: _Root.act_timeslotCfg
+              onMyCfgChanged: value = myCfg.blur
+
+              onValueChanged: cfgAdapter.propagateChange(() => {
+          	    myCfg.blur = value;
+              });                                                                
 				    }
 			    }
 
@@ -275,19 +351,45 @@ SimpleKCM {
 				    }
 
     				Slider {
-  					  value: 0
+              property alias myCfg: _Root.act_timeslotCfg
+              onMyCfgChanged: value = myCfg.colorize
+
+              onValueChanged: cfgAdapter.propagateChange(() => {
+          	    myCfg.colorize = value;
+                effects__updateColorizeValue(myCfg);
+              });                                
 				    }
 			    }
 
 			    Button {
 
-				    Rectangle {
+            property alias myCfg: _Root.act_timeslotCfg
+            onMyCfgChanged: myColor = myCfg.colorizeColor
+
+            property string myColor
+            onMyColorChanged: cfgAdapter.propagateChange(() => {
+        	    myCfg.colorizeColor = myColor;
+              effects__updateColorizeValue(myCfg);
+            });
+
+            onClicked: {
+
+	            dlgSelectColor.selectedColor = myColor;
+              dlgSelectColor.options = myPlasmoid === plasmoid?ColorDialog.ShowAlphaChannel:0;
+	            dlgSelectColor.handleOnAccepted = ($$selectedColor) => {
+	              myColor = $$selectedColor.toString();
+	            };
+
+	            dlgSelectColor.open();
+            }
+
+  				  Rectangle {
               anchors.centerIn: parent
               width: 20
               height: 20
 
-              color: 'magenta'
-				    }
+              color: parent.myColor
+  				  }
 			    }
 		    }
 
@@ -298,10 +400,23 @@ SimpleKCM {
 			    }
 
           SpinBox {
+            id: _Interval
+
             stepSize: 1
-            to: 100
-  				  value: 0
+            readonly property IntValidator intValidator: IntValidator {}
+            to: intValidator.top
+
+            property alias myCfg: _Root.act_timeslotCfg
+            onMyCfgChanged: value = myCfg.interval
+
+            onValueChanged: cfgAdapter.propagateChange(() => {
+        	    myCfg.interval = value;
+            });                                    
 			    }
+
+			    Label {
+  				  text: _Interval.value==0?'':_Interval.value==1?'second':'seconds'
+	  		  }          
         }        
 
 
@@ -451,6 +566,17 @@ function cb_logo($o) {
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ColorDialog {
+	id: dlgSelectColor
+
+  title: "Select color"
+  modality: Qt.WindowModal
+
+  property var handleOnAccepted
+  onAccepted: handleOnAccepted(selectedColor)
+}
+
+
 Dialog {
 	id: dlgAddTimeslot
 
@@ -677,9 +803,6 @@ function timeslots__handleCurrentIndexChanged() {
 	timeslots__updateButtonsState();
 
 	act_timeslotCfg = act_desktopCfg.getTimeslot(_Timeslots.model.get(_Timeslots.currentIndex).slotmarker);
-  cb_logo(_Timeslots.model.get(0));
-  cb_log("-----------------");
-	cb_log('act_ #' + act_desktopCfg.deskNo + ' @' + act_timeslotCfg.slot);
 }
 
 function timeslots__updateButtonsState() {
@@ -802,6 +925,12 @@ function desktopConfigs__insertElement($desktopElement) {
 	}
 
 	_DesktopConfigs.currentIndex = idx;
+}
+
+function effects__updateColorizeValue($slot) {
+
+	let alpha = Math.round(255 * $slot.colorize);
+	$slot.colorizeValue = '#' + ("00" + alpha.toString(16)).substr(-2) + $slot.colorizeColor.substr(-6);
 }
 
 }
