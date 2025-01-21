@@ -67,10 +67,9 @@ SimpleKCM {
 
           Button {
             id: btnAddDesktopConfig
-		        text: "Add"
             icon.name: "list-add"
 
-            onClicked: dlgAddConfig.open()
+            onClicked: _DlgAddConfig.open()
           }
 
           Button {
@@ -109,9 +108,8 @@ SimpleKCM {
 		    Button {
           id: btnAddTimeslot
           icon.name: "list-add"                      
-	  	    text: 'Add'
 
-          onClicked: dlgAddTimeslot.open()
+          onClicked: _DlgAddTimeslot.open()
 		    }
 
 		    Button {
@@ -429,38 +427,42 @@ SimpleKCM {
 			    CheckBox {
       	    text: 'shuffle'
 
-      	    checked: true
+            property alias myCfg: _Root.act_timeslotCfg
+            onMyCfgChanged: checked = myCfg.shuffle
 
-  		    }
-
-          Item {
-            Layout.fillWidth: true
-          }          
+            onCheckedChanged: cfgAdapter.propagateChange(() => {
+        	    myCfg.shuffle = checked?1:0;
+            });
+  		    }          
 
 				  Button {
-					  text: 'Add folder...'
+            id: '_BtnAddFolder'
+            icon.name: "list-add"
+					  text: 'Folder'
+
+            onClicked: imagesources__addPathUsingDlg(_DlgAddFolder);            
 				  }
 
 				  Button {
-					  text: 'Add files...'
+            id: '_BtnAddFiles'
+            icon.name: "list-add"
+					  text: 'Files'
+
+            onClicked: imagesources__addPathUsingDlg(_DlgAddFiles);            
 				  }
 
 				  Button {
-					  text: 'Use url...'
+            id: '_BtnSetUrl'
+            icon.name: "internet-web-browser-symbolic"            
+					  text: 'Use url'
+
+            onClicked: imagesources__setUrl();            
 				  }          
-
         }
 
 		    ColumnLayout {
 			    Layout.fillWidth: true
           Layout.fillHeight: true
-
-
-          Component.onCompleted: { // DEV
-            const model = _ImageSources.model;
-            model.append({"path": "......................."});
-            model.append({"path": "......................."});
-          }                
 
 			    ScrollView {
       	    Layout.fillWidth: true
@@ -471,13 +473,52 @@ SimpleKCM {
             ListView {
               id: _ImageSources
         	    width: parent.width
-              model: ListModel {}
+
+              property alias myCfg: _Root.act_timeslotCfg
+              onMyCfgChanged: {
+
+		      	    inceptSources(model, myCfg.imagesources)
+
+						    imagesources__updateButtonsState();
+		          }
+
+              model: ListModel {
+                onDataChanged: cfgAdapter.propagateChange(() => {
+
+		      	      myCfg.imagesources = extractSources(model);
+
+						      imagesources__updateButtonsState();
+					      })
+              }
+
+		          function extractSources($model) {
+
+		      	    let sources = [];
+
+		      	    for(let i = 0; i < $model.count; ++i)
+		      	    {
+		      		    sources.push($model.get(i).path);
+		      	    }
+
+		      	    return sources;
+		          }
+
+					    function inceptSources($model, $sources) {
+
+						    $model.clear();
+
+						    for(let $$source of $sources)
+						    {
+							    $model.append({path: $$source});
+						    }
+		          }
 
               delegate: RowLayout {
-                width: parent.width
 
                 Button {
                   icon.name: "edit-delete-remove"
+
+                  onClicked: imagesources__removeSource(model.index);                  
 								}
 
 								Text {
@@ -504,7 +545,7 @@ Rectangle {
 		z: 1 // z-order
     id: llogBackground
     anchors.fill: parent
-    anchors.topMargin: parent.height*0.5
+    anchors.bottomMargin: parent.height*0.5
     color: '#00ff0000'                  
 
     ScrollView {
@@ -566,6 +607,41 @@ function cb_logo($o) {
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+FolderDialog {
+  	id: _DlgAddFolder
+		title: "Choose a folder"
+
+	  property var handleOnAccepted
+  	onAccepted: handleOnAccepted([currentFolder])
+	}
+
+FileDialog {
+  	id: _DlgAddFiles
+		title: "Choose files"
+
+	  property var handleOnAccepted
+  	onAccepted: handleOnAccepted(selectedFiles)
+	}
+
+Dialog {
+	id: _DlgSetUrl
+
+	width: parent.width * 0.6
+
+	title: 'Use Url'
+  standardButtons: Dialog.Ok | Dialog.Cancel
+
+  property var handleOnAccepted
+  onAccepted: handleOnAccepted(tfUrl.text);
+
+	TextField {
+		id: tfUrl
+		focus: _DlgSetUrl.visible
+
+		anchors.fill: parent
+	}
+}
+
 ColorDialog {
 	id: dlgSelectColor
 
@@ -578,7 +654,7 @@ ColorDialog {
 
 
 Dialog {
-	id: dlgAddTimeslot
+	id: _DlgAddTimeslot
 
 	title: 'Add Settings activated at'
   standardButtons: Dialog.Cancel
@@ -609,7 +685,7 @@ Dialog {
 	  {
 		  slots.push( _Timeslots.model.get(i).slotmarker);
 	  }
-	  dlgAddTimeslot.excludeSlots = slots;
+	  _DlgAddTimeslot.excludeSlots = slots;
 
 		buildNewSlot();
 		}
@@ -621,7 +697,7 @@ Dialog {
       model: ListModel {}
       textRole: 'text'
 
-			onCurrentIndexChanged: dlgAddTimeslot.buildNewSlot();
+			onCurrentIndexChanged: _DlgAddTimeslot.buildNewSlot();
 		}
 
 		Label {
@@ -633,14 +709,14 @@ Dialog {
       model: ListModel {}
       textRole: 'text'
 
-			onCurrentIndexChanged: dlgAddTimeslot.buildNewSlot();
+			onCurrentIndexChanged: _DlgAddTimeslot.buildNewSlot();
 		}
 
 		Button {
 			id: btnAdd
   		text: 'Add'
 
-  		onClicked: dlgAddTimeslot.accept()
+  		onClicked: _DlgAddTimeslot.accept()
 		}
   }
 
@@ -681,7 +757,7 @@ Dialog {
 
 
 Dialog {
-	id: dlgAddConfig
+	id: _DlgAddConfig
   width: parent.width * 0.6
 
 	title: 'Add Settings for'
@@ -931,6 +1007,45 @@ function effects__updateColorizeValue($slot) {
 
 	let alpha = Math.round(255 * $slot.colorize);
 	$slot.colorizeValue = '#' + ("00" + alpha.toString(16)).substr(-2) + $slot.colorizeColor.substr(-6);
+}
+
+function imagesources__updateButtonsState() {
+
+	_BtnAddFolder.enabled = ! (_ImageSources.model.count > 0 && _ImageSources.model.get(0).path.startsWith('http'));
+	_BtnAddFiles.enabled = _BtnAddFolder.enabled;
+
+	_BtnSetUrl.enabled = ! _ImageSources.model.count > 0;
+}
+
+function imagesources__addPathUsingDlg($$dlg) {
+
+	$$dlg.handleOnAccepted = ($$resultUrls) => {
+
+		for(let i=0; i<$$resultUrls.length; ++i)
+		{
+			let desanitized = JS.FILENAME_FROM_URISAFE($$resultUrls[i].toString());
+      cb_logo(desanitized);
+			_ImageSources.model.append({ path: desanitized });
+		}
+	};
+
+
+	$$dlg.open();
+}
+
+function imagesources__setUrl() {
+
+	_DlgSetUrl.handleOnAccepted = ($$text) => {
+
+		_ImageSources.model.append({ path: $$text });
+	};
+
+	_DlgSetUrl.open();
+}
+
+function imagesources__removeSource($index) {
+
+	_ImageSources.model.remove($index);
 }
 
 }

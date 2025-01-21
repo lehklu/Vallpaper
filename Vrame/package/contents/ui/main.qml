@@ -331,7 +331,7 @@ function refreshAct_Timeslot() {
 	// refresh image
 	// refresh image
 	// refresh image
-	if(act_timeslot.sources.length === 0) return;
+	if(act_timeslot.imagesources.length === 0) return;
 	//<--
 
 	if(act_timeslot.interval === 0 && act_image.src !== "") return;
