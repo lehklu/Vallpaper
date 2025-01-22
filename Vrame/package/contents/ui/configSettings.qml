@@ -477,39 +477,40 @@ SimpleKCM {
               property alias myCfg: _Root.act_timeslotCfg
               onMyCfgChanged: {
 
-		      	    inceptSources(model, myCfg.imagesources)
+		      	    inceptSources(myCfg.imagesources)
 
 						    imagesources__updateButtonsState();
 		          }
 
               model: ListModel {
-                onDataChanged: cfgAdapter.propagateChange(() => {
 
-		      	      myCfg.imagesources = extractSources(model);
+                onCountChanged: cfgAdapter.propagateChange(() => {
+
+		      	      _ImageSources.extractSourcesToModel();
 
 						      imagesources__updateButtonsState();
-					      })
+					      })                
               }
 
-		          function extractSources($model) {
+		          function extractSourcesToModel() {
 
 		      	    let sources = [];
 
-		      	    for(let i = 0; i < $model.count; ++i)
+		      	    for(let i = 0; i < model.count; ++i)
 		      	    {
-		      		    sources.push($model.get(i).path);
+		      		    sources.push(model.get(i).path);
 		      	    }
 
-		      	    return sources;
+		      	    myCfg.imagesources = sources;
 		          }
 
-					    function inceptSources($model, $sources) {
+					    function inceptSources($sources) {
 
-						    $model.clear();
+						    model.clear();
 
 						    for(let $$source of $sources)
 						    {
-							    $model.append({path: $$source});
+							    model.append({path: $$source});
 						    }
 		          }
 
@@ -618,6 +619,8 @@ FolderDialog {
 FileDialog {
   	id: _DlgAddFiles
 		title: "Choose files"
+
+    fileMode: FileDialog.OpenFiles
 
 	  property var handleOnAccepted
   	onAccepted: handleOnAccepted(selectedFiles)
@@ -1024,7 +1027,6 @@ function imagesources__addPathUsingDlg($$dlg) {
 		for(let i=0; i<$$resultUrls.length; ++i)
 		{
 			let desanitized = JS.FILENAME_FROM_URISAFE($$resultUrls[i].toString());
-      cb_logo(desanitized);
 			_ImageSources.model.append({ path: desanitized });
 		}
 	};
@@ -1036,6 +1038,8 @@ function imagesources__addPathUsingDlg($$dlg) {
 function imagesources__setUrl() {
 
 	_DlgSetUrl.handleOnAccepted = ($$text) => {
+
+    $$text = $$text.startsWith('http')?$$text:'http://'+$$text;
 
 		_ImageSources.model.append({ path: $$text });
 	};
