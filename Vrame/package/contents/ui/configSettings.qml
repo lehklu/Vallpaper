@@ -25,11 +25,11 @@ SimpleKCM {
 
   property var cfgAdapter  
 
-  property var act_desktopCfg  
-  property var act_timeslotCfg
+  property var current_desktopCfg  
+  property var current_timeslotCfg
 
   Component.onCompleted: {
-    cb_log("SimpleKCM onCompleted")
+    dev_log("SimpleKCM onCompleted")
 
     cfgAdapter = new JS.CfgAdapter(this, cfg_vrame6);
     desktopConfigs__init(_Pager.currentPage);    
@@ -101,7 +101,7 @@ SimpleKCM {
             function onCountChanged() { timeslots__updateButtonsState();}
 		      }                      
 
-  				property alias desktopConfig: _Root.act_desktopCfg
+  				property alias desktopConfig: _Root.current_desktopCfg
 				  onDesktopConfigChanged: timeslots__init()
         }
 
@@ -143,7 +143,7 @@ SimpleKCM {
 
 			    Button {
 
-            property alias myCfg: _Root.act_timeslotCfg
+            property alias myCfg: _Root.current_timeslotCfg
             onMyCfgChanged: myColor = myCfg.background            
 
             property string myColor
@@ -186,7 +186,7 @@ SimpleKCM {
             stepSize: 1
             to: _Borders.myHeight
 
-            property alias myCfg: _Root.act_timeslotCfg
+            property alias myCfg: _Root.current_timeslotCfg
             onMyCfgChanged: value = myCfg.borderTop
 
             onValueChanged: cfgAdapter.propagateChange(() => {
@@ -202,7 +202,7 @@ SimpleKCM {
             stepSize: 1
             to: _Borders.myHeight
 
-            property alias myCfg: _Root.act_timeslotCfg
+            property alias myCfg: _Root.current_timeslotCfg
             onMyCfgChanged: value = myCfg.borderBottom
 
             onValueChanged: cfgAdapter.propagateChange(() => {
@@ -225,7 +225,7 @@ SimpleKCM {
             stepSize: 1
             to: _Borders.myWidth
 
-            property alias myCfg: _Root.act_timeslotCfg
+            property alias myCfg: _Root.current_timeslotCfg
             onMyCfgChanged: value = myCfg.borderLeft
 
             onValueChanged: cfgAdapter.propagateChange(() => {
@@ -241,7 +241,7 @@ SimpleKCM {
             stepSize: 1
             to: _Borders.myWidth
 
-            property alias myCfg: _Root.act_timeslotCfg
+            property alias myCfg: _Root.current_timeslotCfg
             onMyCfgChanged: value = myCfg.borderRight
 
             onValueChanged: cfgAdapter.propagateChange(() => {
@@ -264,7 +264,7 @@ SimpleKCM {
 				    currentIndex: 0
             textRole: 'text'
 
-            property alias myCfg: _Root.act_timeslotCfg
+            property alias myCfg: _Root.current_timeslotCfg
             onMyCfgChanged: currentIndex = indexFromFillMode(myCfg.fillMode)
 
             onCurrentIndexChanged: cfgAdapter.propagateChange(() => {
@@ -316,7 +316,7 @@ SimpleKCM {
 				    }
 
 				    Slider {
-              property alias myCfg: _Root.act_timeslotCfg
+              property alias myCfg: _Root.current_timeslotCfg
               onMyCfgChanged: value = myCfg.desaturate
 
               onValueChanged: cfgAdapter.propagateChange(() => {
@@ -333,7 +333,7 @@ SimpleKCM {
 				    }
 
 				    Slider {
-              property alias myCfg: _Root.act_timeslotCfg
+              property alias myCfg: _Root.current_timeslotCfg
               onMyCfgChanged: value = myCfg.blur
 
               onValueChanged: cfgAdapter.propagateChange(() => {
@@ -349,7 +349,7 @@ SimpleKCM {
 				    }
 
     				Slider {
-              property alias myCfg: _Root.act_timeslotCfg
+              property alias myCfg: _Root.current_timeslotCfg
               onMyCfgChanged: value = myCfg.colorize
 
               onValueChanged: cfgAdapter.propagateChange(() => {
@@ -361,7 +361,7 @@ SimpleKCM {
 
 			    Button {
 
-            property alias myCfg: _Root.act_timeslotCfg
+            property alias myCfg: _Root.current_timeslotCfg
             onMyCfgChanged: myColor = myCfg.colorizeColor
 
             property string myColor
@@ -404,7 +404,7 @@ SimpleKCM {
             readonly property IntValidator intValidator: IntValidator {}
             to: intValidator.top
 
-            property alias myCfg: _Root.act_timeslotCfg
+            property alias myCfg: _Root.current_timeslotCfg
             onMyCfgChanged: value = myCfg.interval
 
             onValueChanged: cfgAdapter.propagateChange(() => {
@@ -427,7 +427,7 @@ SimpleKCM {
 			    CheckBox {
       	    text: 'shuffle'
 
-            property alias myCfg: _Root.act_timeslotCfg
+            property alias myCfg: _Root.current_timeslotCfg
             onMyCfgChanged: checked = myCfg.shuffle
 
             onCheckedChanged: cfgAdapter.propagateChange(() => {
@@ -474,7 +474,7 @@ SimpleKCM {
               id: _ImageSources
         	    width: parent.width
 
-              property alias myCfg: _Root.act_timeslotCfg
+              property alias myCfg: _Root.current_timeslotCfg
               onMyCfgChanged: {
 
 		      	    inceptSources(myCfg.imagesources)
@@ -536,73 +536,70 @@ SimpleKCM {
 
       }
     }
-  }
 
 
+/* Dev */
+    Rectangle {
+      id: _LogBackground
+      color: '#00ff0000'                  
+      Layout.fillWidth: true
+      height: 300
 
-
-  /* Dev */
-Rectangle {
-		z: 1 // z-order
-    id: llogBackground
-    anchors.fill: parent
-    anchors.bottomMargin: parent.height*0.5
-    color: '#00ff0000'                  
-
-    ScrollView {
-      anchors.fill: parent      
-      background: Rectangle {
-        color: '#0000ff00'
-      }      
-
-      TextArea {
-        id: llog
+      ScrollView {
+        anchors.fill: parent      
         background: Rectangle {
-          color: '#88ffffff'
-        }
-        wrapMode: TextEdit.Wrap
-        horizontalAlignment: TextEdit.AlignRight
+          color: '#0000ff00'
+        }      
 
-        property int autoclear:0
+        TextArea {
+          id: _Log
+          background: Rectangle {
+            color: '#88ffffff'
+          }
+          wrapMode: TextEdit.Wrap
+          horizontalAlignment: TextEdit.AlignRight
 
-        function clear() {
+          property int autoclear:0
+
+          function clear() {
 
             text='';
             autoclear=0;
-        }
+          }
 
-        function sayo($o) {
+          function sayo($o) {
 
-        	say(JSON.stringify($o));
-        }
+        	  say(JSON.stringify($o));
+          }
 
-        function say($text) {
+          function say($text) {
 
-            text=text+'\n'+$text;
-            autoclear++;
+              text=text+'\n'+$text;
+              autoclear++;
 
-            if(autoclear>30)
-            {
-                clear();
-            }
+              if(autoclear>30)
+              {
+                  clear();
+              }
+          }
         }
       }
     }
-    
-}
-
-function cb_log($o) {
-
-	llog.say($o);
-}
-
-function cb_logo($o) {
-
-	llog.sayo($o);
-}
 /* /Dev */
 
 
+  }
+
+
+function dev_log($o) {
+
+	_Log.say($o);
+}
+
+function dev_logo($o) {
+
+	_Log.sayo($o);
+}
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -669,7 +666,7 @@ Dialog {
 
     const element = {"slotmarker": newSlot};
 
-		cfgAdapter.newTimeslotFor_clone(act_desktopCfg, element.slotmarker, _Timeslots.model.get(_Timeslots.currentIndex).slotmarker);
+		cfgAdapter.newTimeslotFor_clone(current_desktopCfg, element.slotmarker, _Timeslots.model.get(_Timeslots.currentIndex).slotmarker);
 
     timeslots__insertSlot(element);
 	}
@@ -823,8 +820,8 @@ function timeslots__init() {
 	_TimeslotsConnections.target = null;
 
 	_Timeslots.model.clear();
-	const nowTimeslotCfg = act_desktopCfg.findAppropiateTimeslotCfg_now();  
-	const orderedTimeslotCfgs = act_desktopCfg.getTimeslotCfgs();
+	const nowTimeslotCfg = current_desktopCfg.findAppropiateTimeslotCfg_now();  
+	const orderedTimeslotCfgs = current_desktopCfg.getTimeslotCfgs();
 
 	let activateIdx = 0;
 	for(let $$i in orderedTimeslotCfgs)
@@ -881,7 +878,7 @@ function timeslots__handleCurrentIndexChanged() {
 
 	timeslots__updateButtonsState();
 
-	act_timeslotCfg = act_desktopCfg.getTimeslot(_Timeslots.model.get(_Timeslots.currentIndex).slotmarker);
+	current_timeslotCfg = current_desktopCfg.getTimeslot(_Timeslots.model.get(_Timeslots.currentIndex).slotmarker);
 }
 
 function timeslots__updateButtonsState() {
@@ -893,7 +890,7 @@ function timeslots__updateButtonsState() {
 
 function timeslots__removeTimeslot() {
 
-	cfgAdapter.deleteTimeslot(act_desktopCfg, _Timeslots.model.get(_Timeslots.currentIndex).slot);
+	cfgAdapter.deleteTimeslot(current_desktopCfg, _Timeslots.model.get(_Timeslots.currentIndex).slot);
 
 	_Timeslots.model.remove(_Timeslots.currentIndex);
 
@@ -925,7 +922,7 @@ function desktopConfigs__handleCurrentIndexChanged() {
 
 	desktopConfigs__updateButtonsState();
 
-	act_desktopCfg = cfgAdapter.getCfg(_DesktopConfigs.model.get(_DesktopConfigs.currentIndex).deskNo);
+	current_desktopCfg = cfgAdapter.getCfg(_DesktopConfigs.model.get(_DesktopConfigs.currentIndex).deskNo);
 }
 
 function desktopConfigs__init($currentConfigDeskNo) {
