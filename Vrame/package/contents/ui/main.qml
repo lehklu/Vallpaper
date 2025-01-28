@@ -18,33 +18,30 @@ import "../js/vallpaper.js" as JS
 PlasmoidItem {
 	id: _Root
 
+  property var config: Plasmoid.configuration.vrame6
   property var myConnector: plasmoid
   property var myActionTextPrefix: /*SED01*/'' // empty
-
   property var cfgAdapter
+  property var actionCanOpen: true
+  property var actionCanNext: true
 
-  property var current_deskCfg
-  property var current_image
-  property var current_timeslot
-
-  property var canActionOpen: true
-  property var canActionNext: true
+  onConfigChanged: { _Canvas.setCfgAdapter(); }
 
   Plasmoid.contextualActions: [
     PlasmaCore.Action {
         text: "Open image"
         icon.name: "document-open"
         priority: Plasmoid.LowPriorityAction
-        visible: _Root.canActionOpen
-        enabled: _Root.canActionOpen
+        visible: true
+        enabled: actionCanOpen
         onTriggered: action_open()
     },
     PlasmaCore.Action {
         text: "Next image"
         icon.name: "user-desktop"
         priority: Plasmoid.LowPriorityAction
-        visible: _Root.canActionNext
-        enabled: _Root.canActionNext
+        visible: true
+        enabled: actionCanNext
         onTriggered: action_next()
     }
   ]    
@@ -58,45 +55,57 @@ PlasmoidItem {
         onCurrentPageChanged: { _Canvas.handleDesktopChanged(); }
 	}
 
-  Connections {
-	  target: myConnector.configuration
+  Timer {
+	  id: _Timer
+    interval: 1000 * 1 // sec
+    repeat: true
+    running: true
+    onTriggered: _Canvas.updateActiveSlot()
+  }  
 
-    function onValueChanged() { setCfgAdapter(); }
-  }
-
+  // - - - - - - - - - - - - - C A N V A S
+  // - - - - - - - - - - - - - C A N V A S
+  // - - - - - - - - - - - - - C A N V A S
   Rectangle {
     id: _Canvas
 
+    anchors.fill: parent          
+    color: activeSlot.background
 
-    color: current_timeslot.background
-    width: parent.width
-    height: parent.height
+    property var activeDeskCfg
+    property var activeImage
+    property var activeSlot
 
-    Component.onCompleted: { setCfgAdapter(); }
+    Component.onCompleted: {
 
+      setCfgAdapter();
+      console.log("----------------------------------------------setCfgAdapter()");
+    }
 
     Repeater {
 	    id: _ImageRepeater
-      model: _Pager.count+1 // + 1 shared default cfg
+  
+      model: _Pager.count+1 // + 1 =^= shared default cfg
 
+      // - - - - - - - - - - - - - I M A G E
+      // - - - - - - - - - - - - - I M A G E
+      // - - - - - - - - - - - - - I M A G E
       Image {
-        // set anchors to allow use of margins
-		    anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
+        anchors.fill: parent          
 
-        sourceSize.width: width
-        sourceSize.height: height
+        visible: false // displayed through Graphical effects
+
+        //  this property sets the maximum number of pixels stored for the loaded image so that large images do not use more memory than necessary. 
+        //  If only one dimension of the size is set to greater than 0, the other dimension is set in proportion to preserve the source image's aspect ratio. (The fillMode is independent of this.)
+        sourceSize.width: width 
 
         asynchronous: true
         autoTransform: true
-        visible: false // displayed through Graphical effects
 
-        property string iInfo
-		    property var sTsFetched
-        property var sTimeslot
-        property var sMediaFrame: MediaFrame {}
+        property string infoText
+		    property var timestampFetched
+        property var slot
+        property var mediaframe: MediaFrame {}
 
 		    Component.onCompleted: {
 
@@ -105,57 +114,56 @@ PlasmoidItem {
 
 		    function resetState($newSlot) {
 
-			    this.sTsFetched = -1;
-			    this.sTimeslot = $newSlot;
+          console.log("111111111111111111111111111111111111111111111" + $newSlot);
 
-			    if(this.sTimeslot===undefined) return;
+			    timestampFetched = -1;
+			    slot = $newSlot;
+
+			    if(slot===undefined) return;
 			    //<--
 
 
-			    this.configThis();
-			    this.configMediaFrame();
+			    setupImage();
+			    setupMediaframe();
+          console.log("999999999999999999999999999999999999999");
 		    }
 
-		    function configThis() {
+		    function setupImage() {
 
-			    this.fillMode = this.sTimeslot.fillMode;
+			    fillMode = slot.fillMode;
 
-			    this.anchors.topMargin =    this.sTimeslot.borderTop;
-          this.anchors.bottomMargin =	this.sTimeslot.borderBottom;
-          this.anchors.leftMargin =   this.sTimeslot.borderLeft;
-          this.anchors.rightMargin =  this.sTimeslot.borderRight;
+			    anchors.topMargin =     slot.borderTop;
+          anchors.bottomMargin =  slot.borderBottom;
+          anchors.leftMargin =    slot.borderLeft;
+          anchors.rightMargin =   slot.borderRight;
 		    }
 
-		    function configMediaFrame() {
+		    function setupMediaframe() {
 
-			    let mfr = this.sMediaFrame;
+			    mediaframe.clear();
 
+			    mediaframe.random = slot.shuffle;
 
-			    mfr.clear();
-			    for(let $$path of this.sTimeslot.imagesources)
+          for(let $$path of slot.imagesources)
 			    {
-				    mfr.add($$path, true); // path, recursive
-				    _Log.say($$path);
+				    mediaframe.add($$path, true); // path, recursive
 			    }
 
-
-			    if(mfr.count === 0)
-			    {
-				    this.source = "";
-			    }
-
-			    mfr.random = this.sTimeslot.shuffle;
-
-			    this.fetchNextImage();
+			    fetchNextImage();
 		    }
 
-		    function fetchNextImage($wd = 10) {
+		    function fetchNextImage($watchdog = 10) {
 
-			    let This = this;
+          if(mediaframe.count === 0)
+          {
+            source = "";
 
-			    this.sMediaFrame.get(function($$path) {
+            return;
+            //<--
+          }
 
-				    _Log.say($$path);
+
+			    mediaframe.get(function($$path) {
 
 				    if($$path.indexOf(':')<0)
 				    {
@@ -169,215 +177,151 @@ PlasmoidItem {
               gc();
 				    }
 
-				    if($$path!=This.source || $wd===0)
+				    if($$path!=This.source || $watchdog===0)
 				    {
 					    let resanitized = JS.FILENAME_TO_URISAFE($$path);
 					    console.log(resanitized);
 					    This.source = resanitized;
-					    This.iInfo=$$path;
-					    This.sTsFetched = Date.now();
-					    _Log.say('next ' + $wd + ' ' + This.sMediaFrame.random + ' ' + resanitized);
+					    This.infoText=$$path;
+					    This.timestampFetched = Date.now();
 				    }
 				    else
 				    {
-					    This.fetchNextImage($wd-1);
+					    This.fetchNextImage($watchdog-1);
 				    }
 			    });
 		    }
 	    }
+      // I M A G E - - - - - - - - - - - - - - - - - -
+      // I M A G E - - - - - - - - - - - - - - - - - -
+      // I M A G E - - - - - - - - - - - - - - - - - -
     }
 
 // Graphical effects
 // Graphical effects
 // Graphical effects
-  Desaturate {
-	  id: geDesaturate
+Desaturate {
+	id: geDesaturate
 
-    source: current_image
-    anchors.fill: current_image
-    visible: current_image.source!=""
+  source: _Canvas.activeImage
+  anchors.fill: _Canvas.activeImage
+  visible: _Canvas.activeImage.source!=""
 
-    desaturation: current_timeslot.desaturate
-  }
-
-  FastBlur {
-	  id: geBlur
-
-    source: geDesaturate
-    anchors.fill: geDesaturate
-    visible: geDesaturate.visible
-
-    radius: current_timeslot.blur * 100
-  }
-
-  ColorOverlay {
-	  id: geColorOverlay
-
-    source: geBlur
-    anchors.fill: geBlur
-    visible: geBlur.visible
-
-    color: current_timeslot.colorizeValue
-  }
-// /Graphical effects
-// /Graphical effects
-// /Graphical effects
-
-  /* LabelInfo *
-  Rectangle {
-	  width: labelInfo.contentWidth
-    height: labelInfo.contentHeight
-    anchors.top: parent.top
-    anchors.left: parent.left
-    color: '#ff1d1d85'
-
-	  Label {
-		  id: labelInfo
-  	  color: "#ffffffff"
-  	  text: current_image.iInfo
-    }
-  }
-  /* /LabelInfo */
-
-
-  Timer {
-	  id: timer
-    interval: 1000 * 1
-    repeat: true
-    running: true
-    onTriggered: _Canvas.refreshcurrent_Timeslot()
-  }
-
-
-
-
-
-																				// f u n c t i o n s
-
-																				// f u n c t i o n s
-
-																				// f u n c t i o n s
-
-  function setCfgAdapter() {
-
-	  cfgAdapter = new JS.CfgAdapter(this, myConnector.configuration.vrame6);
-	  handleDesktopChanged();
-  }
-
-  function handleDesktopChanged() {
-
-	  if( ! cfgAdapter) { return; }
-	  //<--
-
-	  _Log.say("X");
-	  _Log.say(_Pager.currentPage);
-
-	  current_deskCfg = cfgAdapter.findAppropiateCfg(_Pager.currentPage);
-
-	  current_image = _ImageRepeater.itemAt(current_deskCfg.deskNo);
-	  refreshcurrent_Timeslot();
-	  _Log.say("/X");
-  }
-
-  function refreshcurrent_Timeslot() {
-
-    console.log(current_image);
-    console.log("current_image");
-
-
-	  let newSlot = current_deskCfg.findAppropiateTimeslotCfg_now();
-
-	  if(newSlot !== current_image.sTimeslot)
-	  {
-  		current_image.resetState(newSlot);
-	  }
-
-	  current_timeslot = current_image.sTimeslot;
-
-	  // refresh image
-	  // refresh image
-	  // refresh image
-	  if(current_timeslot.imagesources.length === 0) return;
-	  //<--
-	  if(current_timeslot.interval === 0 && current_image.src !== "") return;
-	  //<--
-	  if(Date.now() < (current_image.sTsFetched + current_timeslot.interval*1000)) return;
-	  //<--
-
-
-	  current_image.fetchNextImage();
-  }
-
-  function action_next() {
-
-	  current_image.fetchNextImage();
-  }
-
-  function action_open() {
-
-	  Qt.openUrlExternally(current_image.source)
-  }
-
-  MouseArea {
-	  anchors.fill: parent
-	  acceptedButtons: Qt.LeftButton
-	  onPressAndHold: action_next();
-    onDoubleClicked: action_open();
-  }
-
-/* Dev */
-Rectangle {
-		z: 1 // z-order
-    width: parent.width * 0.8
-    height: _Log.contentHeight
-    anchors.bottom: parent.bottom
-    anchors.bottomMargin: 50
-    anchors.horizontalCenter: parent.horizontalCenter
-    color: '#AAffffff'
-
-    TextArea {
-			id: _Log
-  		anchors.fill: parent
-      color: '#1d1d85'
-
-	  		Component.onCompleted: {
-
-				text="-1";4
-			say("0");
-		}
-
-      property var lines: []
-
-			function sayo($o) {
-
-      	say(JSON.stringify($o));
-			}
-
-			function say($text) {
-
-				let linesText = '';
-
-				lines.push($text);
-
-				if(lines.length > 10)
-				{
-					lines.splice(0, 1);
-					linesText = '...';
-				}
-
-				for(let line of lines)
-				{
-					linesText = linesText+'\n'+line;
-				}
-
-      	text=linesText
-			}
-    }
+  desaturation: _Canvas.activeSlot.desaturate
 }
-/* /Dev */
 
+FastBlur {
+	id: geBlur
 
+  source: geDesaturate
+  anchors.fill: geDesaturate
+  visible: geDesaturate.visible
 
+  radius: _Canvas.activeSlot.blur * 100
+}
 
+ColorOverlay {
+	id: geColorOverlay
+
+  source: geBlur
+  anchors.fill: geBlur
+  visible: geBlur.visible
+
+  color: _Canvas.activeSlot.colorizeValue
+}
+// /Graphical effects
+// /Graphical effects
+// /Graphical effects
+
+Rectangle {
+  visible: true
+	width: labelInfo.contentWidth
+  height: labelInfo.contentHeight
+  anchors.top: parent.top
+  anchors.left: parent.left
+  color: '#ff1d1d85'
+
+	Label {
+		id: labelInfo
+  	color: "#ffffffff"
+  	text: _Canvas.activeImage.infoText
   }
+}
+
+
+
+
+
+
+
+
+																				// f u n c t i o n s
+
+																				// f u n c t i o n s
+
+																				// f u n c t i o n s
+
+function setCfgAdapter() {
+
+	cfgAdapter = new JS.CfgAdapter(this, myConnector.configuration.vrame6);
+	handleDesktopChanged();
+}
+
+function handleDesktopChanged() {
+
+	if( ! cfgAdapter) { return; }
+	//<--
+
+	activeDeskCfg = cfgAdapter.findAppropiateCfg(_Pager.currentPage);
+	activeImage = _ImageRepeater.itemAt(activeDeskCfg.deskNo);
+	updateActiveSlot();
+}
+
+function updateActiveSlot() {
+
+	let newSlot = activeDeskCfg.findAppropiateTimeslotCfg_now();
+
+	if(newSlot !== activeImage.slot)
+	{
+		activeImage.resetState(newSlot);
+	}
+
+	activeSlot = activeImage.slot;
+
+	// refresh image
+	// refresh image
+	// refresh image
+	if(activeSlot.imagesources.length === 0) return;
+	//<--
+
+	if(activeSlot.interval === 0 && activeImage.src !== "") return;
+	//<--
+
+	if(Date.now() < (activeImage.timestampFetched + activeSlot.interval*1000)) return;
+	//<--
+
+
+	activeImage.fetchNextImage();
+}
+
+function action_next() {
+
+	activeImage.fetchNextImage();
+}
+
+function action_open() {
+
+	Qt.openUrlExternally(activeImage.source)
+}
+
+MouseArea {
+	anchors.fill: parent
+	acceptedButtons: Qt.LeftButton
+	onPressAndHold: action_next();
+  onDoubleClicked: action_open();
+}
+  }
+  // C A N V A S - - - - - - - - - - - - - - - - - -
+  // C A N V A S - - - - - - - - - - - - - - - - - -
+  // C A N V A S - - - - - - - - - - - - - - - - - -
 }
