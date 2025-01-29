@@ -19,7 +19,7 @@ const JSON_TIMESLOT_DEFAULT = `{
 	"colorizeValue": "#00ffffff",
 	"interval": 0,
 	"shuffle": 0,
-	"imagesources": ["/home/VboxShared/Qt6/images"]
+	"imagesources": []
 }`;
 
 const JSON_CFG_DEFAULT = '{ "deskNo": 0, "timeslots": { "' + SLOT_DEFAULT + '": ' + JSON_TIMESLOT_DEFAULT + ' }}';
