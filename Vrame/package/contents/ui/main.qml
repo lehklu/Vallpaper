@@ -252,7 +252,7 @@ PlasmoidItem {
 
     function cnvSetCfgAdapter() {
 
-	    cfgAdapter = new JS.CfgAdapter(this, connector2Plasma.configuration.vrame6);
+	    cfgAdapter = new JS.CfgAdapter(config);
 	    cnvSetActiveDeskCfg();
     }
 
@@ -312,8 +312,69 @@ PlasmoidItem {
 	    onPressAndHold: _Canvas.action_next();
       onDoubleClicked: _Canvas.action_open();
     }
+
+/* Dev */
+    Rectangle {
+      id: _LogBackground
+      color: '#00ff0000'                  
+      anchors.left: parent.left
+      anchors.right: parent.right
+      height: 300
+
+      ScrollView {
+        anchors.fill: parent      
+        background: Rectangle {
+          color: '#0000ff00'
+        }      
+
+        TextArea {
+          id: _Log
+          background: Rectangle {
+            color: '#88ffffff'
+          }
+          wrapMode: TextEdit.Wrap
+          horizontalAlignment: TextEdit.AlignRight
+
+          property int autoclear:0
+
+          function clear() {
+
+            text='';
+            autoclear=0;
+          }
+
+          function sayo($o) {
+
+        	  say(JSON.stringify($o));
+          }
+
+          function say($text) {
+
+              text=text+'\n'+$text;
+              autoclear++;
+
+              if(autoclear>30)
+              {
+                  clear();
+              }
+          }
+        }
+      }
+    }
+
+  function dev_log($o) {
+
+  	_Log.say($o);
+  }
+
+  function dev_logo($o) {
+
+	  _Log.sayo($o);
+  }      
+/* /Dev */    
   }
   // C A N V A S - - - - - - - - - - - - - - - - - -
   // C A N V A S - - - - - - - - - - - - - - - - - -
   // C A N V A S - - - - - - - - - - - - - - - - - -
+
 }

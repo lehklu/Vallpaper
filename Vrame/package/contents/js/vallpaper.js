@@ -17,18 +17,18 @@ const JSON_TIMESLOT_DEFAULT = `{
 	"colorize": 0,
 	"colorizeColor": "#ffffff",
 	"colorizeValue": "#00ffffff",
-	"interval": 0,
+	"interval": 3,
 	"shuffle": 0,
-	"imagesources": []
+	"imagesources": ["file:///home/VboxShared/Qt6/images"]
 }`;
 
 const JSON_CFG_DEFAULT = '{ "deskNo": 0, "timeslots": { "' + SLOT_DEFAULT + '": ' + JSON_TIMESLOT_DEFAULT + ' }}';
 
 class CfgAdapter {
 
-	constructor($owner, $cfgJSONs) {
+	constructor($cfgJSONs, $fOnPropagateChange=undefined) {
 
-		this.owner = $owner;
+		this.fOnPropagateChange = $fOnPropagateChange;
 
     this.desktopCfgs = [];
 
@@ -53,10 +53,8 @@ class CfgAdapter {
 
   propagateChange($fChange=undefined) {
 
-  	if($fChange)
-  	{
-  		$fChange();
-  	}
+  	if($fChange) { $fChange(); }
+
 
 		let newCfgJSONs=[];
 
@@ -65,7 +63,8 @@ class CfgAdapter {
 			newCfgJSONs.push(JSON.stringify(cfg));
 		}
 
-		if(this.owner.cb_handleConfigChanged) { this.owner.cb_handleConfigChanged(newCfgJSONs) };
+
+		if(this.fOnPropagateChange) { this.fOnPropagateChange(newCfgJSONs); }
 	}
 
 	newCfgFor_clone($no, $srcNo) {

@@ -31,7 +31,7 @@ SimpleKCM {
   Component.onCompleted: {
     dev_log("SimpleKCM onCompleted")
 
-    cfgAdapter = new JS.CfgAdapter(this, cfg_vrame6);
+    cfgAdapter = new JS.CfgAdapter(cfg_vrame6, $newCfg => { cfg_vrame6 = $newCfg; });
     desktopConfigs__init(_Pager.currentPage);    
   }
 
