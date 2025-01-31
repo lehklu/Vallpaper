@@ -1,11 +1,11 @@
-const URI_ENCODED_PC={"txt": "%", "pc": "%25"};
+const CHARMAP_TEXT_URI={"txt": "%", "uri": "%25"};
 
 const CFG_DESKNO_DEFAULT = 0;
 
-const SLOT_DEFAULT = '00:00';
+const SLOTMARKER_DEFAULT = '00:00';
 
-const JSON_TIMESLOT_DEFAULT = `{
-	"slot": "` + SLOT_DEFAULT + `",
+const JSON_TIMESLOTMARKER_DEFAULT = `{
+	"slotmarker": "` + SLOTMARKER_DEFAULT + `",
 	"background": "#1d1d85",
 	"borderTop": 0,
 	"borderBottom": 0,
@@ -17,12 +17,12 @@ const JSON_TIMESLOT_DEFAULT = `{
 	"colorize": 0,
 	"colorizeColor": "#ffffff",
 	"colorizeValue": "#00ffffff",
-	"interval": 3,
+	"interval": 0,
 	"shuffle": 0,
-	"imagesources": ["file:///home/VboxShared/Qt6/images"]
+	"imagesources": []
 }`;
 
-const JSON_CFG_DEFAULT = '{ "deskNo": 0, "timeslots": { "' + SLOT_DEFAULT + '": ' + JSON_TIMESLOT_DEFAULT + ' }}';
+const JSON_CFG_DEFAULT = '{ "deskNo": 0, "timeslots": { "' + SLOTMARKER_DEFAULT + '": ' + JSON_TIMESLOTMARKER_DEFAULT + ' }}';
 
 class CfgAdapter {
 
@@ -150,7 +150,7 @@ class DesktopCfg {
 
 		let keys = Object.keys(this.timeslots).sort();
 
-		let hit = SLOT_DEFAULT;
+		let hit = SLOTMARKER_DEFAULT;
 
 		for(let $$key of keys)
 		{
@@ -187,10 +187,10 @@ class TimeslotCfg {
 		Object.assign(this, $template);
 	}
 
-	cloneAs($slot) {
+	cloneAs($slotmarker) {
 
 		let clone = new TimeslotCfg(this);
-		clone.slot = $slot;
+		clone.slotmarker = $slotmarker;
 
 		return clone;
 	}
@@ -204,7 +204,7 @@ let FILENAME_TO_URISAFE=function(name) {
 
 	let result = name;
 
-	result = result.replace(new RegExp(URI_ENCODED_PC.txt,"g"), URI_ENCODED_PC.pc);
+	result = result.replace(new RegExp(CHARMAP_TEXT_URI.txt,"g"), CHARMAP_TEXT_URI.uri);
 
 	return result;
 }
@@ -213,7 +213,7 @@ let FILENAME_FROM_URISAFE=function(name) {
 
 	let result = name;
 
-	result = result.replace(new RegExp(URI_ENCODED_PC.pc,"g"), URI_ENCODED_PC.txt);
+	result = result.replace(new RegExp(CHARMAP_TEXT_URI.uri,"g"), CHARMAP_TEXT_URI.txt);
 
 	return result;
 }

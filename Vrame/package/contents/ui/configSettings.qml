@@ -828,7 +828,7 @@ function timeslots__init() {
 	{
 		const timeslotCfg = orderedTimeslotCfgs[$$i];
 
-		timeslots__insertSlot({"slotmarker": timeslotCfg.slot});
+		timeslots__insertSlot({"slotmarker": timeslotCfg.slotmarker});
 
     if(timeslotCfg===nowTimeslotCfg)
     {
@@ -890,7 +890,7 @@ function timeslots__updateButtonsState() {
 
 function timeslots__removeTimeslot() {
 
-	cfgAdapter.deleteTimeslot(current_desktopCfg, _Timeslots.model.get(_Timeslots.currentIndex).slot);
+	cfgAdapter.deleteTimeslot(current_desktopCfg, _Timeslots.model.get(_Timeslots.currentIndex).slotmarker);
 
 	_Timeslots.model.remove(_Timeslots.currentIndex);
 

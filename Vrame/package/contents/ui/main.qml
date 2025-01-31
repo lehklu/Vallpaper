@@ -276,11 +276,11 @@ PlasmoidItem {
 
     function cnvUpdateActiveSlot() {
 
-	    let newSlot = activeDeskCfg.findAppropiateTimeslotCfg_now();
+	    let appropiateSlot = activeDeskCfg.findAppropiateTimeslotCfg_now();
 
-	    if(newSlot !== activeImage.slot)
+	    if(appropiateSlot !== activeImage.slot)
 	    {
-		    activeImage.imgResetState(newSlot);
+		    activeImage.imgResetState(appropiateSlot);
 	    }
 
 	    activeSlot = activeImage.slot;
