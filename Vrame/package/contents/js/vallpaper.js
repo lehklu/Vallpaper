@@ -1,10 +1,8 @@
-const CHARMAP_TEXT_URI={"txt": "%", "uri": "%25"};
-
-const CFG_DESKNO_DEFAULT = 0;
+const DESKNO_DEFAULT = 0;
 
 const SLOTMARKER_DEFAULT = '00:00';
 
-const JSON_TIMESLOTMARKER_DEFAULT = `{
+const TIMESLOT_DEFAULT_jsonstr = `{
 	"slotmarker": "` + SLOTMARKER_DEFAULT + `",
 	"background": "#1d1d85",
 	"borderTop": 0,
@@ -22,156 +20,160 @@ const JSON_TIMESLOTMARKER_DEFAULT = `{
 	"imagesources": []
 }`;
 
-const JSON_CFG_DEFAULT = '{ "deskNo": 0, "timeslots": { "' + SLOTMARKER_DEFAULT + '": ' + JSON_TIMESLOTMARKER_DEFAULT + ' }}';
+const DESKCFG_DEFAULT_jsonstr = `{
+  "deskNo": ` + DESKNO_DEFAULT + `, 
+  "timeslots": { 
+    "` + SLOTMARKER_DEFAULT + `": ` + TIMESLOT_DEFAULT_jsonstr + ` 
+    }
+  }`;
 
-class CfgAdapter {
+// P l a s m a c f g A d a p t e r  
+// P l a s m a c f g A d a p t e r  
+// P l a s m a c f g A d a p t e r  
+class PlasmacfgAdapter {
 
-	constructor($cfgJSONs, $fOnPropagateChange=undefined) {
+	constructor($plasmacfg_jsonstrs, $fAfterPropagateChange=undefined) {
 
-		this.fOnPropagateChange = $fOnPropagateChange;
+    this.deskCfgs = [];
+		this.fAfterPropagateChange = $fAfterPropagateChange;
 
-    this.desktopCfgs = [];
-
-    this.initCfgs($cfgJSONs);
-	}
-
-	initCfgs($cfgJSONs) {
-
-  	for(let $$cfgJSON of $cfgJSONs)
+    if($plasmacfg_jsonstrs.length>0)
     {
-    	let cfg=new DesktopCfg($$cfgJSON);
-
-      this.addCfg(cfg);
-		}
-
-		if(!this.desktopCfgs.length)
-		{
-			this.addCfg(new DesktopCfg(JSON_CFG_DEFAULT));
-			this.propagateChange();
-		}
+      for(const $$deskCfg_jsonstr of $plasmacfg_jsonstrs)
+      {
+        this.addCfg(new DeskCfg($$deskCfg_jsonstr));
+      }
+    }
+    else
+    {
+			this.addCfg(new DeskCfg(DESKCFG_DEFAULT_jsonstr));
+			this.propagateChange();      
+    }
 	}
 
-  propagateChange($fChange=undefined) {
+  propagateChange($fBeforePropagateChange=undefined) {
 
-  	if($fChange) { $fChange(); }
+  	if($fBeforePropagateChange) { $fBeforePropagateChange(); }
 
 
-		let newCfgJSONs=[];
+		const newCfgJSONs=[];
 
-		for(let cfg of this.getCfgs())
+		for(const cfg of this.getCfgs())
 		{
 			newCfgJSONs.push(JSON.stringify(cfg));
 		}
 
 
-		if(this.fOnPropagateChange) { this.fOnPropagateChange(newCfgJSONs); }
+		if(this.fAfterPropagateChange) { this.fAfterPropagateChange(newCfgJSONs); }
 	}
 
-	newCfgFor_clone($no, $srcNo) {
+	newCfgForNo_cloneNo($newNo, $cloneNo) {
 
-		this.addCfg(this.getCfg($srcNo).cloneAs($no));
+		this.addCfg(this.getCfgForNo($cloneNo).cloneAsNo($newNo));
 		this.propagateChange();
 	}
 
-  deleteCfg($no) {
+  deleteCfgNo($no) {
 
-  	this.desktopCfgs.splice($no, 1);
+  	this.deskCfgs.splice($no, 1);
 		this.propagateChange();
 	}
 
   getCfgs() {
 
   			// ev. sparse array
-    return this.desktopCfgs.filter(($$cfg) => { return $$cfg!==undefined});
+    return this.deskCfgs.filter(($$cfg) => { return $$cfg!==undefined});
 	}
 
 	addCfg($cfg) {
 
-		this.desktopCfgs[$cfg.deskNo] = $cfg;
+		this.deskCfgs[$cfg.deskNo] = $cfg;
 	}
 
-	getCfg($no) {
+	getCfgForNo($no) {
 
-  	return this.desktopCfgs[$no];
+  	return this.deskCfgs[$no];
  	}
 
-	findAppropiateCfg($no) {
+	findAppropiateCfgForNo($no) {
 
-  	return this.desktopCfgs[$no]!==undefined?this.desktopCfgs[$no]:this.desktopCfgs[CFG_DESKNO_DEFAULT];
+  	return this.deskCfgs[$no]!==undefined?this.deskCfgs[$no]:this.deskCfgs[DESKNO_DEFAULT];
  	}
 
-	newTimeslotFor_clone($deskCfg, $slot, $srcSlot) {
+	atCfg_newTimeslotForMarker_cloneMarker($deskCfg, $slotmarker, $cloneSlotmarker) {
 
-		$deskCfg.timeslots[$slot] = $deskCfg.timeslots[$srcSlot].cloneAs($slot);
+		$deskCfg.timeslots[$slotmarker] = $deskCfg.timeslots[$cloneSlotmarker].cloneAsNo($slotmarker);
 		this.propagateChange();
 	}
 
-	deleteTimeslot($deskCfg, $slot) {
+	atCfg_deleteTimeslot($deskCfg, $slotmarker) {
 
-		delete $deskCfg.timeslots[$slot];
+		delete $deskCfg.timeslots[$slotmarker];
 		this.propagateChange();
 	}
 }
 
-
-class DesktopCfg {
+// D e s k t o p C f g
+// D e s k t o p C f g
+// D e s k t o p C f g
+class DeskCfg {
 
 	constructor($json) {
 
-		let o = JSON.parse($json);
+		const o = JSON.parse($json);
 
 		Object.assign(this, o);
 
 
-		let timeslotKeys = Object.keys(this.timeslots);
-		for(let $$key of timeslotKeys)
+		const timeslotKeys = Object.keys(this.timeslots);
+		for(const $$key of timeslotKeys)
 		{
 			this.timeslots[$$key] = new TimeslotCfg(this.timeslots[$$key]);
 		}
 	}
 
-	cloneAs($no) {
+	cloneAsNo($newNo) {
 
-		let clone = new DesktopCfg(JSON.stringify(this));
-		clone.deskNo = $no;
+		const clone = new DeskCfg(JSON.stringify(this));
+		clone.deskNo = $newNo;
 
 		return clone;
 	}
 
-	getTimeslot($slot) {
+	getTimeslotForMarker($marker) {
 
-		return this.timeslots[$slot];
+		return this.timeslots[$marker];
 	}
 
-	findAppropiateTimeslotCfg_now() {
+	getCurrentAppropiateTimeslot() {
 
-		let d = new Date();
-		let nowSlot = ('00' + d.getHours()).slice(-2) + ':' + ('00' + d.getMinutes()).slice(-2);
+		const d = new Date();
+		const nowSlot = ('00' + d.getHours()).slice(-2) + ':' + ('00' + d.getMinutes()).slice(-2);
 
-		let keys = Object.keys(this.timeslots).sort();
+		const markers = Object.keys(this.timeslots).sort();
 
-		let hit = SLOTMARKER_DEFAULT;
+		let appropiateMarker = SLOTMARKER_DEFAULT;
 
-		for(let $$key of keys)
+		for(const $$marker of markers)
 		{
-			if($$key > nowSlot)
+			if($$marker > nowSlot)
 			{
 				break;
 			}
 
-			hit = $$key;
+			appropiateMarker = $$marker;
 		}
 
-		return this.timeslots[hit];
+		return this.timeslots[appropiateMarker];
 	}
 
-	getTimeslotCfgs() {
+	getOrderedTimeslots() {
 
-		let keys = Object.keys(this.timeslots).sort();
+		const keys = Object.keys(this.timeslots).sort();
 
-		let result = [];
+		const result = [];
 
-		for(let $$key of keys)
+		for(const $$key of keys)
 		{
 			result.push(this.timeslots[$$key]);
 		}
@@ -180,6 +182,9 @@ class DesktopCfg {
 	}
 }
 
+// T i m e s l o t C f g
+// T i m e s l o t C f g
+// T i m e s l o t C f g
 class TimeslotCfg {
 
 	constructor($template) {
@@ -187,7 +192,7 @@ class TimeslotCfg {
 		Object.assign(this, $template);
 	}
 
-	cloneAs($slotmarker) {
+	cloneAsNo($slotmarker) {
 
 		let clone = new TimeslotCfg(this);
 		clone.slotmarker = $slotmarker;
@@ -196,24 +201,16 @@ class TimeslotCfg {
 	}
 }
 
-//
-// Global functions
-//
 
-let FILENAME_TO_URISAFE=function(name) {
+// G l o b a l   f u n c t i o n s
+// G l o b a l   f u n c t i o n s
+// G l o b a l   f u n c t i o n s
+const AS_URISAFE = function($text, $asUriSafe=true) {
 
-	let result = name;
+  const target = $asUriSafe?"%":"%25";
+  const replacement = $asUriSafe?"%25":"%";
 
-	result = result.replace(new RegExp(CHARMAP_TEXT_URI.txt,"g"), CHARMAP_TEXT_URI.uri);
+  const result = $text.replace(new RegExp(target, "g"), replacement);
 
-	return result;
-}
-
-let FILENAME_FROM_URISAFE=function(name) {
-
-	let result = name;
-
-	result = result.replace(new RegExp(CHARMAP_TEXT_URI.uri,"g"), CHARMAP_TEXT_URI.txt);
-
-	return result;
+  return result;
 }

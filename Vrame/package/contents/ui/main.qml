@@ -22,7 +22,7 @@ PlasmoidItem {
   property var config: Plasmoid.configuration.vrame6
   property var connector2Plasma: plasmoid
   property var prefixActionText: /*SED01*/'' // empty
-  property var cfgAdapter
+  property var plasmacfgAdapter
 
   property var activeDeskCfg
   property var activeImage
@@ -42,7 +42,7 @@ PlasmoidItem {
     activeImage = _ImageRepeater.itemAt(activeDeskCfg.deskNo);
    }    
 
-  onConfigChanged: { _Canvas.cnvSetCfgAdapter(); }
+  onConfigChanged: { _Canvas.cnvSetPlasmacfgAdapter(); }
 
   Plasmoid.contextualActions: [
     PlasmaCore.Action {
@@ -182,7 +182,7 @@ PlasmoidItem {
 
 				    if($$path!=source || $watchdog===0)
 				    {
-					    let resanitized = JS.FILENAME_TO_URISAFE($$path);
+					    let resanitized = JS.AS_URISAFE($$path);
 					    source = resanitized;
 					    infoText=$$path;
 					    timestampFetched = Date.now();
@@ -250,20 +250,20 @@ PlasmoidItem {
       }
     }
 
-    function cnvSetCfgAdapter() {
+    function cnvSetPlasmacfgAdapter() {
 
-	    cfgAdapter = new JS.CfgAdapter(config);
+	    plasmacfgAdapter = new JS.PlasmacfgAdapter(config);
 	    cnvSetActiveDeskCfg();
     }
 
     function cnvSetActiveDeskCfg() {
 
-	    if( ! cfgAdapter) { return; }
+	    if( ! plasmacfgAdapter) { return; }
 	    //<--
 	    if( ! repeaterReady) { return; }
 	    //<--      
 
-      const deskCfg = cfgAdapter.findAppropiateCfg(_Pager.currentPage);
+      const deskCfg = plasmacfgAdapter.findAppropiateCfgForNo(_Pager.currentPage);
       if(activeDeskCfg == deskCfg) { return; }
       //<--
 
@@ -276,7 +276,7 @@ PlasmoidItem {
 
     function cnvUpdateActiveSlot() {
 
-	    let appropiateSlot = activeDeskCfg.findAppropiateTimeslotCfg_now();
+	    let appropiateSlot = activeDeskCfg.getCurrentAppropiateTimeslot();
 
 	    if(appropiateSlot !== activeImage.slot)
 	    {
