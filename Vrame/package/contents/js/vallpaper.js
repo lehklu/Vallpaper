@@ -1,14 +1,15 @@
-const DESKNO_DEFAULT = 0;
+const DESKNO_GLOBAL = -1;
+const DESKNO_GLOBAL_NAME = '*';
 
 const SLOTMARKER_DEFAULT = '00:00';
 
 const TIMESLOT_DEFAULT_jsonstr = `{
 	"slotmarker": "` + SLOTMARKER_DEFAULT + `",
 	"background": "#1d1d85",
-	"borderTop": 0,
-	"borderBottom": 0,
-	"borderLeft": 0,
-	"borderRight": 0,
+	"marginTop": 0,
+	"marginBottom": 0,
+	"marginLeft": 0,
+	"marginRight": 0,
 	"fillMode": 1,
 	"desaturate": 0,
 	"blur": 0,
@@ -21,7 +22,7 @@ const TIMESLOT_DEFAULT_jsonstr = `{
 }`;
 
 const DESKCFG_DEFAULT_jsonstr = `{
-  "deskNo": ` + DESKNO_DEFAULT + `, 
+  "deskNo": ` + DESKNO_GLOBAL + `, 
   "timeslots": { 
     "` + SLOTMARKER_DEFAULT + `": ` + TIMESLOT_DEFAULT_jsonstr + ` 
     }
@@ -32,62 +33,63 @@ const DESKCFG_DEFAULT_jsonstr = `{
 // P l a s m a c f g A d a p t e r  
 class PlasmacfgAdapter {
 
-	constructor($plasmacfg_jsonstrs, $fAfterPropagateChange=undefined) {
+	constructor($plasmacfg_jsonstrs, $fOnCfgChanged=undefined) {
 
     this.deskCfgs = [];
-		this.fAfterPropagateChange = $fAfterPropagateChange;
+		this.fOnCfgChanged = $fOnCfgChanged;
 
-    if($plasmacfg_jsonstrs.length>0)
+    if($plasmacfg_jsonstrs.length==0)
+    {
+			this.addCfg(new DeskCfg(DESKCFG_DEFAULT_jsonstr));
+			this.propagateCfgChange_afterAction();            
+    }
+    else
     {
       for(const $$deskCfg_jsonstr of $plasmacfg_jsonstrs)
       {
         this.addCfg(new DeskCfg($$deskCfg_jsonstr));
       }
     }
-    else
-    {
-			this.addCfg(new DeskCfg(DESKCFG_DEFAULT_jsonstr));
-			this.propagateChange();      
-    }
 	}
 
-  propagateChange($fBeforePropagateChange=undefined) {
+  propagateCfgChange_afterAction($fAction=undefined) {
 
-  	if($fBeforePropagateChange) { $fBeforePropagateChange(); }
+  	if($fAction) { $fAction(); }
 
+		if(this.fOnCfgChanged) 
+    { 
+      const newCfgJSONs=[];
 
-		const newCfgJSONs=[];
+      for(const $$cfg of this.getCfgs())
+      {
+        newCfgJSONs.push(JSON.stringify($$cfg));
+      }
 
-		for(const cfg of this.getCfgs())
-		{
-			newCfgJSONs.push(JSON.stringify(cfg));
-		}
-
-
-		if(this.fAfterPropagateChange) { this.fAfterPropagateChange(newCfgJSONs); }
+      this.fOnCfgChanged(newCfgJSONs); 
+    }
 	}
 
 	newCfgForNo_cloneNo($newNo, $cloneNo) {
 
 		this.addCfg(this.getCfgForNo($cloneNo).cloneAsNo($newNo));
-		this.propagateChange();
+		this.propagateCfgChange_afterAction();
 	}
 
   deleteCfgNo($no) {
 
   	this.deskCfgs.splice($no, 1);
-		this.propagateChange();
+		this.propagateCfgChange_afterAction();
 	}
 
   getCfgs() {
 
-  			// ev. sparse array
+  	    // ev. sparse array
     return this.deskCfgs.filter(($$cfg) => { return $$cfg!==undefined});
 	}
 
 	addCfg($cfg) {
 
-		this.deskCfgs[$cfg.deskNo] = $cfg;
+		this.deskCfgs[$cfg.deskNo+1] = $cfg;
 	}
 
 	getCfgForNo($no) {
@@ -95,21 +97,21 @@ class PlasmacfgAdapter {
   	return this.deskCfgs[$no];
  	}
 
-	findAppropiateCfgForNo($no) {
+	findAppropiateDeskCfgFor_pageNo($no) {
 
-  	return this.deskCfgs[$no]!==undefined?this.deskCfgs[$no]:this.deskCfgs[DESKNO_DEFAULT];
+  	return this.deskCfgs[$no]!==undefined?this.deskCfgs[$no]:this.deskCfgs[DESKNO_GLOBAL];
  	}
 
 	atCfg_newTimeslotForMarker_cloneMarker($deskCfg, $slotmarker, $cloneSlotmarker) {
 
 		$deskCfg.timeslots[$slotmarker] = $deskCfg.timeslots[$cloneSlotmarker].cloneAsNo($slotmarker);
-		this.propagateChange();
+		this.propagateCfgChange_afterAction();
 	}
 
 	atCfg_deleteTimeslot($deskCfg, $slotmarker) {
 
 		delete $deskCfg.timeslots[$slotmarker];
-		this.propagateChange();
+		this.propagateCfgChange_afterAction();
 	}
 }
 
@@ -145,7 +147,7 @@ class DeskCfg {
 		return this.timeslots[$marker];
 	}
 
-	getCurrentAppropiateTimeslot() {
+	findAppropiateSlotCfgFor_now() {
 
 		const d = new Date();
 		const nowSlot = ('00' + d.getHours()).slice(-2) + ':' + ('00' + d.getMinutes()).slice(-2);

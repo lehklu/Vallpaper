@@ -1,5 +1,5 @@
 /*
- *  Copyright 2024  Werner Lechner <werner.lechner@lehklu.at>
+ *  Copyright 2025  Werner Lechner <werner.lechner@lehklu.at>
  */
 
 import QtQuick
@@ -18,21 +18,21 @@ import "../js/vallpaper.js" as JS
 SimpleKCM {
 	id: _Root
 
-  property var myPlasmoid: plasmoid
+  property var connector2Plasma: plasmoid
 
 	property var cfg_vrame6
   property var cfg_vrame6Default // unused
 
   property var plasmacfgAdapter  
 
-  property var current_DeskCfg  
-  property var current_timeslotCfg
+  property var currentDeskCfg  
+  property var currentSlotCfg
 
   Component.onCompleted: {
     dev_log("SimpleKCM onCompleted")
 
     plasmacfgAdapter = new JS.PlasmacfgAdapter(cfg_vrame6, $newCfg => { cfg_vrame6 = $newCfg; });
-    desktopConfigs__init(_Pager.currentPage);    
+    selectDesktop__init(_Pager.currentPage);    
   }
 
 	PagerModel {
@@ -45,23 +45,26 @@ SimpleKCM {
   ColumnLayout { // Container
 	  anchors.fill: parent  
 
-    RowLayout { // Select Desktop
+    // S E L E C T   D E S K T O P - - - - - - - - - -
+    // S E L E C T   D E S K T O P - - - - - - - - - -
+    // S E L E C T   D E S K T O P - - - - - - - - - -
+    RowLayout { 
 
 		      Label {
 		        text: "For desktop"
           }
 
           ComboBox {
-            id: _DesktopConfigs
+            id: _SelectDesktop
             Layout.fillWidth: true
             model: ListModel {}
             textRole: 'displayText'
 
 		        Connections {
-			        id: _DesktopConfigsConnections
+			        id: _SelectDesktopConnections
 
-              function onCurrentIndexChanged() { desktopConfigs__handleCurrentIndexChanged(); }
-              function onCountChanged() { desktopConfigs__updateButtonsState();}
+              function onCurrentIndexChanged() { selectDesktop__handleCurrentIndexChanged(); }
+              function onCountChanged() { selectDesktop__updateButtonsState();}
 		        }            
           }
 
@@ -76,10 +79,16 @@ SimpleKCM {
             id: btnRemoveDesktopConfig
             icon.name: "edit-delete-remove"
 
-            onClicked: desktopConfigs__removeConfig()
+            onClicked: selectDesktop__removeConfig()
           }      
     }
+    // - - - - - - - - - - S E L E C T   D E S K T O P
+    // - - - - - - - - - - S E L E C T   D E S K T O P
+    // - - - - - - - - - - S E L E C T   D E S K T O P
 
+    // S E L E C T   S L O T   - - - - - - - - - -
+    // S E L E C T   S L O T   - - - - - - - - - -
+    // S E L E C T   S L O T   - - - - - - - - - -
     RowLayout {
 
         Item {
@@ -91,18 +100,18 @@ SimpleKCM {
         }
 
         ComboBox {
-          id: _Timeslots                      
+          id: _SelectSlot                      
           model: ListModel{}
 
           Connections {
-			      id: _TimeslotsConnections
+			      id: _SelectSlotConnections
 
-            function onCurrentIndexChanged() { timeslots__handleCurrentIndexChanged(); }
-            function onCountChanged() { timeslots__updateButtonsState();}
+            function onCurrentIndexChanged() { selectSlot__handleCurrentIndexChanged(); }
+            function onCountChanged() { selectSlot__updateButtonsState();}
 		      }                      
 
-  				property alias desktopConfig: _Root.current_DeskCfg
-				  onDesktopConfigChanged: timeslots__init()
+  				property alias desktopConfig: _Root.currentDeskCfg
+				  onDesktopConfigChanged: selectSlot__init()
         }
 
 		    Button {
@@ -116,16 +125,19 @@ SimpleKCM {
           id: btnRemoveTimeslot
           icon.name: "edit-delete-remove"          
 
-          onClicked: timeslots__removeTimeslot()
+          onClicked: selectSlot__removeTimeslot()
   		  }              
 
     }
+    // - - - - - - - - - -  S E L E C T   S L O T
+    // - - - - - - - - - -  S E L E C T   S L O T
+    // - - - - - - - - - -  S E L E C T   S L O T
 
     GroupBox {
 	    Layout.fillWidth: true
 	    Layout.fillHeight: true      
       
-      background: Rectangle {
+      background: Rectangle { // group box border
         anchors.fill: parent
         color: '#00ffffff'
         border.width: 1
@@ -135,6 +147,9 @@ SimpleKCM {
       ColumnLayout {
 		    anchors.fill: parent      
 
+        // B A C K G R O U N D   - - - - - - - - - -
+        // B A C K G R O U N D   - - - - - - - - - -
+        // B A C K G R O U N D   - - - - - - - - - -
 		    RowLayout {
 			
           Label {
@@ -143,18 +158,18 @@ SimpleKCM {
 
 			    Button {
 
-            property alias myCfg: _Root.current_timeslotCfg
+            property alias myCfg: _Root.currentSlotCfg
             onMyCfgChanged: myColor = myCfg.background            
 
             property string myColor
-            onMyColorChanged: plasmacfgAdapter.propagateChange(() => {
+            onMyColorChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
         	    myCfg.background = myColor;
             });
 
             onClicked: {
 
 	            dlgSelectColor.selectedColor = myColor;
-              dlgSelectColor.options = myPlasmoid === plasmoid?ColorDialog.ShowAlphaChannel:0;
+              dlgSelectColor.options = connector2Plasma === plasmoid?ColorDialog.ShowAlphaChannel:0;
 	            dlgSelectColor.handleOnAccepted = ($$selectedColor) => {
 	              myColor = $$selectedColor.toString();
 	            };
@@ -171,9 +186,15 @@ SimpleKCM {
   				  }
 	  		  }
 		    }
+        // - - - - - - - - - -  B A C K G R O U N D
+        // - - - - - - - - - -  B A C K G R O U N D
+        // - - - - - - - - - -  B A C K G R O U N D
 
+        // M A R G I N S   - - - - - - - - - -
+        // M A R G I N S   - - - - - - - - - -
+        // M A R G I N S   - - - - - - - - - -
 		    RowLayout {
-          id: _Borders
+          id: _Margins
 
           property var myHeight: Screen.height
           property var myWidth: Screen.width
@@ -184,75 +205,78 @@ SimpleKCM {
 
 			    SpinBox {
             stepSize: 1
-            to: _Borders.myHeight
+            to: _Margins.myHeight
 
-            property alias myCfg: _Root.current_timeslotCfg
-            onMyCfgChanged: value = myCfg.borderTop
+            property alias myCfg: _Root.currentSlotCfg
+            onMyCfgChanged: value = myCfg.marginTop
 
-            onValueChanged: plasmacfgAdapter.propagateChange(() => {
-        	    myCfg.borderTop = value;
+            onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+        	    myCfg.marginTop = value;
             });            
 			    }
 
 			    Label {
-				    text: 'px top (max. ' + _Borders.myHeight + ')'
+				    text: 'px top (max. ' + _Margins.myHeight + ')'
 			    }
 
 			    SpinBox {
             stepSize: 1
-            to: _Borders.myHeight
+            to: _Margins.myHeight
 
-            property alias myCfg: _Root.current_timeslotCfg
-            onMyCfgChanged: value = myCfg.borderBottom
+            property alias myCfg: _Root.currentSlotCfg
+            onMyCfgChanged: value = myCfg.marginBottom
 
-            onValueChanged: plasmacfgAdapter.propagateChange(() => {
-        	    myCfg.borderBottom = value;
+            onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+        	    myCfg.marginBottom = value;
             });                        
 			    }
 
 			    Label {
-				    text: 'px bottom (max. ' + _Borders.myHeight + ')'
+				    text: 'px bottom (max. ' + _Margins.myHeight + ')'
 			    }
 		    }
 
   		  RowLayout {
 
 		  	  Label {
-            text: '' // spacer
+            text: 'Borders' // spacer
           }
 
 			    SpinBox {
             stepSize: 1
-            to: _Borders.myWidth
+            to: _Margins.myWidth
 
-            property alias myCfg: _Root.current_timeslotCfg
-            onMyCfgChanged: value = myCfg.borderLeft
+            property alias myCfg: _Root.currentSlotCfg
+            onMyCfgChanged: value = myCfg.marginLeft
 
-            onValueChanged: plasmacfgAdapter.propagateChange(() => {
-        	    myCfg.borderLeft = value;
+            onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+        	    myCfg.marginLeft = value;
             });                                    
 			    }
 
 			    Label {
-  				  text: 'px left (max. ' + _Borders.myWidth + ')'
+  				  text: 'px left (max. ' + _Margins.myWidth + ')'
 	  		  }
 
 			    SpinBox {
             stepSize: 1
-            to: _Borders.myWidth
+            to: _Margins.myWidth
 
-            property alias myCfg: _Root.current_timeslotCfg
-            onMyCfgChanged: value = myCfg.borderRight
+            property alias myCfg: _Root.currentSlotCfg
+            onMyCfgChanged: value = myCfg.marginRight
 
-            onValueChanged: plasmacfgAdapter.propagateChange(() => {
-        	    myCfg.borderRight = value;
+            onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+        	    myCfg.marginRight = value;
             });                                    
 			    }
 
 			    Label {
-				    text: 'px right (max. ' + _Borders.myWidth + ')'
+				    text: 'px right (max. ' + _Margins.myWidth + ')'
 			    }
 		    }
+        // - - - - - - - - - -  M A R G I N S
+        // - - - - - - - - - -  M A R G I N S
+        // - - - - - - - - - -  M A R G I N S                
 
 		    RowLayout {
 
@@ -264,10 +288,10 @@ SimpleKCM {
 				    currentIndex: 0
             textRole: 'text'
 
-            property alias myCfg: _Root.current_timeslotCfg
+            property alias myCfg: _Root.currentSlotCfg
             onMyCfgChanged: currentIndex = indexFromFillMode(myCfg.fillMode)
 
-            onCurrentIndexChanged: plasmacfgAdapter.propagateChange(() => {
+            onCurrentIndexChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
         	    myCfg.fillMode = model[currentIndex].value;
             });                                                
 
@@ -316,10 +340,10 @@ SimpleKCM {
 				    }
 
 				    Slider {
-              property alias myCfg: _Root.current_timeslotCfg
+              property alias myCfg: _Root.currentSlotCfg
               onMyCfgChanged: value = myCfg.desaturate
 
-              onValueChanged: plasmacfgAdapter.propagateChange(() => {
+              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
           	    myCfg.desaturate = value;
               });                                                  
 				    }
@@ -333,10 +357,10 @@ SimpleKCM {
 				    }
 
 				    Slider {
-              property alias myCfg: _Root.current_timeslotCfg
+              property alias myCfg: _Root.currentSlotCfg
               onMyCfgChanged: value = myCfg.blur
 
-              onValueChanged: plasmacfgAdapter.propagateChange(() => {
+              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
           	    myCfg.blur = value;
               });                                                                
 				    }
@@ -349,10 +373,10 @@ SimpleKCM {
 				    }
 
     				Slider {
-              property alias myCfg: _Root.current_timeslotCfg
+              property alias myCfg: _Root.currentSlotCfg
               onMyCfgChanged: value = myCfg.colorize
 
-              onValueChanged: plasmacfgAdapter.propagateChange(() => {
+              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
           	    myCfg.colorize = value;
                 effects__updateColorizeValue(myCfg);
               });                                
@@ -361,11 +385,11 @@ SimpleKCM {
 
 			    Button {
 
-            property alias myCfg: _Root.current_timeslotCfg
+            property alias myCfg: _Root.currentSlotCfg
             onMyCfgChanged: myColor = myCfg.colorizeColor
 
             property string myColor
-            onMyColorChanged: plasmacfgAdapter.propagateChange(() => {
+            onMyColorChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
         	    myCfg.colorizeColor = myColor;
               effects__updateColorizeValue(myCfg);
             });
@@ -373,7 +397,6 @@ SimpleKCM {
             onClicked: {
 
 	            dlgSelectColor.selectedColor = myColor;
-              dlgSelectColor.options = myPlasmoid === plasmoid?ColorDialog.ShowAlphaChannel:0;
 	            dlgSelectColor.handleOnAccepted = ($$selectedColor) => {
 	              myColor = $$selectedColor.toString();
 	            };
@@ -404,10 +427,10 @@ SimpleKCM {
             readonly property IntValidator intValidator: IntValidator {}
             to: intValidator.top
 
-            property alias myCfg: _Root.current_timeslotCfg
+            property alias myCfg: _Root.currentSlotCfg
             onMyCfgChanged: value = myCfg.interval
 
-            onValueChanged: plasmacfgAdapter.propagateChange(() => {
+            onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
         	    myCfg.interval = value;
             });                                    
 			    }
@@ -427,10 +450,10 @@ SimpleKCM {
 			    CheckBox {
       	    text: 'shuffle'
 
-            property alias myCfg: _Root.current_timeslotCfg
+            property alias myCfg: _Root.currentSlotCfg
             onMyCfgChanged: checked = myCfg.shuffle
 
-            onCheckedChanged: plasmacfgAdapter.propagateChange(() => {
+            onCheckedChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
         	    myCfg.shuffle = checked?1:0;
             });
   		    }          
@@ -474,7 +497,7 @@ SimpleKCM {
               id: _ImageSources
         	    width: parent.width
 
-              property alias myCfg: _Root.current_timeslotCfg
+              property alias myCfg: _Root.currentSlotCfg
               onMyCfgChanged: {
 
 		      	    inceptSources(myCfg.imagesources)
@@ -484,7 +507,7 @@ SimpleKCM {
 
               model: ListModel {
 
-                onCountChanged: plasmacfgAdapter.propagateChange(() => {
+                onCountChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
 
 		      	      _ImageSources.extractSourcesToModel();
 
@@ -666,9 +689,9 @@ Dialog {
 
     const element = {"slotmarker": newSlot};
 
-		plasmacfgAdapter.atCfg_newTimeslotForMarker_cloneMarker(current_DeskCfg, element.slotmarker, _Timeslots.model.get(_Timeslots.currentIndex).slotmarker);
+		plasmacfgAdapter.atCfg_newTimeslotForMarker_cloneMarker(currentDeskCfg, element.slotmarker, _SelectSlot.model.get(_SelectSlot.currentIndex).slotmarker);
 
-    timeslots__insertSlot(element);
+    selectSlot__insertSlot(element);
 	}
 
   Component.onCompleted: initModels();
@@ -681,9 +704,9 @@ Dialog {
 
 
 	  let slots = [];
-	  for(let i = 0; i < _Timeslots.model.count; ++i)
+	  for(let i = 0; i < _SelectSlot.model.count; ++i)
 	  {
-		  slots.push( _Timeslots.model.get(i).slotmarker);
+		  slots.push( _SelectSlot.model.get(i).slotmarker);
 	  }
 	  _DlgAddTimeslot.excludeSlots = slots;
 
@@ -766,11 +789,11 @@ Dialog {
   onAccepted: {
 
     const element = _ComboAddConfig.model[_ComboAddConfig.currentIndex];
-    const currentDesktopConfigDeskNo = _DesktopConfigs.model.get(_DesktopConfigs.model.currentIndex).deskNo;
+    const currentDesktopConfigDeskNo = _SelectDesktop.model.get(_SelectDesktop.model.currentIndex).deskNo;
 
     plasmacfgAdapter.newCfgForNo_cloneNo(element.deskNo, currentDesktopConfigDeskNo);
 
-    desktopConfigs__insertElement(element);
+    selectDesktop__insertElement(element);
 	}
 
   onVisibleChanged: {
@@ -780,9 +803,9 @@ Dialog {
 
 
 	  const existingDeskNos = [];
-	  for(let i = 0; i < _DesktopConfigs.model.count; ++i)
+	  for(let i = 0; i < _SelectDesktop.model.count; ++i)
 	  {
-		  existingDeskNos.push(_DesktopConfigs.model.get(i).deskNo);
+		  existingDeskNos.push(_SelectDesktop.model.get(i).deskNo);
 	  }
 
 		const myModel = [];
@@ -793,7 +816,7 @@ Dialog {
       //<--
 
 
-      myModel.push(desktopConfigs__buildElement(deskNo));
+      myModel.push(selectDesktop__buildElement(deskNo));
 		}
 	
   	_ComboAddConfig.model = myModel;
@@ -814,21 +837,21 @@ Dialog {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function timeslots__init() {
+function selectSlot__init() {
 
-	const memConnTarget = _TimeslotsConnections.target;
-	_TimeslotsConnections.target = null;
+	const memConnTarget = _SelectSlotConnections.target;
+	_SelectSlotConnections.target = null;
 
-	_Timeslots.model.clear();
-	const nowTimeslotCfg = current_DeskCfg.getCurrentAppropiateTimeslot();  
-	const orderedTimeslotCfgs = current_DeskCfg.getOrderedTimeslots();
+	_SelectSlot.model.clear();
+	const nowTimeslotCfg = currentDeskCfg.findAppropiateSlotCfgFor_now();  
+	const orderedTimeslotCfgs = currentDeskCfg.getOrderedTimeslots();
 
 	let activateIdx = 0;
 	for(let $$i in orderedTimeslotCfgs)
 	{
 		const timeslotCfg = orderedTimeslotCfgs[$$i];
 
-		timeslots__insertSlot({"slotmarker": timeslotCfg.slotmarker});
+		selectSlot__insertSlot({"slotmarker": timeslotCfg.slotmarker});
 
     if(timeslotCfg===nowTimeslotCfg)
     {
@@ -836,25 +859,25 @@ function timeslots__init() {
     }
 	}
 
-	_TimeslotsConnections.target = memConnTarget;
+	_SelectSlotConnections.target = memConnTarget;
 
 
 	// activate
-	if(_Timeslots.currentIndex == activateIdx)
+	if(_SelectSlot.currentIndex == activateIdx)
 	{
-		timeslots__handleCurrentIndexChanged();
+		selectSlot__handleCurrentIndexChanged();
 	}
 	else
 	{
-		_Timeslots.currentIndex = activateIdx;
+		_SelectSlot.currentIndex = activateIdx;
 	}  
 
 
 }
 
-function timeslots__insertSlot($slot) {
+function selectSlot__insertSlot($slot) {
 
-  const model = _Timeslots.model;
+  const model = _SelectSlot.model;
 
 	let idx = 0;
 	while(idx < model.count && $slot > model.get(idx))
@@ -871,71 +894,71 @@ function timeslots__insertSlot($slot) {
 		model.insert(idx, $slot);
 	}
 
-	_Timeslots.currentIndex = idx;
+	_SelectSlot.currentIndex = idx;
 }
 
-function timeslots__handleCurrentIndexChanged() {
+function selectSlot__handleCurrentIndexChanged() {
 
-	timeslots__updateButtonsState();
+	selectSlot__updateButtonsState();
 
-	current_timeslotCfg = current_DeskCfg.getTimeslotForMarker(_Timeslots.model.get(_Timeslots.currentIndex).slotmarker);
+	currentSlotCfg = currentDeskCfg.getTimeslotForMarker(_SelectSlot.model.get(_SelectSlot.currentIndex).slotmarker);
 }
 
-function timeslots__updateButtonsState() {
+function selectSlot__updateButtonsState() {
 
-	btnAddTimeslot.enabled = _Timeslots.model.count < 60 * 24;
+	btnAddTimeslot.enabled = _SelectSlot.model.count < 60 * 24;
 
-	btnRemoveTimeslot.enabled = _Timeslots.currentIndex > 0;
+	btnRemoveTimeslot.enabled = _SelectSlot.currentIndex > 0;
 }
 
-function timeslots__removeTimeslot() {
+function selectSlot__removeTimeslot() {
 
-	plasmacfgAdapter.atCfg_deleteTimeslot(current_DeskCfg, _Timeslots.model.get(_Timeslots.currentIndex).slotmarker);
+	plasmacfgAdapter.atCfg_deleteTimeslot(currentDeskCfg, _SelectSlot.model.get(_SelectSlot.currentIndex).slotmarker);
 
-	_Timeslots.model.remove(_Timeslots.currentIndex);
+	_SelectSlot.model.remove(_SelectSlot.currentIndex);
 
-	_Timeslots.currentIndex = Math.max(0, _Timeslots.currentIndex - 1);
-}
-
-
-
-
-
-function desktopConfigs__removeConfig() {
-
-	plasmacfgAdapter.deleteCfgNo(_DesktopConfigs.model.get(_DesktopConfigs.currentIndex).deskNo);
-
-	_DesktopConfigs.model.remove(_DesktopConfigs.currentIndex);
-
-	_DesktopConfigs.currentIndex = Math.min(_DesktopConfigs.currentIndex, _DesktopConfigs.model.count - 1);
-}
-
-function desktopConfigs__updateButtonsState() {
-
-	btnAddDesktopConfig.enabled = _DesktopConfigs.model.count < _Pager.count+1;
-
-	btnRemoveDesktopConfig.enabled = _DesktopConfigs.currentIndex > JS.DESKNO_DEFAULT;
+	_SelectSlot.currentIndex = Math.max(0, _SelectSlot.currentIndex - 1);
 }
 
 
-function desktopConfigs__handleCurrentIndexChanged() {
 
-	desktopConfigs__updateButtonsState();
 
-	current_DeskCfg = plasmacfgAdapter.getCfgForNo(_DesktopConfigs.model.get(_DesktopConfigs.currentIndex).deskNo);
+
+function selectDesktop__removeConfig() {
+
+	plasmacfgAdapter.deleteCfgNo(_SelectDesktop.model.get(_SelectDesktop.currentIndex).deskNo);
+
+	_SelectDesktop.model.remove(_SelectDesktop.currentIndex);
+
+	_SelectDesktop.currentIndex = Math.min(_SelectDesktop.currentIndex, _SelectDesktop.model.count - 1);
 }
 
-function desktopConfigs__init($currentConfigDeskNo) {
+function selectDesktop__updateButtonsState() {
 
-	let activateNo = JS.DESKNO_DEFAULT;
+	btnAddDesktopConfig.enabled = _SelectDesktop.model.count < _Pager.count+1;
+
+	btnRemoveDesktopConfig.enabled = _SelectDesktop.currentIndex > 0;
+}
+
+
+function selectDesktop__handleCurrentIndexChanged() {
+
+	selectDesktop__updateButtonsState();
+
+	currentDeskCfg = plasmacfgAdapter.getCfgForNo(_SelectDesktop.model.get(_SelectDesktop.currentIndex).deskNo);
+}
+
+function selectDesktop__init($currentConfigDeskNo) {
+
+	let activateNo = JS.DESKNO_GLOBAL;
 
 	// fill model
-	const memConnTarget = _DesktopConfigsConnections.target;
-	_DesktopConfigsConnections.target = null;
+	const memConnTarget = _SelectDesktopConnections.target;
+	_SelectDesktopConnections.target = null;
 
 	for(const $$cfg of plasmacfgAdapter.getCfgs())
 	{
-		desktopConfigs__insertElement(desktopConfigs__buildElement($$cfg.deskNo));
+		selectDesktop__insertElement(selectDesktop__buildElement($$cfg.deskNo));
 
 		if($$cfg.deskNo === $currentConfigDeskNo)
 		{
@@ -943,11 +966,11 @@ function desktopConfigs__init($currentConfigDeskNo) {
 		}
 	}
 
-	_DesktopConfigsConnections.target = memConnTarget;
+	_SelectDesktopConnections.target = memConnTarget;
 
 
   // activate current
-  const model = _DesktopConfigs.model;  
+  const model = _SelectDesktop.model;  
 
 	let activateIndex = 0;
 	for(let i = 0; i < model.count; ++i)
@@ -960,30 +983,30 @@ function desktopConfigs__init($currentConfigDeskNo) {
 		}
 	}
 
-	if(_DesktopConfigs.currentIndex == activateIndex)
+	if(_SelectDesktop.currentIndex == activateIndex)
 	{
-		desktopConfigs__handleCurrentIndexChanged();
+		selectDesktop__handleCurrentIndexChanged();
 	}
 	else
 	{
-		_DesktopConfigs.currentIndex = activateIndex;
+		_SelectDesktop.currentIndex = activateIndex;
 	}
 }
 
-function desktopConfigs__buildElement($deskNo) {
+function selectDesktop__buildElement($deskNo) {
 
 	const orderText = '#' + ('  '+$deskNo).slice(-3);
 
 	return {
-		'displayText': (JS.DESKNO_DEFAULT===$deskNo?'*':_Pager.data(_Pager.index($deskNo-1, 0), 0)),
+		'displayText': (JS.DESKNO_GLOBAL===$deskNo?JS.DESKNO_GLOBAL_NAME:_Pager.data(_Pager.index($deskNo, 0), 0)),
     'deskNo': $deskNo,
     'orderText': orderText
 		}
 }
 
-function desktopConfigs__insertElement($desktopElement) {
+function selectDesktop__insertElement($desktopElement) {
 
-  const model = _DesktopConfigs.model;
+  const model = _SelectDesktop.model;
 
 	let idx = 0;
 	while(idx < model.count && $desktopElement.orderText > model.get(idx).orderText)
@@ -1000,7 +1023,7 @@ function desktopConfigs__insertElement($desktopElement) {
 		model.insert(idx, $desktopElement);
 	}
 
-	_DesktopConfigs.currentIndex = idx;
+	_SelectDesktop.currentIndex = idx;
 }
 
 function effects__updateColorizeValue($slot) {
