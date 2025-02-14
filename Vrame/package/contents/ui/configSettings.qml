@@ -32,7 +32,7 @@ SimpleKCM {
     dev_log("SimpleKCM onCompleted")
 
     plasmacfgAdapter = new JS.PlasmacfgAdapter(cfg_vrame6, $newCfg => { cfg_vrame6 = $newCfg; });
-    selectDesktop__init(_Pager.currentPage);    
+    selectDesktop__init(_Pager.currentPage+1);    
   }
 
 	PagerModel {
@@ -998,7 +998,7 @@ function selectDesktop__buildElement($deskNo) {
 	const orderText = '#' + ('  '+$deskNo).slice(-3);
 
 	return {
-		'displayText': (JS.DESKNO_GLOBAL===$deskNo?JS.DESKNO_GLOBAL_NAME:_Pager.data(_Pager.index($deskNo, 0), 0)),
+		'displayText': (JS.DESKNO_GLOBAL===$deskNo?JS.DESKNO_GLOBAL_NAME:_Pager.data(_Pager.index($deskNo-1, 0), 0)),
     'deskNo': $deskNo,
     'orderText': orderText
 		}

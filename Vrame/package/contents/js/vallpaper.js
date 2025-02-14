@@ -1,4 +1,4 @@
-const DESKNO_GLOBAL = -1;
+const DESKNO_GLOBAL = 0;
 const DESKNO_GLOBAL_NAME = '*';
 
 const SLOTMARKER_DEFAULT = '00:00';
@@ -89,7 +89,7 @@ class PlasmacfgAdapter {
 
 	addCfg($cfg) {
 
-		this.deskCfgs[$cfg.deskNo+1] = $cfg;
+		this.deskCfgs[$cfg.deskNo] = $cfg;
 	}
 
 	getCfgForNo($no) {
@@ -97,9 +97,11 @@ class PlasmacfgAdapter {
   	return this.deskCfgs[$no];
  	}
 
-	findAppropiateDeskCfgFor_pageNo($no) {
+	findAppropiateDeskCfgFor_pageNo($pageNo) {
+    
+    const deskNo = $pageNo+1;
 
-  	return this.deskCfgs[$no]!==undefined?this.deskCfgs[$no]:this.deskCfgs[DESKNO_GLOBAL];
+  	return this.deskCfgs[deskNo]!==undefined?this.deskCfgs[deskNo]:this.deskCfgs[DESKNO_GLOBAL];
  	}
 
 	atCfg_newTimeslotForMarker_cloneMarker($deskCfg, $slotmarker, $cloneSlotmarker) {
