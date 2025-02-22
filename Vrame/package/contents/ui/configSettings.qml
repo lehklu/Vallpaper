@@ -135,6 +135,7 @@ SimpleKCM {
 
     GroupBox {
 	    Layout.fillWidth: true
+
 	    Layout.fillHeight: true      
       
       background: Rectangle { // group box border
@@ -150,6 +151,102 @@ SimpleKCM {
         // B A C K G R O U N D   - - - - - - - - - -
         // B A C K G R O U N D   - - - - - - - - - -
         // B A C K G R O U N D   - - - - - - - - - -
+        GridLayout {
+          columns: 3
+
+          Item {
+            // 1-1
+            Layout.fillWidth: true                      
+            Label {
+              text: 'Background'
+            }            
+          }
+          Item {
+            // 1-2
+            Layout.fillWidth: true                                  
+
+            RowLayout{
+
+  			      SpinBox {
+                stepSize: 1
+                to: _Margins.myHeight
+
+                property alias myCfg: _Root.currentSlotCfg
+                onMyCfgChanged: value = myCfg.marginTop
+
+                onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+          	      myCfg.marginTop = value;
+                });            
+			        }
+
+			        Label {
+				        text: 'px top (max. ' + _Margins.myHeight + ')'
+			        }            
+            }
+          }
+          Item {
+            // 1-3
+            Layout.fillWidth: true                                  
+            Label {
+              text: 'Background'
+            }                        
+          }
+
+          Item {
+            // 2-1
+            RowLayout {
+			        SpinBox {
+                stepSize: 1
+                to: _Margins.myWidth
+
+                property alias myCfg: _Root.currentSlotCfg
+                onMyCfgChanged: value = myCfg.marginLeft
+
+                onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+        	        myCfg.marginLeft = value;
+                });                                    
+			        }
+
+			        Label {
+  				      text: 'px left (max. ' + _Margins.myWidth + ')'
+	  		      }
+            }
+          }
+          Item {
+            // 2-2
+            Label {
+              text: 'Background'
+            }                        
+          }
+          Item {
+            // 2-3
+            Label {
+              text: 'Background'
+            }                        
+          }
+
+          Item {
+            // 3-1
+            Label {
+              text: 'Background'
+            }                        
+          }
+          Item {
+            // 3-2
+            Label {
+              text: 'Background'
+            }                        
+          }
+          Item {
+            // 3-3
+            Label {
+              text: 'Background'
+            }                        
+          }                                                                                
+        }
+
+
+
 		    RowLayout {
 			
           Label {
