@@ -901,7 +901,7 @@ function selectSlot__handleCurrentIndexChanged() {
 
 	selectSlot__updateButtonsState();
 
-	currentSlotCfg = currentDeskCfg.getTimeslotForMarker(_SelectSlot.model.get(_SelectSlot.currentIndex).slotmarker);
+	currentSlotCfg = currentDeskCfg.getTimeslotForSlotmarker(_SelectSlot.model.get(_SelectSlot.currentIndex).slotmarker);
 }
 
 function selectSlot__updateButtonsState() {
@@ -945,7 +945,7 @@ function selectDesktop__handleCurrentIndexChanged() {
 
 	selectDesktop__updateButtonsState();
 
-	currentDeskCfg = plasmacfgAdapter.getCfgForNo(_SelectDesktop.model.get(_SelectDesktop.currentIndex).deskNo);
+	currentDeskCfg = plasmacfgAdapter.getCfgForDeskNo(_SelectDesktop.model.get(_SelectDesktop.currentIndex).deskNo);
 }
 
 function selectDesktop__init($currentConfigDeskNo) {
