@@ -154,98 +154,82 @@ SimpleKCM {
         GridLayout {
           columns: 3
 
-          Item {
-            // 1-1
-            Layout.fillWidth: true                      
-            Label {
-              text: 'Background'
-            }            
-          }
-          Item {
-            // 1-2
-            Layout.fillWidth: true                                  
-
-            RowLayout{
-
-  			      SpinBox {
-                stepSize: 1
-                to: _Margins.myHeight
-
-                property alias myCfg: _Root.currentSlotCfg
-                onMyCfgChanged: value = myCfg.marginTop
-
-                onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-          	      myCfg.marginTop = value;
-                });            
-			        }
-
-			        Label {
-				        text: 'px top (max. ' + _Margins.myHeight + ')'
-			        }            
-            }
-          }
-          Item {
-            // 1-3
-            Layout.fillWidth: true                                  
-            Label {
-              text: 'Background'
-            }                        
+          // 1-1
+          Label {
+            text: 'Background'
           }
 
-          Item {
-            // 2-1
-            RowLayout {
-			        SpinBox {
-                stepSize: 1
-                to: _Margins.myWidth
+          // 1-2
+		      RowLayout {
 
-                property alias myCfg: _Root.currentSlotCfg
-                onMyCfgChanged: value = myCfg.marginLeft
+            property var myHeight: Screen.height
+            property var myWidth: Screen.width
 
-                onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-        	        myCfg.marginLeft = value;
-                });                                    
-			        }
+			      SpinBox {
+              stepSize: 1
+              to: parent.myHeight
 
-			        Label {
-  				      text: 'px left (max. ' + _Margins.myWidth + ')'
-	  		      }
-            }
-          }
-          Item {
-            // 2-2
-            Label {
-              text: 'Background'
-            }                        
-          }
-          Item {
-            // 2-3
-            Label {
-              text: 'Background'
-            }                        
-          }
+              property alias myCfg: _Root.currentSlotCfg
+              onMyCfgChanged: value = myCfg.marginTop
 
-          Item {
-            // 3-1
-            Label {
-              text: 'Background'
-            }                        
-          }
-          Item {
-            // 3-2
-            Label {
-              text: 'Background'
-            }                        
-          }
-          Item {
-            // 3-3
-            Label {
-              text: 'Background'
-            }                        
-          }                                                                                
+              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+          	    myCfg.marginTop = value;
+              });            
+			      }
+
+			      Label {
+				      text: 'px top padding (max. ' + parent.myHeight + ')'
+			      }
+  				}          
+
+          Rectangle {
+            width: 20
+            height: 20
+
+            color: "red"
+  				}                    
+
+          Rectangle {
+            width: 20
+            height: 20
+
+            color: "orange"
+  				}          
+          Rectangle {
+            width: 20
+            height: 20
+
+            color: "red"
+  				}          
+          Rectangle {
+            width: 20
+            height: 20
+
+            color: "orange"
+  				}          
+
+
+          Rectangle {
+            width: 20
+            height: 20
+
+            color: "red"
+  				}          
+          Rectangle {
+            width: 20
+            height: 20
+
+            color: "orange"
+  				}          
+          Rectangle {
+            width: 20
+            height: 20
+
+            color: "red"
+  				}                                        
         }
 
-
+//----------------------------------      
 
 		    RowLayout {
 			

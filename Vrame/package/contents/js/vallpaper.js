@@ -1,3 +1,7 @@
+/*
+ *  Copyright 2025  Werner Lechner <werner.lechner@lehklu.at>
+ */
+
 const DESKNO_GLOBAL = 0;
 const DESKNO_GLOBAL_NAME = '*';
 
@@ -41,7 +45,6 @@ class PlasmacfgAdapter {
     if($plasmacfg_jsonstrs.length==0)
     {
 			this.addCfg(new DeskCfg(DESKCFG_DEFAULT_jsonstr));
-			this.propagateCfgChange_afterAction();            
     }
     else
     {
@@ -69,15 +72,15 @@ class PlasmacfgAdapter {
     }
 	}
 
-	newCfgForNo_cloneNo($newNo, $cloneNo) {
+	newCfgForDeskNo_cloneDeskNo($newDeskNo, $cloneDeskNo) {
 
-		this.addCfg(this.getCfgForNo($cloneNo).cloneAsNo($newNo));
+		this.addCfg(this.getCfgForDeskNo($cloneDeskNo).cloneAs($newDeskNo));
 		this.propagateCfgChange_afterAction();
 	}
 
-  deleteCfgNo($no) {
+  deleteCfgDeskNo($deskNo) {
 
-  	this.deskCfgs.splice($no, 1);
+  	this.deskCfgs.splice($deskNo, 1);
 		this.propagateCfgChange_afterAction();
 	}
 
@@ -92,9 +95,9 @@ class PlasmacfgAdapter {
 		this.deskCfgs[$cfg.deskNo] = $cfg;
 	}
 
-	getCfgForNo($no) {
+	getCfgForDeskNo($deskNo) {
 
-  	return this.deskCfgs[$no];
+  	return this.deskCfgs[$deskNo];
  	}
 
 	findAppropiateDeskCfgFor_pageNo($pageNo) {
@@ -106,7 +109,7 @@ class PlasmacfgAdapter {
 
 	atCfg_newTimeslotForMarker_cloneMarker($deskCfg, $slotmarker, $cloneSlotmarker) {
 
-		$deskCfg.timeslots[$slotmarker] = $deskCfg.timeslots[$cloneSlotmarker].cloneAsNo($slotmarker);
+		$deskCfg.timeslots[$slotmarker] = $deskCfg.timeslots[$cloneSlotmarker].cloneAs($slotmarker);
 		this.propagateCfgChange_afterAction();
 	}
 
@@ -132,43 +135,43 @@ class DeskCfg {
 		const timeslotKeys = Object.keys(this.timeslots);
 		for(const $$key of timeslotKeys)
 		{
-			this.timeslots[$$key] = new TimeslotCfg(this.timeslots[$$key]);
+			this.timeslots[$$key] = new TimeslotCfg(this.timeslots[$$key]); // replace object with TimeslotCfg instance
 		}
 	}
 
-	cloneAsNo($newNo) {
+	cloneAs($newDeskNo) {
 
 		const clone = new DeskCfg(JSON.stringify(this));
-		clone.deskNo = $newNo;
+		clone.deskNo = $newDeskNo;
 
 		return clone;
 	}
 
-	getTimeslotForMarker($marker) {
+	getTimeslotForSlotmarker($slotmarker) {
 
-		return this.timeslots[$marker];
+		return this.timeslots[$slotmarker];
 	}
 
 	findAppropiateSlotCfgFor_now() {
 
 		const d = new Date();
-		const nowSlot = ('00' + d.getHours()).slice(-2) + ':' + ('00' + d.getMinutes()).slice(-2);
+		const nowSlotmarker = ('00' + d.getHours()).slice(-2) + ':' + ('00' + d.getMinutes()).slice(-2);
 
-		const markers = Object.keys(this.timeslots).sort();
+		const orderedSlotmarkers = Object.keys(this.timeslots).sort();
 
-		let appropiateMarker = SLOTMARKER_DEFAULT;
+		let appropiateSlotmarker = SLOTMARKER_DEFAULT;
 
-		for(const $$marker of markers)
+		for(const $$slotmarker of orderedSlotmarkers)
 		{
-			if($$marker > nowSlot)
+			if($$slotmarker > nowSlotmarker)
 			{
 				break;
 			}
 
-			appropiateMarker = $$marker;
+			appropiateSlotmarker = $$slotmarker;
 		}
 
-		return this.timeslots[appropiateMarker];
+		return this.timeslots[appropiateSlotmarker];
 	}
 
 	getOrderedTimeslots() {
@@ -196,9 +199,9 @@ class TimeslotCfg {
 		Object.assign(this, $template);
 	}
 
-	cloneAsNo($slotmarker) {
+	cloneAs($slotmarker) {
 
-		let clone = new TimeslotCfg(this);
+		const clone = new TimeslotCfg(this);
 		clone.slotmarker = $slotmarker;
 
 		return clone;
