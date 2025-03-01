@@ -28,6 +28,15 @@ SimpleKCM {
   property var currentDeskCfg  
   property var currentSlotCfg
 
+  FontMetrics {
+    id: _FontMetrics
+  }
+
+  SystemPalette {
+    id: _ActiveSystemPalette
+    colorGroup: SystemPalette.Active    
+  }  
+
   Component.onCompleted: {
     dev_log("SimpleKCM onCompleted")
 
@@ -155,90 +164,12 @@ SimpleKCM {
           columns: 3
 
           // 1-1
-          Label {
-            text: 'Background'
-          }
+          RowLayout {
 
-          // 1-2
-		      RowLayout {
-
-            property var myHeight: Screen.height
-            property var myWidth: Screen.width
-
-			      SpinBox {
-              stepSize: 1
-              to: parent.myHeight
-
-              property alias myCfg: _Root.currentSlotCfg
-              onMyCfgChanged: value = myCfg.marginTop
-
-              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-          	    myCfg.marginTop = value;
-              });            
-			      }
-
-			      Label {
-				      text: 'px top padding (max. ' + parent.myHeight + ')'
-			      }
-  				}          
-
-          Rectangle {
-            width: 20
-            height: 20
-
-            color: "red"
-  				}                    
-
-          Rectangle {
-            width: 20
-            height: 20
-
-            color: "orange"
-  				}          
-          Rectangle {
-            width: 20
-            height: 20
-
-            color: "red"
-  				}          
-          Rectangle {
-            width: 20
-            height: 20
-
-            color: "orange"
-  				}          
-
-
-          Rectangle {
-            width: 20
-            height: 20
-
-            color: "red"
-  				}          
-          Rectangle {
-            width: 20
-            height: 20
-
-            color: "orange"
-  				}          
-          Rectangle {
-            width: 20
-            height: 20
-
-            color: "red"
-  				}                                        
-        }
-
-//----------------------------------      
-
-		    RowLayout {
-			
-          Label {
-            text: 'Background'
-          }
-
-			    Button {
-
+            Label {
+              text: 'Background'
+            }
+          Button {
             property alias myCfg: _Root.currentSlotCfg
             onMyCfgChanged: myColor = myCfg.background            
 
@@ -259,105 +190,134 @@ SimpleKCM {
             }
 
   				  Rectangle {
+              width: parent.height * 0.65
+              height: width
               anchors.centerIn: parent
-              width: 20
-              height: 20
 
               color: parent.myColor
-  				  }
-	  		  }
-		    }
-        // - - - - - - - - - -  B A C K G R O U N D
-        // - - - - - - - - - -  B A C K G R O U N D
-        // - - - - - - - - - -  B A C K G R O U N D
-
-        // M A R G I N S   - - - - - - - - - -
-        // M A R G I N S   - - - - - - - - - -
-        // M A R G I N S   - - - - - - - - - -
-		    RowLayout {
-          id: _Margins
-
-          property var myHeight: Screen.height
-          property var myWidth: Screen.width
-    
-			    Label {
-            text: 'Borders'
+	  		    }                      
+          }            
           }
 
-			    SpinBox {
-            stepSize: 1
-            to: _Margins.myHeight
 
-            property alias myCfg: _Root.currentSlotCfg
-            onMyCfgChanged: value = myCfg.marginTop
+          // 1-2
+		      RowLayout {
 
-            onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-        	    myCfg.marginTop = value;
-            });            
-			    }
+            property var myHeight: Screen.height
+            property var myWidth: Screen.width
 
-			    Label {
-				    text: 'px top (max. ' + _Margins.myHeight + ')'
-			    }
+			      SpinBox {
+              stepSize: 1
+              to: parent.myHeight
 
-			    SpinBox {
-            stepSize: 1
-            to: _Margins.myHeight
+              property alias myCfg: _Root.currentSlotCfg
+              onMyCfgChanged: value = myCfg.marginTop
 
-            property alias myCfg: _Root.currentSlotCfg
-            onMyCfgChanged: value = myCfg.marginBottom
+              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+          	    myCfg.marginTop = value;
+              });            
+			      }
 
-            onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-        	    myCfg.marginBottom = value;
-            });                        
-			    }
+			      Label {
+				      text: 'px padding top'
+			      }
+  				}          
 
-			    Label {
-				    text: 'px bottom (max. ' + _Margins.myHeight + ')'
-			    }
-		    }
+          // 1-3
+          Item {}
 
-  		  RowLayout {
+          // 2-1
+		      RowLayout {
 
-		  	  Label {
-            text: 'Borders' // spacer
-          }
+            property var myHeight: Screen.height
+            property var myWidth: Screen.width
 
-			    SpinBox {
-            stepSize: 1
-            to: _Margins.myWidth
+			      SpinBox {
+              stepSize: 1
+              to: parent.myWidth
 
-            property alias myCfg: _Root.currentSlotCfg
-            onMyCfgChanged: value = myCfg.marginLeft
+              property alias myCfg: _Root.currentSlotCfg
+              onMyCfgChanged: value = myCfg.marginLeft
 
-            onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-        	    myCfg.marginLeft = value;
-            });                                    
-			    }
+              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+          	    myCfg.marginLeft = value;
+              });            
+			      }
 
-			    Label {
-  				  text: 'px left (max. ' + _Margins.myWidth + ')'
-	  		  }
+			      Label {
+				      text: 'left'
+			      }
+  				}
 
-			    SpinBox {
-            stepSize: 1
-            to: _Margins.myWidth
+          // 2-2
+          Label {
+				    text:  '[' + Screen.width + 'x' + Screen.height + ']'
+			    }                                
 
-            property alias myCfg: _Root.currentSlotCfg
-            onMyCfgChanged: value = myCfg.marginRight
+          // 2-3
+		      RowLayout {
 
-            onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-        	    myCfg.marginRight = value;
-            });                                    
-			    }
+            property var myHeight: Screen.height
+            property var myWidth: Screen.width
 
-			    Label {
-				    text: 'px right (max. ' + _Margins.myWidth + ')'
-			    }
-		    }
-        // - - - - - - - - - -  M A R G I N S
-        // - - - - - - - - - -  M A R G I N S
-        // - - - - - - - - - -  M A R G I N S                
+			      SpinBox {
+              stepSize: 1
+              to: parent.myWidth
+
+              property alias myCfg: _Root.currentSlotCfg
+              onMyCfgChanged: value = myCfg.marginRight
+
+              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+          	    myCfg.marginRight = value;
+              });            
+			      }
+
+			      Label {
+				      text: 'right'
+			      }            
+  				}          
+
+          // 3-1
+          Item {}
+
+          // 3-2
+		      RowLayout {
+
+            property var myHeight: Screen.height
+            property var myWidth: Screen.width
+
+			      SpinBox {
+              stepSize: 1
+              to: parent.myHeight
+
+              property alias myCfg: _Root.currentSlotCfg
+              onMyCfgChanged: value = myCfg.marginBottom
+
+              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+          	    myCfg.marginBottom = value;
+              });            
+			      }
+
+			      Label {
+				      text: 'bottom'
+			      }
+  				}            
+
+          // 3-3
+          Item {}
+        }
+        // - - - - - - - - - -  B A C K G R O U N D
+        // - - - - - - - - - -  B A C K G R O U N D
+        // - - - - - - - - - -  B A C K G R O U N D
+
+
+        Rectangle {
+          Layout.preferredWidth: parent.width
+          Layout.preferredHeight: 1
+
+          color: _ActiveSystemPalette.mid
+        }
+
 
 		    RowLayout {
 
@@ -520,6 +480,14 @@ SimpleKCM {
   				  text: _Interval.value==0?'':_Interval.value==1?'second':'seconds'
 	  		  }          
         }        
+
+
+        Rectangle {
+          Layout.preferredWidth: parent.width
+          Layout.preferredHeight: 1
+
+          color: _ActiveSystemPalette.mid
+        }
 
 
     		RowLayout {
