@@ -163,44 +163,47 @@ SimpleKCM {
         GridLayout {
           columns: 3
 
-          // 1-1
+          // a1-1
           RowLayout {
+            Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 15                          
 
             Label {
+              Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 12                                        
               text: 'Background'
             }
-          Button {
-            property alias myCfg: _Root.currentSlotCfg
-            onMyCfgChanged: myColor = myCfg.background            
+          
+            Button {
+              property alias myCfg: _Root.currentSlotCfg
+              onMyCfgChanged: myColor = myCfg.background            
 
-            property string myColor
-            onMyColorChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-        	    myCfg.background = myColor;
-            });
+              property string myColor
+              onMyColorChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+        	      myCfg.background = myColor;
+              });
 
-            onClicked: {
+              onClicked: {
 
-	            dlgSelectColor.selectedColor = myColor;
-              dlgSelectColor.options = connector2Plasma === plasmoid?ColorDialog.ShowAlphaChannel:0;
-	            dlgSelectColor.handleOnAccepted = ($$selectedColor) => {
-	              myColor = $$selectedColor.toString();
-	            };
+	              dlgSelectColor.selectedColor = myColor;
+                dlgSelectColor.options = connector2Plasma === plasmoid?ColorDialog.ShowAlphaChannel:0;
+	              dlgSelectColor.handleOnAccepted = ($$selectedColor) => {
+  	              myColor = $$selectedColor.toString();
+	              };
 
-	            dlgSelectColor.open();
-            }
+	              dlgSelectColor.open();
+              }
 
-  				  Rectangle {
-              width: parent.height * 0.65
-              height: width
-              anchors.centerIn: parent
+  				    Rectangle {
+                width: parent.height * 0.65
+                height: width
+                anchors.centerIn: parent
 
-              color: parent.myColor
-	  		    }                      
-          }            
+                color: parent.myColor
+	  		      }                      
+            }            
           }
 
 
-          // 1-2
+          // a1-2
 		      RowLayout {
 
             property var myHeight: Screen.height
@@ -223,11 +226,12 @@ SimpleKCM {
 			      }
   				}          
 
-          // 1-3
+          // a1-3
           Item {}
 
-          // 2-1
+          // a2-1
 		      RowLayout {
+            Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 12                          
 
             property var myHeight: Screen.height
             property var myWidth: Screen.width
@@ -249,12 +253,12 @@ SimpleKCM {
 			      }
   				}
 
-          // 2-2
+          // a2-2
           Label {
 				    text:  '[' + Screen.width + 'x' + Screen.height + ']'
 			    }                                
 
-          // 2-3
+          // a2-3
 		      RowLayout {
 
             property var myHeight: Screen.height
@@ -277,10 +281,12 @@ SimpleKCM {
 			      }            
   				}          
 
-          // 3-1
-          Item {}
+          // a3-1
+          Item {
+            Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 12                          
+          }
 
-          // 3-2
+          // a3-2
 		      RowLayout {
 
             property var myHeight: Screen.height
@@ -303,198 +309,245 @@ SimpleKCM {
 			      }
   				}            
 
-          // 3-3
+          // a3-3
           Item {}
         }
         // - - - - - - - - - -  B A C K G R O U N D
         // - - - - - - - - - -  B A C K G R O U N D
         // - - - - - - - - - -  B A C K G R O U N D
 
-
         Rectangle {
           Layout.preferredWidth: parent.width
-          Layout.preferredHeight: 1
+          Layout.preferredHeight: _FontMetrics.height
 
-          color: _ActiveSystemPalette.mid
+          color: "transparent"
+        
+          Rectangle {
+            anchors.centerIn: parent
+            width: parent.width * .95
+            height: 1
+
+            color: _ActiveSystemPalette.mid
+          }        
         }
 
+        // I M A G E  - - - - - - - - - -        
+        // I M A G E  - - - - - - - - - -        
+        // I M A G E  - - - - - - - - - -        
+        GridLayout {
+          columns: 3
 
-		    RowLayout {
-
-			    Label {
-				    text: 'Fill mode'
-			    }
-
-			    ComboBox {
-				    currentIndex: 0
-            textRole: 'text'
-
-            property alias myCfg: _Root.currentSlotCfg
-            onMyCfgChanged: currentIndex = indexFromFillMode(myCfg.fillMode)
-
-            onCurrentIndexChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-        	    myCfg.fillMode = model[currentIndex].value;
-            });                                                
-
-				    model:
-        	    [
-                { 'text': 'Stretch',                           'value': Image.Stretch },
-                { 'text': 'Fit',                            'value': Image.PreserveAspectFit },
-                { 'text': 'Crop',   'value': Image.PreserveAspectCrop },
-                { 'text': 'Tile',                           'value': Image.Tile },
-                { 'text': 'Tile vertically',                'value': Image.TileVertically },
-                { 'text': 'Tile horizontally',              'value': Image.TileHorizontally },
-                { 'text': 'As is',                          'value': Image.Pad }                
-              ]
-
-            function indexFromFillMode($mode) {
-
-        	    let idx;
-
-					    for(idx in model)
-              {
-          	    if(model[idx].value===$mode)
-          	    {
- 							    break;
- 							    //<--
-          	    }
-					    }
-
-        	    return idx;
-            }              
-			    }
-
-		    }        
-
-		
-        RowLayout {
-
-			    Label {
-				    text: 'Effects'
-			    }
-
-          ColumnLayout {
-
-            Label {
-              horizontalAlignment: Text.AlignHCenter
-					    text: 'Desaturate'
-				    }
-
-				    Slider {
-              property alias myCfg: _Root.currentSlotCfg
-              onMyCfgChanged: value = myCfg.desaturate
-
-              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-          	    myCfg.desaturate = value;
-              });                                                  
-				    }
-			    }
-
-          ColumnLayout {
-
-            Label {
-              horizontalAlignment: Text.AlignHCenter
-					    text: 'Blur'
-				    }
-
-				    Slider {
-              property alias myCfg: _Root.currentSlotCfg
-              onMyCfgChanged: value = myCfg.blur
-
-              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-          	    myCfg.blur = value;
-              });                                                                
-				    }
-			    }
-
-          ColumnLayout {
-
-            Label {
-					    text: 'Colorize'
-				    }
-
-    				Slider {
-              property alias myCfg: _Root.currentSlotCfg
-              onMyCfgChanged: value = myCfg.colorize
-
-              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-          	    myCfg.colorize = value;
-                effects__updateColorizeValue(myCfg);
-              });                                
-				    }
-			    }
-
-			    Button {
-
-            property alias myCfg: _Root.currentSlotCfg
-            onMyCfgChanged: myColor = myCfg.colorizeColor
-
-            property string myColor
-            onMyColorChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-        	    myCfg.colorizeColor = myColor;
-              effects__updateColorizeValue(myCfg);
-            });
-
-            onClicked: {
-
-	            dlgSelectColor.selectedColor = myColor;
-	            dlgSelectColor.handleOnAccepted = ($$selectedColor) => {
-	              myColor = $$selectedColor.toString();
-	            };
-
-	            dlgSelectColor.open();
-            }
-
-  				  Rectangle {
-              anchors.centerIn: parent
-              width: 20
-              height: 20
-
-              color: parent.myColor
-  				  }
-			    }
-		    }
-
-    		RowLayout {
-			  
+          // b1-1
           Label {
-            text: 'Interval'
-			    }
+            Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 10              
 
-          SpinBox {
-            id: _Interval
+            text: 'Image'
+          }          
 
-            stepSize: 1
-            readonly property IntValidator intValidator: IntValidator {}
-            to: intValidator.top
+          // b1-2
+    		  RowLayout {
+			  
+            Label {
+              text: 'interval'
+			      }
 
-            property alias myCfg: _Root.currentSlotCfg
-            onMyCfgChanged: value = myCfg.interval
+            SpinBox {
+              id: _Interval
 
-            onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-        	    myCfg.interval = value;
-            });                                    
-			    }
+              stepSize: 1
+              readonly property IntValidator intValidator: IntValidator {}
+              to: intValidator.top
 
-			    Label {
-  				  text: _Interval.value==0?'':_Interval.value==1?'second':'seconds'
-	  		  }          
-        }        
+              property alias myCfg: _Root.currentSlotCfg
+              onMyCfgChanged: value = myCfg.interval
 
+              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+        	      myCfg.interval = value;
+              });                                    
+			      }
+
+			      Label {
+              Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 8              
+  				    text: _Interval.value==0?'infinite':(_Interval.value==1?'second':'seconds')
+              font.italic: _Interval.value==0
+	  		    }          
+          }                            
+
+          // b1-3
+		      RowLayout {
+
+			      Label {
+				      text: 'fill mode'
+			      }
+
+			      ComboBox {
+				      currentIndex: 0
+              textRole: 'text'
+
+              property alias myCfg: _Root.currentSlotCfg
+              onMyCfgChanged: currentIndex = indexFromFillMode(myCfg.fillMode)
+
+              onCurrentIndexChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+        	      myCfg.fillMode = model[currentIndex].value;
+              });                                                
+
+				      model:
+        	      [
+                  { 'text': 'Stretch',                           'value': Image.Stretch },
+                  { 'text': 'Fit',                            'value': Image.PreserveAspectFit },
+                  { 'text': 'Crop',   'value': Image.PreserveAspectCrop },
+                  { 'text': 'Tile',                           'value': Image.Tile },
+                  { 'text': 'Tile vertically',                'value': Image.TileVertically },
+                  { 'text': 'Tile horizontally',              'value': Image.TileHorizontally },
+                  { 'text': 'As is',                          'value': Image.Pad }                
+                ]
+
+              function indexFromFillMode($mode) {
+
+          	    let idx;
+
+					      for(idx in model)
+                {
+          	      if(model[idx].value===$mode)
+          	      {
+ 							      break;
+ 							      //<--
+          	      }
+					      }
+
+        	      return idx;
+              }              
+			      }
+		      }                  
+
+          // b2-1
+          Item {
+            Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 10
+          }
+
+          // b2-2, b2-3
+          RowLayout {
+            Layout.columnSpan: 2
+
+            ColumnLayout {
+
+              Label {
+                horizontalAlignment: Text.AlignHCenter
+					      text: 'desaturate'
+				      }
+
+				      Slider {
+                property alias myCfg: _Root.currentSlotCfg
+                onMyCfgChanged: value = myCfg.desaturate
+
+                onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+          	      myCfg.desaturate = value;
+                });                                                  
+				      }
+			      }                      
+
+            ColumnLayout {
+
+              Label {
+                horizontalAlignment: Text.AlignHCenter
+		  			    text: 'blur'
+				      }
+
+				      Slider {
+                property alias myCfg: _Root.currentSlotCfg
+                onMyCfgChanged: value = myCfg.blur
+
+                onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+            	    myCfg.blur = value;
+                });                                                                
+				      }
+			      }          
+
+
+            ColumnLayout {
+
+              Label {
+					      text: 'colorize'
+				      }
+
+    				  Slider {
+                property alias myCfg: _Root.currentSlotCfg
+                onMyCfgChanged: value = myCfg.colorize
+
+                onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+          	      myCfg.colorize = value;
+                  effects__updateColorizeValue(myCfg);
+                });                                
+				      }
+			      }
+
+			      Button {
+
+              property alias myCfg: _Root.currentSlotCfg
+              onMyCfgChanged: myColor = myCfg.colorizeColor
+
+              property string myColor
+              onMyColorChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+        	      myCfg.colorizeColor = myColor;
+                effects__updateColorizeValue(myCfg);
+              });
+
+              onClicked: {
+
+	              dlgSelectColor.selectedColor = myColor;
+	              dlgSelectColor.handleOnAccepted = ($$selectedColor) => {
+	                myColor = $$selectedColor.toString();
+	              };
+
+	              dlgSelectColor.open();
+              }
+
+  				    Rectangle {
+                anchors.centerIn: parent
+                width: 20
+                height: 20
+
+                color: parent.myColor
+  				    }
+			      }
+		      }
+        }
+
+        // - - - - - - - - - -  I M A G E
+        // - - - - - - - - - -  I M A G E
+        // - - - - - - - - - -  I M A G E                        
 
         Rectangle {
           Layout.preferredWidth: parent.width
-          Layout.preferredHeight: 1
+          Layout.preferredHeight: _FontMetrics.height
 
-          color: _ActiveSystemPalette.mid
+          color: "transparent"
+        
+          Rectangle {
+            anchors.centerIn: parent
+            width: parent.width * .95
+            height: 1
+
+            color: _ActiveSystemPalette.mid
+          }        
         }
 
+        // S O U R C E S  - - - - - - - - - -        
+        // S O U R C E S  - - - - - - - - - -                
+        // S O U R C E S  - - - - - - - - - -        
+        GridLayout {
+          columns: 3
 
-    		RowLayout {
-
+          // c1-1
 			    Label {
-            text: 'Image sources'
-			    }
+            Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 10              
+
+            text: 'Source(s)'
+			    }          
+
+          // c1-2, c1-3
+    		RowLayout {
+          Layout.columnSpan: 2
 
 			    CheckBox {
       	    text: 'shuffle'
@@ -530,7 +583,13 @@ SimpleKCM {
 
             onClicked: imagesources__setUrl();            
 				  }          
+        }          
+
         }
+
+        // - - - - - - - - - -   S O U R C E S
+        // - - - - - - - - - -   S O U R C E S        
+        // - - - - - - - - - -   S O U R C E S                
 
 		    ColumnLayout {
 			    Layout.fillWidth: true
