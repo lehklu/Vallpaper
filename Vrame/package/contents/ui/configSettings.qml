@@ -164,45 +164,12 @@ SimpleKCM {
           columns: 3
 
           // a1-1
-          RowLayout {
-            Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 15                          
-
-            Label {
-              Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 12                                        
-              text: 'Background'
-            }
-          
-            Button {
-              property alias myCfg: _Root.currentSlotCfg
-              onMyCfgChanged: myColor = myCfg.background            
-
-              property string myColor
-              onMyColorChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-        	      myCfg.background = myColor;
-              });
-
-              onClicked: {
-
-	              dlgSelectColor.selectedColor = myColor;
-                dlgSelectColor.options = connector2Plasma === plasmoid?ColorDialog.ShowAlphaChannel:0;
-	              dlgSelectColor.handleOnAccepted = ($$selectedColor) => {
-  	              myColor = $$selectedColor.toString();
-	              };
-
-	              dlgSelectColor.open();
-              }
-
-  				    Rectangle {
-                width: parent.height * 0.65
-                height: width
-                anchors.centerIn: parent
-
-                color: parent.myColor
-	  		      }                      
-            }            
+          Label {
+            Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 15                                        
+            
+            text: 'Background'
           }
-
-
+          
           // a1-2
 		      RowLayout {
 
@@ -254,9 +221,43 @@ SimpleKCM {
   				}
 
           // a2-2
-          Label {
-				    text:  '[' + Screen.width + 'x' + Screen.height + ']'
-			    }                                
+          RowLayout {
+            Button {
+              Layout.preferredHeight: _FontMetrics.height * 2.5
+              Layout.preferredWidth: Layout.preferredHeight
+
+              property alias myCfg: _Root.currentSlotCfg
+              onMyCfgChanged: myColor = myCfg.background            
+
+              property string myColor
+              onMyColorChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+        	      myCfg.background = myColor;
+              });
+
+              onClicked: {
+
+	              dlgSelectColor.selectedColor = myColor;
+                dlgSelectColor.options = connector2Plasma === plasmoid?ColorDialog.ShowAlphaChannel:0;
+	              dlgSelectColor.handleOnAccepted = ($$selectedColor) => {
+  	              myColor = $$selectedColor.toString();
+	              };
+
+	              dlgSelectColor.open();
+              }
+
+  				    Rectangle {
+                width: parent.height * 0.6
+                height: width
+                anchors.centerIn: parent
+
+                color: parent.myColor
+	  		      }                      
+            }                      
+            
+            Label {
+				      text:  '[' + Screen.width + 'x' + Screen.height + ']'
+			      }                                
+          }
 
           // a2-3
 		      RowLayout {
