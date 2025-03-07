@@ -181,10 +181,10 @@ SimpleKCM {
               to: parent.myHeight
 
               property alias myCfg: _Root.currentSlotCfg
-              onMyCfgChanged: value = myCfg.marginTop
+              onMyCfgChanged: value = myCfg.paddingTop
 
               onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-          	    myCfg.marginTop = value;
+          	    myCfg.paddingTop = value;
               });            
 			      }
 
@@ -208,10 +208,10 @@ SimpleKCM {
               to: parent.myWidth
 
               property alias myCfg: _Root.currentSlotCfg
-              onMyCfgChanged: value = myCfg.marginLeft
+              onMyCfgChanged: value = myCfg.paddingLeft
 
               onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-          	    myCfg.marginLeft = value;
+          	    myCfg.paddingLeft = value;
               });            
 			      }
 
@@ -270,10 +270,10 @@ SimpleKCM {
               to: parent.myWidth
 
               property alias myCfg: _Root.currentSlotCfg
-              onMyCfgChanged: value = myCfg.marginRight
+              onMyCfgChanged: value = myCfg.paddingRight
 
               onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-          	    myCfg.marginRight = value;
+          	    myCfg.paddingRight = value;
               });            
 			      }
 
@@ -298,10 +298,10 @@ SimpleKCM {
               to: parent.myHeight
 
               property alias myCfg: _Root.currentSlotCfg
-              onMyCfgChanged: value = myCfg.marginBottom
+              onMyCfgChanged: value = myCfg.paddingBottom
 
               onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-          	    myCfg.marginBottom = value;
+          	    myCfg.paddingBottom = value;
               });            
 			      }
 
@@ -543,23 +543,12 @@ SimpleKCM {
 			    Label {
             Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 10              
 
-            text: 'Source(s)'
+            text: 'Sources'
 			    }          
 
           // c1-2, c1-3
     		RowLayout {
           Layout.columnSpan: 2
-
-			    CheckBox {
-      	    text: 'shuffle'
-
-            property alias myCfg: _Root.currentSlotCfg
-            onMyCfgChanged: checked = myCfg.shuffle
-
-            onCheckedChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-        	    myCfg.shuffle = checked?1:0;
-            });
-  		    }          
 
 				  Button {
             id: '_BtnAddFolder'
@@ -584,6 +573,23 @@ SimpleKCM {
 
             onClicked: imagesources__setUrl();            
 				  }          
+
+          Item {
+            Layout.fillWidth: true
+          }
+
+			    CheckBox {
+      	    text: 'shuffle'
+
+            enabled: _ImageSources.count > 1
+
+            property alias myCfg: _Root.currentSlotCfg
+            onMyCfgChanged: checked = myCfg.shuffle
+
+            onCheckedChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+        	    myCfg.shuffle = checked?1:0;
+            });
+  		    }                    
         }          
 
         }

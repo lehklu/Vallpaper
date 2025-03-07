@@ -21,6 +21,7 @@ PlasmoidItem {
 
   property var connector2Plasma: plasmoid
   property var config: Plasmoid.configuration.vrame6
+  property var previousConfig
 
   property var plasmacfgAdapter
   property var prefixActionText: /*SED01*/'' // empty
@@ -44,7 +45,13 @@ PlasmoidItem {
     activeImage = _ImageRepeater.itemAt(_Pager.currentPage);
    }    
 
-  onConfigChanged: { _Canvas.cnvSetPlasmacfgAdapter(); }
+  onConfigChanged: {
+    if(previousConfig!==config) 
+    { 
+      previousConfig=config;
+      _Canvas.cnvSetPlasmacfgAdapter();
+    } 
+  }
 
   Plasmoid.contextualActions: [
     PlasmaCore.Action {
@@ -142,10 +149,10 @@ PlasmoidItem {
 
 			    fillMode = slotCfg.fillMode;
 
-			    anchors.topMargin =     slotCfg.marginTop;
-          anchors.bottomMargin =  slotCfg.marginBottom;
-          anchors.leftMargin =    slotCfg.marginLeft;
-          anchors.rightMargin =   slotCfg.marginRight;
+			    anchors.topMargin =     slotCfg.paddingTop;
+          anchors.bottomMargin =  slotCfg.paddingBottom;
+          anchors.leftMargin =    slotCfg.paddingLeft;
+          anchors.rightMargin =   slotCfg.paddingRight;
 
 			    mediaframe.clear();
 			    mediaframe.random = slotCfg.shuffle;
