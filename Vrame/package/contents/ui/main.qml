@@ -2,20 +2,22 @@
  *  Copyright 2025  Werner Lechner <werner.lechner@lehklu.at>
  */
 
+import QtQuick
+import QtQuick.Controls
 import org.kde.kquickcontrolsaddons
 import org.kde.plasma.core as PlasmaCore
 import org.kde.plasma.plasmoid
 import org.kde.plasma.private.mediaframe
 import org.kde.plasma.private.pager
-import QtQuick
-import QtQuick.Controls
 
 import Qt5Compat.GraphicalEffects
 
-import "../js/vallpaper.js" as JS
+import "../js/v.js" as VJS
 
 PlasmoidItem {
 	id: _Root
+
+  Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground
 
   property var devShowInfo: true
 
@@ -46,11 +48,13 @@ PlasmoidItem {
    }    
 
   onConfigChanged: {
-    if(previousConfig!==config) 
-    { 
-      previousConfig=config;
-      _Canvas.cnvSetPlasmacfgAdapter();
-    } 
+
+    if(previousConfig==config) { return;}
+    //<--
+
+
+    previousConfig=config;
+    _Canvas.cnvSetPlasmacfgAdapter();
   }
 
   Plasmoid.contextualActions: [
@@ -191,7 +195,7 @@ PlasmoidItem {
 
 				    if($$path!=source || $watchdog===0)
 				    {
-					    let resanitized = JS.AS_URISAFE($$path);
+					    let resanitized = VJS.AS_URISAFE($$path);
 					    source = resanitized;
 					    infoText=$$path;
 					    timestampFetched = Date.now();
@@ -261,7 +265,7 @@ PlasmoidItem {
 
     function cnvSetPlasmacfgAdapter() {
 
-	    plasmacfgAdapter = new JS.PlasmacfgAdapter(config);
+	    plasmacfgAdapter = new VJS.PlasmacfgAdapter(config);
 	    cnvSetActiveDeskCfg();
     }
 
@@ -325,9 +329,7 @@ PlasmoidItem {
     Rectangle {
       id: _LogBackground
       color: '#00ff0000'                  
-      anchors.left: parent.left
-      anchors.right: parent.right
-      height: 300
+      anchors.fill: parent
 
       ScrollView {
         anchors.fill: parent      
@@ -337,6 +339,8 @@ PlasmoidItem {
 
         TextArea {
           id: _Log
+          readOnly: true
+          
           background: Rectangle {
             color: '#88ffffff'
           }

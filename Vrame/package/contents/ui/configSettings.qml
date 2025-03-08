@@ -13,8 +13,7 @@ import org.kde.kcmutils
 
 import org.kde.plasma.private.pager
 
-import "../js/vallpaper.js" as JS
-
+import "../js/v.js" as VJS
 SimpleKCM {
 	id: _Root
 
@@ -40,7 +39,7 @@ SimpleKCM {
   Component.onCompleted: {
     dev_log("SimpleKCM onCompleted")
 
-    plasmacfgAdapter = new JS.PlasmacfgAdapter(cfg_vrame6, $newCfg => { cfg_vrame6 = $newCfg; });
+    plasmacfgAdapter = new VJS.PlasmacfgAdapter(cfg_vrame6, $newCfg => { cfg_vrame6 = $newCfg; });
     selectDesktop__init(_Pager.currentPage+1);    
   }
 
@@ -1065,7 +1064,7 @@ function selectDesktop__handleCurrentIndexChanged() {
 
 function selectDesktop__init($currentConfigDeskNo) {
 
-	let activateNo = JS.DESKNO_GLOBAL;
+	let activateNo = VJS.DESKNO_GLOBAL;
 
 	// fill model
 	const memConnTarget = _SelectDesktopConnections.target;
@@ -1113,7 +1112,7 @@ function selectDesktop__buildElement($deskNo) {
 	const orderText = '#' + ('  '+$deskNo).slice(-3);
 
 	return {
-		'displayText': (JS.DESKNO_GLOBAL===$deskNo?JS.DESKNO_GLOBAL_NAME:_Pager.data(_Pager.index($deskNo-1, 0), 0)),
+		'displayText': (VJS.DESKNO_GLOBAL===$deskNo?VJS.DESKNO_GLOBAL_NAME:_Pager.data(_Pager.index($deskNo-1, 0), 0)),
     'deskNo': $deskNo,
     'orderText': orderText
 		}
@@ -1161,7 +1160,7 @@ function imagesources__addPathUsingDlg($$dlg) {
 
 		for(let i=0; i<$$resultUrls.length; ++i)
 		{
-			let desanitized = JS.AS_URISAFE($$resultUrls[i].toString(), false);
+			let desanitized = VJS.AS_URISAFE($$resultUrls[i].toString(), false);
 			_ImageSources.model.append({ path: desanitized });
 		}
 	};

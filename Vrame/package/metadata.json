@@ -1,9 +1,9 @@
 {
     "KPackageStructure": "Plasma/Applet",
     "KPlugin": {
-        "Name": "Vrame6 1.0.0",
+        "Name": "Vrame 6.0.0",
         "Description": "Slideshow for virtual desktops",
-        "Version": "1.0.0",
+        "Version": "6.0.0",
         "Id": "at.lehklu.plasma.vrame6",
         "Icon": "preferences-desktop-virtual",
         "Authors": [
