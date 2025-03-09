@@ -1,7 +1,11 @@
+/*
+ *  Copyright 2025  Werner Lechner <werner.lechner@lehklu.at>
+ */
+
 import QtQuick
 import QtQuick.Layouts
 import org.kde.plasma.plasmoid
-import org.kde.plasma.private.pager 2.0
+import org.kde.plasma.private.pager
 
 
 PlasmoidItem {
@@ -22,40 +26,34 @@ PlasmoidItem {
 	Layout.fillHeight: true
 
 	PagerModel {
-        id: _Pager
+    id: _Pager
 
-        enabled: _Root.visible
-        pagerType: PagerModel.VirtualDesktops
+    enabled: _Root.visible
+    pagerType: PagerModel.VirtualDesktops
 
-        onCurrentPageChanged: {
-			_Root.handleOnDesktopChanged(_Pager.currentPage)
-		}
-    }
+    onCurrentPageChanged: { _Root.handleOnDesktopChanged(_Pager.currentPage) }
+  }
 
 	function handleOnDesktopChanged($currentDesktopNo) {
 
-		let colIdx=$currentDesktopNo%_Root._deskColors.length;
+		const colIdx=$currentDesktopNo % _Root._deskColors.length;
 
 		_currentDeskColor=_Root._deskColors[colIdx];
 		_Root._currentDesktopNo=$currentDesktopNo;
 	}
 
 	Timer {
-		interval: 1000 * 10
+		interval: 1000 * 10 // sec
 		running: true
 		repeat: true
 		triggeredOnStart: true
 
-		onTriggered: {
-			_currentDate = new Date();
-
-			console.log('**********************************');
-			console.log('**********************************');
-		}
+		onTriggered: { _currentDate = new Date(); }
 	}
 
 	Rectangle {
 		id: _RectDate
+
 		width: _currentDateWidth
 		height: parent.height
 		anchors.left: parent.left
