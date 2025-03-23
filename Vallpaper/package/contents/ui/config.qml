@@ -1,1262 +1,766 @@
 /*
- *  Copyright 2019  Werner Lechner <werner.lechner.2@gmail.com>
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  2.010-1301, USA.
+ *  Copyright 2025  Werner Lechner <werner.lechner@lehklu.at>
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.1
-import QtQuick.Controls.Styles 1.4
-import QtQuick.Dialogs 1.2
-import QtQuick.Layouts 1.1
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import QtQuick.Dialogs
+import org.kde.plasma.core as PlasmaCore
+import org.kde.kirigami as Kirigami
+import org.kde.kcmutils
 
-import org.kde.plasma.core 2.0 as PlasmaCore
-import org.kde.plasma.components 2.0 as PlasmaComponents
+import org.kde.plasma.private.pager
 
-import org.kde.kquickcontrolsaddons 2.0 as KQuickAddons
+import "../js/v.js" as VJS
+Kirigami.FormLayout { /*SED*/
+	id: _Root
 
-import org.kde.kwindowsystem 1.0 as KWindowSystem
-import QtQuick.Window 2.2
+  property var connector2Plasma: wallpaper /*SED*/
 
-import "../js/vallpaper.js" as JS
+	property var cfg_vallpaper6 /*SED*/
+  property var cfg_vallpaper6Default // unused /*SED*/
 
+  property var plasmacfgAdapter  
 
-Item {
-// r o o t
-// r o o t
-// r o o t
+  property var currentDeskCfg  
+  property var currentSlotCfg
 
-id: root
-/* Dev *
-Rectangle {
-		z: 1 // z-order
-    id: llogBackground
-    visible: llog.text.length>0
-    width: parent.width * 0.8
-    height: parent.height * 0.3
-    anchors.bottom: parent.bottom
-    anchors.bottomMargin: 50
-    anchors.horizontalCenter: parent.horizontalCenter
-    color: '#AAffffff'
+  FontMetrics {
+    id: _FontMetrics
+  }
 
-    TextArea {
-        id: llog
-        width: parent.width
-        height: parent.height
+  SystemPalette {
+    id: _ActiveSystemPalette
+    colorGroup: SystemPalette.Active    
+  }  
+
+  Component.onCompleted: {
+    dev_log("SimpleKCM onCompleted")
+
+    plasmacfgAdapter = new VJS.PlasmacfgAdapter(cfg_vallpaper6, $newCfg => { cfg_vallpaper6 = $newCfg; });
+    selectDesktop__init(_Pager.currentPage+1);    
+  }
+
+	PagerModel {
+        id: _Pager
+
+        enabled: _Root.visible
+        pagerType: PagerModel.VirtualDesktops
+	}
+
+  ColumnLayout { // Container
+	  anchors.fill: parent  
+
+    // S E L E C T   D E S K T O P - - - - - - - - - -
+    // S E L E C T   D E S K T O P - - - - - - - - - -
+    // S E L E C T   D E S K T O P - - - - - - - - - -
+    RowLayout { 
+
+		      Label {
+		        text: "For desktop"
+          }
+
+          ComboBox {
+            id: _SelectDesktop
+            Layout.fillWidth: true
+            model: ListModel {}
+            textRole: 'displayText'
+
+		        Connections {
+			        id: _SelectDesktopConnections
+
+              function onCurrentIndexChanged() { selectDesktop__handleCurrentIndexChanged(); }
+              function onCountChanged() { selectDesktop__updateButtonsState();}
+		        }            
+          }
+
+          Button {
+            id: btnAddDesktopConfig
+            icon.name: "list-add"
+
+            onClicked: _DlgAddConfig.open()
+          }
+
+          Button {
+            id: btnRemoveDesktopConfig
+            icon.name: "edit-delete-remove"
+
+            onClicked: selectDesktop__removeConfig()
+          }      
+    }
+    // - - - - - - - - - - S E L E C T   D E S K T O P
+    // - - - - - - - - - - S E L E C T   D E S K T O P
+    // - - - - - - - - - - S E L E C T   D E S K T O P
+
+    // S E L E C T   S L O T   - - - - - - - - - -
+    // S E L E C T   S L O T   - - - - - - - - - -
+    // S E L E C T   S L O T   - - - - - - - - - -
+    RowLayout {
+
+        Item {
+          Layout.fillWidth: true
+        }
+
+        Label {
+		      text: "Activated at"
+        }
+
+        ComboBox {
+          id: _SelectSlot                      
+          model: ListModel{}
+
+          Connections {
+			      id: _SelectSlotConnections
+
+            function onCurrentIndexChanged() { selectSlot__handleCurrentIndexChanged(); }
+            function onCountChanged() { selectSlot__updateButtonsState();}
+		      }                      
+
+  				property alias desktopConfig: _Root.currentDeskCfg
+				  onDesktopConfigChanged: selectSlot__init()
+        }
+
+		    Button {
+          id: btnAddTimeslot
+          icon.name: "list-add"                      
+
+          onClicked: _DlgAddTimeslot.open()
+		    }
+
+		    Button {
+          id: btnRemoveTimeslot
+          icon.name: "edit-delete-remove"          
+
+          onClicked: selectSlot__removeTimeslot()
+  		  }              
+
+    }
+    // - - - - - - - - - -  S E L E C T   S L O T
+    // - - - - - - - - - -  S E L E C T   S L O T
+    // - - - - - - - - - -  S E L E C T   S L O T
+
+    GroupBox {
+	    Layout.fillWidth: true
+
+	    Layout.fillHeight: true      
+      
+      background: Rectangle { // group box border
         anchors.fill: parent
-        backgroundVisible: false
-        style: TextAreaStyle {
-                textColor: '#1d1d85'
-                }
+        color: '#00ffffff'
+        border.width: 1
+        radius: 5
+      }
 
-        property int autoclear:0
+      ColumnLayout {
+		    anchors.fill: parent      
 
-        function clear() {
+        // B A C K G R O U N D   - - - - - - - - - -
+        // B A C K G R O U N D   - - - - - - - - - -
+        // B A C K G R O U N D   - - - - - - - - - -
+        GridLayout {
+          columns: 3
+
+          // a1-1
+          Label {
+            Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 15                                        
+            
+            text: 'Background'
+          }
+          
+          // a1-2
+		      RowLayout {
+
+            property var myHeight: Screen.height
+            property var myWidth: Screen.width
+
+			      SpinBox {
+              stepSize: 1
+              to: parent.myHeight
+
+              property alias myCfg: _Root.currentSlotCfg
+              onMyCfgChanged: value = myCfg.paddingTop
+
+              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+          	    myCfg.paddingTop = value;
+              });            
+			      }
+
+			      Label {
+				      text: 'px padding top'
+			      }
+  				}          
+
+          // a1-3
+          Item {}
+
+          // a2-1
+		      RowLayout {
+            Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 12                          
+
+            property var myHeight: Screen.height
+            property var myWidth: Screen.width
+
+			      SpinBox {
+              stepSize: 1
+              to: parent.myWidth
+
+              property alias myCfg: _Root.currentSlotCfg
+              onMyCfgChanged: value = myCfg.paddingLeft
+
+              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+          	    myCfg.paddingLeft = value;
+              });            
+			      }
+
+			      Label {
+				      text: 'left'
+			      }
+  				}
+
+          // a2-2
+          RowLayout {
+            Button {
+              Layout.preferredHeight: _FontMetrics.height * 2.5
+              Layout.preferredWidth: Layout.preferredHeight
+
+              property alias myCfg: _Root.currentSlotCfg
+              onMyCfgChanged: myColor = myCfg.background            
+
+              property string myColor
+              onMyColorChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+        	      myCfg.background = myColor;
+              });
+
+              onClicked: {
+
+	              dlgSelectColor.selectedColor = myColor;
+                dlgSelectColor.options = connector2Plasma === plasmoid?ColorDialog.ShowAlphaChannel:0;
+	              dlgSelectColor.handleOnAccepted = ($$selectedColor) => {
+  	              myColor = $$selectedColor.toString();
+	              };
+
+	              dlgSelectColor.open();
+              }
+
+  				    Rectangle {
+                width: parent.height * 0.6
+                height: width
+                anchors.centerIn: parent
+
+                color: parent.myColor
+	  		      }                      
+            }                      
+            
+            Label {
+				      text:  '[' + Screen.width + 'x' + Screen.height + ']'
+			      }                                
+          }
+
+          // a2-3
+		      RowLayout {
+
+            property var myHeight: Screen.height
+            property var myWidth: Screen.width
+
+			      SpinBox {
+              stepSize: 1
+              to: parent.myWidth
+
+              property alias myCfg: _Root.currentSlotCfg
+              onMyCfgChanged: value = myCfg.paddingRight
+
+              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+          	    myCfg.paddingRight = value;
+              });            
+			      }
+
+			      Label {
+				      text: 'right'
+			      }            
+  				}          
+
+          // a3-1
+          Item {
+            Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 12                          
+          }
+
+          // a3-2
+		      RowLayout {
+
+            property var myHeight: Screen.height
+            property var myWidth: Screen.width
+
+			      SpinBox {
+              stepSize: 1
+              to: parent.myHeight
+
+              property alias myCfg: _Root.currentSlotCfg
+              onMyCfgChanged: value = myCfg.paddingBottom
+
+              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+          	    myCfg.paddingBottom = value;
+              });            
+			      }
+
+			      Label {
+				      text: 'bottom'
+			      }
+  				}            
+
+          // a3-3
+          Item {}
+        }
+        // - - - - - - - - - -  B A C K G R O U N D
+        // - - - - - - - - - -  B A C K G R O U N D
+        // - - - - - - - - - -  B A C K G R O U N D
+
+        Rectangle {
+          Layout.preferredWidth: parent.width
+          Layout.preferredHeight: _FontMetrics.height
+
+          color: "transparent"
+        
+          Rectangle {
+            anchors.centerIn: parent
+            width: parent.width * .95
+            height: 1
+
+            color: _ActiveSystemPalette.mid
+          }        
+        }
+
+        // I M A G E  - - - - - - - - - -        
+        // I M A G E  - - - - - - - - - -        
+        // I M A G E  - - - - - - - - - -        
+        GridLayout {
+          columns: 3
+
+          // b1-1
+          Label {
+            Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 10              
+
+            text: 'Image'
+          }          
+
+          // b1-2
+    		  RowLayout {
+			  
+            Label {
+              text: 'interval'
+			      }
+
+            SpinBox {
+              id: _Interval
+
+              stepSize: 1
+              readonly property IntValidator intValidator: IntValidator {}
+              to: intValidator.top
+
+              property alias myCfg: _Root.currentSlotCfg
+              onMyCfgChanged: value = myCfg.interval
+
+              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+        	      myCfg.interval = value;
+              });                                    
+			      }
+
+			      Label {
+              Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 8              
+  				    text: _Interval.value==0?'infinite':(_Interval.value==1?'second':'seconds')
+              font.italic: _Interval.value==0
+	  		    }          
+          }                            
+
+          // b1-3
+		      RowLayout {
+
+			      Label {
+				      text: 'fill mode'
+			      }
+
+			      ComboBox {
+				      currentIndex: 0
+              textRole: 'text'
+
+              property alias myCfg: _Root.currentSlotCfg
+              onMyCfgChanged: currentIndex = indexFromFillMode(myCfg.fillMode)
+
+              onCurrentIndexChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+        	      myCfg.fillMode = model[currentIndex].value;
+              });                                                
+
+				      model:
+        	      [
+                  { 'text': 'Stretch',                           'value': Image.Stretch },
+                  { 'text': 'Fit',                            'value': Image.PreserveAspectFit },
+                  { 'text': 'Crop',   'value': Image.PreserveAspectCrop },
+                  { 'text': 'Tile',                           'value': Image.Tile },
+                  { 'text': 'Tile vertically',                'value': Image.TileVertically },
+                  { 'text': 'Tile horizontally',              'value': Image.TileHorizontally },
+                  { 'text': 'As is',                          'value': Image.Pad }                
+                ]
+
+              function indexFromFillMode($mode) {
+
+          	    let idx;
+
+					      for(idx in model)
+                {
+          	      if(model[idx].value===$mode)
+          	      {
+ 							      break;
+ 							      //<--
+          	      }
+					      }
+
+        	      return idx;
+              }              
+			      }
+		      }                  
+
+          // b2-1
+          Item {
+            Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 10
+          }
+
+          // b2-2, b2-3
+          RowLayout {
+            Layout.columnSpan: 2
+
+            ColumnLayout {
+
+              Label {
+                horizontalAlignment: Text.AlignHCenter
+					      text: 'desaturate'
+				      }
+
+				      Slider {
+                property alias myCfg: _Root.currentSlotCfg
+                onMyCfgChanged: value = myCfg.desaturate
+
+                onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+          	      myCfg.desaturate = value;
+                });                                                  
+				      }
+			      }                      
+
+            ColumnLayout {
+
+              Label {
+                horizontalAlignment: Text.AlignHCenter
+		  			    text: 'blur'
+				      }
+
+				      Slider {
+                property alias myCfg: _Root.currentSlotCfg
+                onMyCfgChanged: value = myCfg.blur
+
+                onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+            	    myCfg.blur = value;
+                });                                                                
+				      }
+			      }          
+
+
+            ColumnLayout {
+
+              Label {
+					      text: 'colorize'
+				      }
+
+    				  Slider {
+                property alias myCfg: _Root.currentSlotCfg
+                onMyCfgChanged: value = myCfg.colorize
+
+                onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+          	      myCfg.colorize = value;
+                  effects__updateColorizeValue(myCfg);
+                });                                
+				      }
+			      }
+
+			      Button {
+
+              property alias myCfg: _Root.currentSlotCfg
+              onMyCfgChanged: myColor = myCfg.colorizeColor
+
+              property string myColor
+              onMyColorChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+        	      myCfg.colorizeColor = myColor;
+                effects__updateColorizeValue(myCfg);
+              });
+
+              onClicked: {
+
+	              dlgSelectColor.selectedColor = myColor;
+	              dlgSelectColor.handleOnAccepted = ($$selectedColor) => {
+	                myColor = $$selectedColor.toString();
+	              };
+
+	              dlgSelectColor.open();
+              }
+
+  				    Rectangle {
+                anchors.centerIn: parent
+                width: 20
+                height: 20
+
+                color: parent.myColor
+  				    }
+			      }
+		      }
+        }
+
+        // - - - - - - - - - -  I M A G E
+        // - - - - - - - - - -  I M A G E
+        // - - - - - - - - - -  I M A G E                        
+
+        Rectangle {
+          Layout.preferredWidth: parent.width
+          Layout.preferredHeight: _FontMetrics.height
+
+          color: "transparent"
+        
+          Rectangle {
+            anchors.centerIn: parent
+            width: parent.width * .95
+            height: 1
+
+            color: _ActiveSystemPalette.mid
+          }        
+        }
+
+        // S O U R C E S  - - - - - - - - - -        
+        // S O U R C E S  - - - - - - - - - -                
+        // S O U R C E S  - - - - - - - - - -        
+        GridLayout {
+          columns: 3
+
+          // c1-1
+			    Label {
+            Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 10              
+
+            text: 'Sources'
+			    }          
+
+          // c1-2, c1-3
+    		RowLayout {
+          Layout.columnSpan: 2
+
+				  Button {
+            id: '_BtnAddFolder'
+            icon.name: "list-add"
+					  text: 'Folder'
+
+            onClicked: imagesources__addPathUsingDlg(_DlgAddFolder);            
+				  }
+
+				  Button {
+            id: '_BtnAddFiles'
+            icon.name: "list-add"
+					  text: 'Files'
+
+            onClicked: imagesources__addPathUsingDlg(_DlgAddFiles);            
+				  }
+
+				  Button {
+            id: '_BtnSetUrl'
+            icon.name: "internet-web-browser-symbolic"            
+					  text: 'Use url'
+
+            onClicked: imagesources__setUrl();            
+				  }          
+
+          Item {
+            Layout.fillWidth: true
+          }
+
+			    CheckBox {
+      	    text: 'shuffle'
+
+            enabled: _ImageSources.count > 1
+
+            property alias myCfg: _Root.currentSlotCfg
+            onMyCfgChanged: checked = myCfg.shuffle
+
+            onCheckedChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+        	    myCfg.shuffle = checked?1:0;
+            });
+  		    }                    
+        }          
+
+        }
+
+        // - - - - - - - - - -   S O U R C E S
+        // - - - - - - - - - -   S O U R C E S        
+        // - - - - - - - - - -   S O U R C E S                
+
+		    ColumnLayout {
+			    Layout.fillWidth: true
+          Layout.fillHeight: true
+
+			    ScrollView {
+      	    Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.minimumHeight: 100
+
+
+            ListView {
+              id: _ImageSources
+        	    width: parent.width
+
+              property alias myCfg: _Root.currentSlotCfg
+              onMyCfgChanged: {
+
+		      	    inceptSources(myCfg.imagesources)
+
+						    imagesources__updateButtonsState();
+		          }
+
+              model: ListModel {
+
+                onCountChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+
+		      	      _ImageSources.extractSourcesToModel();
+
+						      imagesources__updateButtonsState();
+					      })                
+              }
+
+		          function extractSourcesToModel() {
+
+		      	    let sources = [];
+
+		      	    for(let i = 0; i < model.count; ++i)
+		      	    {
+		      		    sources.push(model.get(i).path);
+		      	    }
+
+		      	    myCfg.imagesources = sources;
+		          }
+
+					    function inceptSources($sources) {
+
+						    model.clear();
+
+						    for(let $$source of $sources)
+						    {
+							    model.append({path: $$source});
+						    }
+		          }
+
+              delegate: RowLayout {
+
+                Button {
+                  icon.name: "edit-delete-remove"
+
+                  onClicked: imagesources__removeSource(model.index);                  
+								}
+
+								Text {
+								  Layout.fillWidth: true
+                  text: model.path
+								}
+							}
+				    }
+
+			    }          
+
+        }
+
+
+      }
+    }
+
+
+/* Dev */
+    Rectangle {
+      id: _LogBackground
+      color: '#00ff0000'                  
+      Layout.fillWidth: true
+      height: 300
+
+      ScrollView {
+        anchors.fill: parent      
+        background: Rectangle {
+          color: '#0000ff00'
+        }      
+
+        TextArea {
+          id: _Log
+          background: Rectangle {
+            color: '#88ffffff'
+          }
+          wrapMode: TextEdit.Wrap
+          horizontalAlignment: TextEdit.AlignRight
+
+          property int autoclear:0
+
+          function clear() {
 
             text='';
             autoclear=0;
+          }
+
+          function sayo($o) {
+
+        	  say(JSON.stringify($o));
+          }
+
+          function say($text) {
+
+              text=text+'\n'+$text;
+              autoclear++;
+
+              if(autoclear>30)
+              {
+                  clear();
+              }
+          }
         }
-
-        function sayo($o) {
-
-        	say(JSON.stringify($o));
-        }
-
-        function say($text) {
-
-            text=text+'\n'+$text;
-            autoclear++;
-
-            if(autoclear>30)
-            {
-                clear();
-            }
-        }
+      }
     }
-}
-
-function cb_log($o) {
-
-	llog.say($o);
-}
-
-function cb_logo($o) {
-
-	llog.sayo($o);
-}
 /* /Dev */
 
 
-property var myConnector: wallpaper
-width: parent.width
-height: parent.height
-
-property var cfg_vallpaper2
-
-property var act_desktop
-property var act_timeslot
-
-															// A d a p t e r
-															// A d a p t e r
-															// A d a p t e r
-property var cfgAdapter
-Component.onCompleted: {
-
-	cfgAdapter = new JS.CfgAdapter(this, cfg_vallpaper2);
-	chooseDesktop__fillModel_activate(kWindowSystem.currentDesktop);
-}
-
-
-function cb_handleConfigChanged($newCfg) {
-
-	cfg_vallpaper2 = $newCfg;
-}
-															//
-															//
-															//
-
-property int myFontWidth: theme.mSize(theme.defaultFont).width
-property int myFontHeight: theme.mSize(theme.defaultFont).height
-property int mySmallButtonWidth: myFontWidth * 4
-
-SystemPalette { id: kSystemPalette }
-KWindowSystem.KWindowSystem { id: kWindowSystem }
-
-ColumnLayout {
-	anchors.fill: parent
-
-RowLayout {
-// c h o o s e   d e s k t o p
-// c h o o s e   d e s k t o p
-// c h o o s e   d e s k t o p
-
-  Label {
-    text: 'Desktop'
-	}
-
-	ComboBox {
-		id: comboActiveConfig
-
-		Layout.fillWidth: true
-		model: ListModel {}
-		textRole: 'text'
-
-		Connections {
-			id: comboActiveConfigConnections // pausable
-
-			onCurrentIndexChanged: chooseDesktop__handleCurrentIndexChanged();
-			onCountChanged: chooseDesktop__handleCountChanged();
-		}
-	}
-
-	Button {
-		id: btnAddConfig
-		Layout.preferredWidth: root.mySmallButtonWidth
-  	text: 'Add'
-
-  	onClicked: chooseDesktop__beginAddConfig()
-	}
-
-	Button {
-		id: btnRemoveConfig
-		Layout.preferredWidth: root.mySmallButtonWidth
-    text: 'X'
-
-    onClicked: chooseDesktop__removeConfig();
-	}
-// c h o o s e   d e s k t o p
-}
-
-GroupBox {
-// t i m e t a b l e
-// t i m e t a b l e
-// t i m e t a b l e
-	Layout.preferredWidth: parent.width * 0.9
-	anchors.horizontalCenter: parent.horizontalCenter
-	title: 'Activate at'
-	flat: true
-
-	RowLayout {
-		anchors.fill: parent
-
-		ScrollView {
-			Layout.fillWidth: true
-			Layout.preferredHeight: root.myFontHeight * 3.5
-			horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOn
-
-	    ListView {
-	    	id: listTimeslots
-	      orientation: ListView.Horizontal
-	      width: parent.width
-	      model: ListModel {}
-
-				Connections {
-					id: listTimeslotsConnections // pausable
-
-					onCurrentIndexChanged: timetable__handleCurrentIndexChanged();
-					onCountChanged: timetable__handleCountChanged();
-				}
-
-				property alias parentCfg: root.act_desktop
-				onParentCfgChanged: timetable__fillModel_activateCurrent();
-
-				delegate: Button {
-										text: model.slot
-										checkable: true
-								  	onClicked: timetable__handleSlotClicked(this, index)
-
-								  	property int refCurrentIndex: listTimeslots.currentIndex
-								  	onRefCurrentIndexChanged: checked = index == refCurrentIndex
-										}
-			}
-		}
-
-		Button {
-			id: btnAddTimeslot
-			anchors.top: parent.top
-			Layout.preferredWidth: root.mySmallButtonWidth
-	  	text: 'Add'
-
-	  	onClicked: timetable__beginAddSlot()
-		}
-
-		Button {
-			id: btnRemoveTimeslot
-			anchors.top: parent.top
-			Layout.preferredWidth: root.mySmallButtonWidth
-	    text: 'X'
-
-	    onClicked: timetable__removeSlot()
-		}
-	}
-// t i m e t a b l e
-}
-
-GroupBox {
-// p r o p e r t i e s
-// p r o p e r t i e s
-// p r o p e r t i e s
-	Layout.fillWidth: true
-	Layout.fillHeight: true
-
-  ColumnLayout {
-		anchors.fill: parent
-		id: colProperties
-
-		property int myLabelWidth: root.myFontWidth * 12
-
-		RowLayout {
-		// b a c k g r o u n d
-
-			Label {
-				Layout.preferredWidth: colProperties.myLabelWidth
-				text: 'Background'
-			}
-
-			Button {
-				Layout.preferredWidth: root.myFontHeight * 2.5
-				Layout.preferredHeight: root.myFontHeight * 2.5
-
-        property string selectedColor: undefined
-        onSelectedColorChanged: cfgAdapter.propagateChange(() => {
-        	s_cfg.background = selectedColor;
-        });
-
-        property alias s_cfg: root.act_timeslot
-        onS_cfgChanged: selectedColor = s_cfg.background
-
-        onClicked: properties__selectColor(this);
-
-				Rectangle {
-          anchors.centerIn: parent
-          width: root.myFontHeight * 2
-          height: root.myFontHeight * 2
-
-          color: parent.selectedColor
-				}
-			}
-		// b a c k g r o u n d
-		}
-
-		RowLayout {
-		// B o r d e r s   t o p / b o t t o m
-
-			Label {
-				Layout.preferredWidth: colProperties.myLabelWidth
-        text: 'Borders'
-      }
-
-			SpinBox {
-				suffix: 'px'
-        decimals: 0
-        maximumValue: myConnector.height
-
-				value: 0
-        onValueChanged: cfgAdapter.propagateChange(() => {
-        	s_cfg.borderTop = value;
-        });
-
-        property alias s_cfg: root.act_timeslot
-        onS_cfgChanged: value = s_cfg.borderTop
-			}
-
-			Label {
-				Layout.preferredWidth: colProperties.myLabelWidth
-				text: 'top (max. ' + myConnector.height + ')'
-			}
-
-			SpinBox {
-				suffix: 'px'
-        decimals: 0
-        maximumValue: myConnector.height
-
-				value: 0
-        onValueChanged: cfgAdapter.propagateChange(() => {
-        	s_cfg.borderBottom = value;
-        });
-
-        property alias s_cfg: root.act_timeslot
-        onS_cfgChanged: value = s_cfg.borderBottom
-			}
-
-			Label {
-				text: 'bottom (max. ' + myConnector.height + ')'
-			}
-
-		// B o r d e r s   t o p / b o t t o m
-		}
-
-		RowLayout {
-		// B o r d e r s   l e f t / r i g h t
-
-			Label {
-				Layout.preferredWidth: colProperties.myLabelWidth
-        text: '' // spacer
-      }
-
-			SpinBox {
-				suffix: 'px'
-        decimals: 0
-        maximumValue: myConnector.width
-
-				value: 0
-        onValueChanged: cfgAdapter.propagateChange(() => {
-        	s_cfg.borderLeft = value;
-        });
-
-        property alias s_cfg: root.act_timeslot
-        onS_cfgChanged: value = s_cfg.borderLeft
-			}
-
-			Label {
-				Layout.preferredWidth: colProperties.myLabelWidth
-				text: 'left (max. ' + myConnector.width + ')'
-			}
-
-			SpinBox {
-				suffix: 'px'
-        decimals: 0
-        maximumValue: myConnector.width
-
-				value: 0
-        onValueChanged: cfgAdapter.propagateChange(() => {
-        	s_cfg.borderRight = value;
-        });
-
-        property alias s_cfg: root.act_timeslot
-        onS_cfgChanged: value = s_cfg.borderRight
-			}
-
-			Label {
-				text: 'right (max. ' + myConnector.width + ')'
-			}
-
-		// B o r d e r s   l e f t / r i g h t
-		}
-
-		RowLayout {
-		// f i l l M o d e
-
-			Label {
-				Layout.preferredWidth: colProperties.myLabelWidth
-				text: 'Fill mode'
-			}
-
-			ComboBox {
-				Layout.preferredWidth: root.myFontWidth * 25
-
-				currentIndex: 0
-        onCurrentIndexChanged: cfgAdapter.propagateChange(() => {
-        	s_cfg.fillMode = model[currentIndex].value;
-        });
-
-        property alias s_cfg: root.act_timeslot
-        onS_cfgChanged: currentIndex = indexFromFillMode(s_cfg.fillMode)
-
-
-				model:
-        	[
-          { 'text': 'Fill',                           'value': Image.Stretch },
-          { 'text': 'Fit',                            'value': Image.PreserveAspectFit },
-          { 'text': 'Fill - preserve aspect ratio',   'value': Image.PreserveAspectCrop },
-          { 'text': 'Tile',                           'value': Image.Tile },
-          { 'text': 'Tile vertically',                'value': Image.TileVertically },
-          { 'text': 'Tile horizontally',              'value': Image.TileHorizontally },
-          { 'text': 'As is',                          'value': Image.Pad }
-          ]
-
-        function indexFromFillMode($mode) {
-
-        	let idx;
-
-					for(idx in model)
-          {
-          	if(model[idx].value===$mode)
-          	{
- 							break;
- 							//<--
-          	}
-					}
-
-        	return idx;
-        }
-			}
-		// f i l l M o d e
-		}
-
-		RowLayout {
-		// e f f e c t s
-
-			Label {
-				Layout.preferredWidth: colProperties.myLabelWidth
-				text: 'Effects'
-			}
-
-      ColumnLayout { // geDesaturation
-
-        Label {
-					Layout.preferredWidth: colProperties.myLabelWidth
-          horizontalAlignment: Text.AlignHCenter
-					text: 'Desaturate'
-				}
-
-				Slider {
-					Layout.preferredWidth: colProperties.myLabelWidth
-          updateValueWhileDragging: false
-
-					value: 0
-        	onValueChanged: cfgAdapter.propagateChange(() => {
-        		s_cfg.desaturate = value;
-        	});
-
-        	property alias s_cfg: root.act_timeslot
-        	onS_cfgChanged: value = s_cfg.desaturate
-				}
-			}
-
-      ColumnLayout { // geFastBlur
-
-        Label {
-					Layout.preferredWidth: colProperties.myLabelWidth
-          horizontalAlignment: Text.AlignHCenter
-					text: 'Blur'
-				}
-
-				Slider {
-					Layout.preferredWidth: colProperties.myLabelWidth
-          updateValueWhileDragging: false
-
-					value: 0
-        	onValueChanged: cfgAdapter.propagateChange(() => {
-        		s_cfg.blur = value;
-        	});
-
-        	property alias s_cfg: root.act_timeslot
-        	onS_cfgChanged: value = s_cfg.blur
-				}
-			}
-
-      ColumnLayout { // geColorOverlay
-
-        Label {
-					Layout.preferredWidth: colProperties.myLabelWidth
-          horizontalAlignment: Text.AlignHCenter
-					text: 'Colorize'
-				}
-
-				Slider {
-					Layout.preferredWidth: colProperties.myLabelWidth
-          updateValueWhileDragging: false
-
-					value: 0
-        	onValueChanged: cfgAdapter.propagateChange(() => {
-	        	s_cfg.colorize = value;
-	        	util__setColorizeValue(s_cfg);
-  	      });
-
-    	    property alias s_cfg: root.act_timeslot
-      	  onS_cfgChanged: value = s_cfg.colorize
-				}
-			}
-
-			Button {
-				Layout.preferredWidth: root.myFontHeight * 2.5
-				Layout.preferredHeight: root.myFontHeight * 2.5
-
-        property string selectedColor: undefined
-        onSelectedColorChanged: cfgAdapter.propagateChange(() => {
-        	s_cfg.colorizeColor = selectedColor;
-        	util__setColorizeValue(s_cfg);
-        });
-
-        property alias s_cfg: root.act_timeslot
-        onS_cfgChanged: selectedColor = s_cfg.colorizeColor
-
-        onClicked: properties__selectColor(this);
-
-				Rectangle {
-          anchors.centerIn: parent
-          width: root.myFontHeight * 2
-          height: root.myFontHeight * 2
-
-          color: parent.selectedColor
-				}
-			}
-		// e f f e c t s
-		}
-
-		RowLayout {
-		// i n t e r v a l
-
-			Label {
-				Layout.preferredWidth: colProperties.myLabelWidth
-        text: 'Interval'
-			}
-
-      SpinBox {
-				suffix: 's'
-        decimals: 0
-
-				readonly property IntValidator intValidator: IntValidator {}
-        maximumValue: intValidator.top
-
-				value: 0
-        onValueChanged: cfgAdapter.propagateChange(() => {
-        	s_cfg.interval = value;
-        });
-
-        property alias s_cfg: root.act_timeslot
-        onS_cfgChanged: value = s_cfg.interval
-			}
-    // i n t e r v a l
-    }
-
-		RowLayout {
-    // r a n d o m
-
-			Label {
-				Layout.preferredWidth: colProperties.myLabelWidth
-        text: 'Picture sources'
-			}
-
-			CheckBox {
-      	text: 'random'
-
-      	checked: true
-        onCheckedChanged: cfgAdapter.propagateChange(() => {
-        	s_cfg.random = checked?1:0;
-        });
-
-        property alias s_cfg: root.act_timeslot
-        onS_cfgChanged: checked = s_cfg.random
-  		}
-    // r a n d o m
-    }
-
-		ColumnLayout {
-    // p i c t u r e s o u r c e s
-    // p i c t u r e s o u r c e s
-    // p i c t u r e s o u r c e s
-
-			Layout.fillWidth: true
-      Layout.fillHeight: true
-
-			ScrollView {
-      	Layout.fillWidth: true
-        Layout.fillHeight: true
-        frameVisible: true
-
-        ListView {
-        	id: listPicturesources
-        	width: parent.width
-
-					property int changeFlag: 0
-		      onChangeFlagChanged: cfgAdapter.propagateChange(() => {
-
-		      	s_cfg.sources = extractSources(model);
-
-						picturesources__updateButtonState();
-					});
-
-		      property alias s_cfg: root.act_timeslot
-		      onS_cfgChanged: {
-
-		      	inceptSources(model, s_cfg.sources)
-
-						picturesources__updateButtonState();
-		      }
-
-		      function extractSources($model) {
-
-		      	let sources = [];
-
-		      	for(let i = 0; i < $model.count; ++i)
-		      	{
-		      		sources.push($model.get(i).path);
-		      	}
-
-		      	return sources;
-		      }
-
-					function inceptSources($model, $sources) {
-
-						$model.clear();
-
-						for(let $$source of $sources)
-						{
-							$model.append({path: $$source});
-						}
-		      }
-
-          model: ListModel {}
-
-          delegate: RowLayout {
-          						width: parent.width
-
-											Button {
-                        Layout.preferredWidth: root.mySmallButtonWidth
-                        text: 'X'
-
-                        onClicked: picturesources__removeSource(model.index);
-											}
-
-											Text {
-												color: kSystemPalette.text
-												Layout.fillWidth: true
-                        text: model.path
-											}
-										}
-				}
-			}
-
-			RowLayout {
-    		Layout.alignment: Qt.AlignCenter
-
-				Button {
-					id: btnAddFolder
-					text: 'Add folder...'
-
-					onClicked: picturesources__addPathWith(dlgAddFolder);
-				}
-
-				Button {
-					id: btnAddFiles
-					text: 'Add files...'
-
-					onClicked: picturesources__addPathWith(dlgAddFiles);
-				}
-
-				Button {
-					id: btnAddUrl
-					text: 'Use url...'
-
-					onClicked: picturesources__addUrl();
-				}
-			}
-		// p i c t u r e s o u r c e s
-		}
-	}
-
-	Item {} // workaround: without this, layout is unusable on small (height) screens ('Add' buttons at bottom are cut not visible)
-// p r o p e r t i e s
-}
-}
-
-																				// u t i l
-
-																				// u t i l
-
-																				// u t i l
-
-function util__buildElementDesktopList($no) {
-
-	let sort = '#' + ('  '+$no).slice(-3);
-
-	return {
-		'text': (JS.CFG_DESKNO_DEFAULT===$no?'*':sort + ': ' + kWindowSystem.desktopName($no)),
-    'deskNo': $no,
-    'sort': sort
-		}
-}
-
-function util__buildElementTimetable($slot) {
-
-	return { 'slot': $slot }
-}
-
-function util__setColorizeValue($aTimeslot) {
-
-	let alpha = Math.round(255 * $aTimeslot.colorize);
-	$aTimeslot.colorizeValue = '#' + ("00" + alpha.toString(16)).substr(-2) + $aTimeslot.colorizeColor.substr(-6);
-}
-
-																				// c h o o s e D e s k t o p
-
-																				// c h o o s e D e s k t o p
-
-																				// c h o o s e D e s k t o p
-
-function chooseDesktop__fillModel_activate($deskNo) {
-
-	let activateNo = JS.CFG_DESKNO_DEFAULT;
-
-	// fill
-	let memConnTarget = comboActiveConfigConnections.target;
-	comboActiveConfigConnections.target = null;
-
-	for(let $$cfg of cfgAdapter.getCfgs())
-	{
-		chooseDesktop__modelInsertElement(util__buildElementDesktopList($$cfg.deskNo));
-
-		if($$cfg.deskNo === $deskNo)
-		{
-			activateNo = $deskNo;
-		}
-	}
-
-	comboActiveConfigConnections.target = memConnTarget;
-
-
-	// activate
-	let w = comboActiveConfig;
-
-	let activateIndex = 0;
-	for(let i = 0; i < w.model.count; ++i)
-	{
-		if(w.model.get(i).deskNo === activateNo)
-		{
-			activateIndex = i;
-			break;
-			// <--
-		}
-	}
-
-	if(w.currentIndex == activateIndex)
-	{
-		chooseDesktop__handleCurrentIndexChanged();
-	}
-	else
-	{
-		w.currentIndex = activateIndex;
-	}
-}
-
-function chooseDesktop__handleCountChanged() {
-
-	chooseDesktop__updateButtonState();
-}
-
-function chooseDesktop__handleCurrentIndexChanged() {
-
-	chooseDesktop__updateButtonState();
-
-	let w = comboActiveConfig;
-
-	act_desktop = cfgAdapter.getCfg(w.model.get(w.currentIndex).deskNo);
-}
-
-function chooseDesktop__updateButtonState() {
-
-	let w = comboActiveConfig;
-
-	btnAddConfig.enabled = w.model.count < kWindowSystem.numberOfDesktops+1;
-
-	btnRemoveConfig.enabled = w.currentIndex > JS.CFG_DESKNO_DEFAULT;
-}
-
-function chooseDesktop__modelInsertElement($desktopElement) {
-
-	let w = comboActiveConfig;
-
-	let idx = 0;
-	while(idx < w.model.count && $desktopElement.sort > w.model.get(idx).sort)
-	{
-		++idx;
-	}
-
-	if(w.model.count===0)
-	{
-		w.model.append($desktopElement);
-	}
-	else
-	{
-		w.model.insert(idx, $desktopElement);
-	}
-
-	w.currentIndex = idx;
-}
-
-function chooseDesktop__beginAddConfig() {
-
-	let w = comboActiveConfig;
-
-	let existingNos = [];
-	for(let i = 0; i < w.model.count; ++i)
-	{
-		existingNos.push(w.model.get(i).deskNo);
-	}
-	dlgAddDesktop.excludeNos = existingNos;
-
-
-	dlgAddDesktop.handleOnAccepted = ($$element)=>{
-
-		cfgAdapter.newCfgFor_clone($$element.deskNo, w.model.get(w.currentIndex).deskNo);
-
-		chooseDesktop__modelInsertElement($$element);
-	}
-
-
-	dlgAddDesktop.open();
-}
-
-function chooseDesktop__removeConfig() {
-
-	let w = comboActiveConfig;
-
-	cfgAdapter.deleteCfg(w.model.get(w.currentIndex).deskNo);
-
-	w.model.remove(w.currentIndex);
-
-	w.currentIndex = Math.max(0, w.currentIndex - 1);
-}
-
-																				// t i m e t a b l e
-
-																				// t i m e t a b l e
-
-																				// t i m e t a b l e
-
-function timetable__fillModel_activateCurrent() {
-
-	let w = listTimeslots;
-
-	// fill
-	let nowTimeslot = act_desktop.findAppropiateTimeslot_now();
-
-	let memConnTarget = listTimeslotsConnections.target;
-	listTimeslotsConnections.target = null;
-
-	w.model.clear();
-
-	let orderedTimeslots = act_desktop.getTimeslots();
-	let activateIdx = 0;
-	for(let i in orderedTimeslots)
-	{
-		let timeslot = orderedTimeslots[i];
-
-		timetable__modelInsertElement(util__buildElementTimetable(timeslot.slot));
-
-		activateIdx = timeslot===nowTimeslot?i:activateIdx;
-	}
-
-	listTimeslotsConnections.target = memConnTarget;
-
-
-	// activate
-	if(w.currentIndex == activateIdx)
-	{
-		timetable__handleCurrentIndexChanged();
-	}
-	else
-	{
-		w.currentIndex = activateIdx;
-	}
-}
-
-function timetable__modelInsertElement($timetableElement) {
-
-	let w = listTimeslots;
-
-	let idx = 0;
-	while(idx < w.model.count && $timetableElement.slot > w.model.get(idx).slot)
-	{
-		++idx;
-	}
-
-	if(w.model.count===0)
-	{
-		w.model.append($timetableElement);
-	}
-	else
-	{
-		w.model.insert(idx, $timetableElement);
-	}
-
-	w.currentIndex = idx;
-}
-
-function timetable__handleCountChanged() {
-
-	timetable__updateButtonState();
-}
-
-function timetable__handleCurrentIndexChanged() {
-
-	let w = listTimeslots;
-
-	timetable__updateButtonState();
-
-	act_timeslot = act_desktop.getTimeslot(w.model.get(w.currentIndex).slot);
-	//llog.say('act_ #' + act_desktop.deskNo + ' @' + act_timeslot.slot);
-}
-
-function timetable__updateButtonState() {
-
-	let w = listTimeslots;
-
-	btnAddTimeslot.enabled = w.model.count < 60 * 24;
-
-	btnRemoveTimeslot.enabled = w.currentIndex > 0;
-}
-
-function timetable__handleSlotClicked($theClicked, $index) {
-
-	let w = listTimeslots;
-
-	if(w.currentIndex !== $index)
-	{
-		w.currentIndex = $index;
-	}
-	else
-	{
-		$theClicked.checked = true;
-	}
-}
-
-function timetable__beginAddSlot() {
-
-	let w = listTimeslots;
-
-	let slots = [];
-	for(let i = 0; i < w.model.count; ++i)
-	{
-		slots.push(w.model.get(i).slot);
-	}
-	dlgAddTime.excludeSlots = slots;
-
-
-	dlgAddTime.handleOnAccepted = ($$element) => {
-
-		cfgAdapter.newTimeslotFor_clone(act_desktop, $$element.slot, w.model.get(w.currentIndex).slot);
-
-		timetable__modelInsertElement($$element);
-	};
-
-
-	dlgAddTime.open();
-}
-
-function timetable__removeSlot() {
-
-	let w = listTimeslots;
-
-	cfgAdapter.deleteTimeslot(act_desktop, w.model.get(w.currentIndex).slot);
-
-	w.model.remove(w.currentIndex);
-
-	w.currentIndex = Math.max(0, w.currentIndex - 1);
-}
-
-																				// p r o p e r t i e s
-
-																				// p r o p e r t i e s
-
-																				// p r o p e r t i e s
-
-function properties__selectColor($target) {
-
-	dlgSelectColor.color = $target.selectedColor;
-
-
-	dlgSelectColor.handleOnAccepted = ($$color) => {
-
-		$target.selectedColor = $$color;
-	};
-
-
-	dlgSelectColor.open();
-}
-
-																				// p i c t u r e s o u r c e s
-
-																				// p i c t u r e s o u r c e s
-
-																				// p i c t u r e s o u r c e s
-function picturesources__removeSource($index) {
-
-	let w = listPicturesources;
-
-	w.model.remove($index);
-	--w.changeFlag;
-}
-
-function picturesources__addPathWith($$dlg) {
-
-	let w = listPicturesources;
-
-	$$dlg.handleOnAccepted = ($$resultUrls) => {
-
-		for(let i=0; i<$$resultUrls.length; ++i)
-		{
-			let desanitized = JS.FILENAME_FROM_URISAFE($$resultUrls[i]);
-			w.model.append({ path: desanitized });
-		}
-		++w.changeFlag;
-	};
-
-
-	$$dlg.open();
-}
-
-function picturesources__addUrl() {
-
-	let w = listPicturesources;
-
-	dlgAddUrl.handleOnAccepted = ($$text) => {
-
-		w.model.append({ path: $$text });
-		++w.changeFlag;
-	};
-
-
-	dlgAddUrl.open();
-}
-
-function picturesources__updateButtonState() {
-
-	let m = listPicturesources.model;
-
-	btnAddFolder.enabled = ! (m.count > 0 && m.get(0).path.startsWith('http'));
-	btnAddFiles.enabled = btnAddFolder.enabled;
-
-	btnAddUrl.enabled = ! m.count > 0;
-}
-
-																				// d l g A d d D e s k t o p
-
-																				// d l g A d d D e s k t o p
-
-																				// d l g A d d D e s k t o p
-
-Dialog {
-	id: dlgAddDesktop
-
-	width: parent.width * 0.6
-
-	title: 'Add desktop config'
-  standardButtons: Dialog.Ok | Dialog.Cancel
-
-  property var excludeNos
-
-  property var handleOnAccepted
-  onAccepted: handleOnAccepted(comboDesktopCfgs.model[comboDesktopCfgs.currentIndex])
-
-  onVisibleChanged: {
-
-  	if(!visible)
-  		return;
-  		// <--
-
-
-			let m = [];
-			for(let i=0; i<kWindowSystem.numberOfDesktops; ++i)
-      {
-      	let no = i+1;
-      	if(excludeNos.includes(no))
-      		continue;
-      		// <--
-
-
-      	m.push(util__buildElementDesktopList(no));
-			}
-			comboDesktopCfgs.model = m;
-		}
-
-	ComboBox {
-		id: comboDesktopCfgs
-		width: parent.width
-	}
-}
-
-																				// d l g A d d T i m e
-
-																				// d l g A d d T i m e
-
-																				// d l g A d d T i m e
-
-Dialog {
-	id: dlgAddTime
-
-	width: parent.width * 0.5
-
-	title: 'Add time'
-  standardButtons: Dialog.Cancel
-
-  property var excludeSlots: []
-  property string newSlot
-
-  property var handleOnAccepted
-  onAccepted: handleOnAccepted(util__buildElementTimetable(newSlot))
-
-  Component.onCompleted: initModels();
-
-  onVisibleChanged: {
-
-  	if(!visible)
-  		return;
-  		// <--
-
-
-		buildNewSlot();
-		}
-
-	RowLayout {
-
-		ComboBox {
-			id: comboHour
-
-			onCurrentIndexChanged: dlgAddTime.buildNewSlot();
-		}
-
-		Label {
-    	text: ':'
-		}
-
-		ComboBox {
-			id: comboMinute
-
-			onCurrentIndexChanged: dlgAddTime.buildNewSlot();
-		}
-
-		Button {
-			id: btnAdd
-			Layout.preferredWidth: root.mySmallButtonWidth
-  		text: 'Add'
-
-  		onClicked: dlgAddTime.accept()
-		}
   }
 
-  function initModels() {
 
-  	let mh = [];
-  	for(let i = 0; i < 24; ++i)
-  	{
-  		let text = ('00'+i).slice(-2);
-  		mh.push({'text': text});
-  	}
-  	comboHour.model = mh;
+function dev_log($o) {
 
-		let mm = [];
-  	for(let i = 0; i < 60; ++i)
-  	{
-  		let text = ('00'+i).slice(-2);
-  		mm.push({'text': text});
-  	}
-  	comboMinute.model = mm;
-  }
-
-  function buildNewSlot() {
-
-  	if(comboHour.currentIndex < 0 || comboMinute.currentIndex < 0)
-  		return;
-  		//<--
-
-
-  	let hh = comboHour.model[comboHour.currentIndex].text;
-  	let mm = comboMinute.model[comboMinute.currentIndex].text;
-
-  	newSlot = hh + ':' + mm;
-  	btnAdd.enabled = !excludeSlots.includes(newSlot);
-  }
+	_Log.say($o);
 }
 
-																				// d l g S e l e c t C o l o r
+function dev_logo($o) {
 
-																				// d l g S e l e c t C o l o r
-
-																				// d l g S e l e c t C o l o r
-
-ColorDialog {
-	id: dlgSelectColor
-
-  title: "Select color"
-  modality: Qt.WindowModal
-  showAlphaChannel: myConnector === plasmoid
-
-  property var handleOnAccepted
-  onAccepted: handleOnAccepted(color)
+	_Log.sayo($o);
 }
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-																				// d l g F o l d e r
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-																				// d l g F o l d e r
-
-																				// d l g F o l d e r
-FileDialog {
-  	id: dlgAddFolder
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+FolderDialog {
+  	id: _DlgAddFolder
 		title: "Choose a folder"
-    selectFolder: true
 
 	  property var handleOnAccepted
-  	onAccepted: handleOnAccepted(fileUrls)
+  	onAccepted: handleOnAccepted([currentFolder])
 	}
 
-																				// d l g F i l e s
-
-																				// d l g F i l e s
-
-																				// d l g F i l e s
-	FileDialog {
-  	id: dlgAddFiles
+FileDialog {
+  	id: _DlgAddFiles
 		title: "Choose files"
-    selectExisting: true
-    selectMultiple: true
+
+    fileMode: FileDialog.OpenFiles
 
 	  property var handleOnAccepted
-  	onAccepted: handleOnAccepted(fileUrls)
+  	onAccepted: handleOnAccepted(selectedFiles)
 	}
-
-																				// d l g A d d U r l
-
-																				// d l g A d d U r l
-
-																				// d l g A d d U r l
 
 Dialog {
-	id: dlgAddUrl
+	id: _DlgSetUrl
 
 	width: parent.width * 0.6
 
@@ -1268,16 +772,417 @@ Dialog {
 
 	TextField {
 		id: tfUrl
-		focus: dlgAddUrl.visible
+		focus: _DlgSetUrl.visible
 
 		anchors.fill: parent
 	}
 }
 
-																				//
+ColorDialog {
+	id: dlgSelectColor
 
-																				//
+  title: "Select color"
+  modality: Qt.WindowModal
 
-																				//
-// root
+  property var handleOnAccepted
+  onAccepted: handleOnAccepted(selectedColor)
+}
+
+
+Dialog {
+	id: _DlgAddTimeslot
+
+	title: 'Add Settings activated at'
+  standardButtons: Dialog.Cancel
+
+  property var excludeSlots: []
+  property string newSlot
+
+  onAccepted: {
+
+    const element = {"slotmarker": newSlot};
+
+		plasmacfgAdapter.atCfg_newTimeslotForMarker_cloneMarker(currentDeskCfg, element.slotmarker, _SelectSlot.model.get(_SelectSlot.currentIndex).slotmarker);
+
+    selectSlot__insertSlot(element);
+	}
+
+  Component.onCompleted: initModels();
+
+  onVisibleChanged: {
+
+  	if(!visible)
+  		return;
+  		// <--
+
+
+	  let slots = [];
+	  for(let i = 0; i < _SelectSlot.model.count; ++i)
+	  {
+		  slots.push( _SelectSlot.model.get(i).slotmarker);
+	  }
+	  _DlgAddTimeslot.excludeSlots = slots;
+
+		buildNewSlot();
+		}
+
+	RowLayout {
+
+		ComboBox {
+			id: comboHour
+      model: ListModel {}
+      textRole: 'text'
+
+			onCurrentIndexChanged: _DlgAddTimeslot.buildNewSlot();
+		}
+
+		Label {
+    	text: ':'
+		}
+
+		ComboBox {
+			id: comboMinute
+      model: ListModel {}
+      textRole: 'text'
+
+			onCurrentIndexChanged: _DlgAddTimeslot.buildNewSlot();
+		}
+
+		Button {
+			id: btnAdd
+  		text: 'Add'
+
+  		onClicked: _DlgAddTimeslot.accept()
+		}
+  }
+
+  function initModels() {
+
+  	const mh = comboHour.model;
+  	for(let i = 0; i < 24; ++i)
+  	{
+  		const text = ('00'+i).slice(-2);
+  		mh.append({'text': text});
+  	}
+    comboHour.currentIndex = 0;
+
+		const mm = comboMinute.model;
+  	for(let i = 0; i < 60; ++i)
+  	{
+  		let text = ('00'+i).slice(-2);
+  		mm.append({'text': text});
+  	}
+    comboMinute.currentIndex = 0;
+  }
+
+  function buildNewSlot() {
+
+  	if(comboHour.currentIndex < 0 || comboMinute.currentIndex < 0)
+  		return;
+  		//<--
+
+
+  	let hh = comboHour.model.get(comboHour.currentIndex).text;
+  	let mm = comboMinute.model.get(comboMinute.currentIndex).text;
+
+  	newSlot = hh + ':' + mm;
+  	btnAdd.enabled = !excludeSlots.includes(newSlot);
+  }
+}
+
+
+
+Dialog {
+	id: _DlgAddConfig
+  width: parent.width * 0.6
+
+	title: 'Add Settings for'
+  standardButtons: Dialog.Ok | Dialog.Cancel
+
+  onAccepted: {
+
+    const element = _ComboAddConfig.model[_ComboAddConfig.currentIndex];
+    const currentDesktopConfigDeskNo = _SelectDesktop.model.get(_SelectDesktop.model.currentIndex).deskNo;
+
+    plasmacfgAdapter.newCfgForNo_cloneNo(element.deskNo, currentDesktopConfigDeskNo);
+
+    selectDesktop__insertElement(element);
+	}
+
+  onVisibleChanged: {
+
+  	if(!visible) { return; }
+    // <--
+
+
+	  const existingDeskNos = [];
+	  for(let i = 0; i < _SelectDesktop.model.count; ++i)
+	  {
+		  existingDeskNos.push(_SelectDesktop.model.get(i).deskNo);
+	  }
+
+		const myModel = [];
+		for(let i=0; i<_Pager.count+1; ++i)
+    {
+      const deskNo = i;
+      if(existingDeskNos.includes(deskNo)) { continue; }
+      //<--
+
+
+      myModel.push(selectDesktop__buildElement(deskNo));
+		}
+	
+  	_ComboAddConfig.model = myModel;
+	}
+
+	ComboBox {
+		id: _ComboAddConfig
+		width: parent.width
+    textRole: 'displayText'    
+	}
+}
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function selectSlot__init() {
+
+	const memConnTarget = _SelectSlotConnections.target;
+	_SelectSlotConnections.target = null;
+
+	_SelectSlot.model.clear();
+	const nowTimeslotCfg = currentDeskCfg.findAppropiateSlotCfgFor_now();  
+	const orderedTimeslotCfgs = currentDeskCfg.getOrderedTimeslots();
+
+	let activateIdx = 0;
+	for(let $$i in orderedTimeslotCfgs)
+	{
+		const timeslotCfg = orderedTimeslotCfgs[$$i];
+
+		selectSlot__insertSlot({"slotmarker": timeslotCfg.slotmarker});
+
+    if(timeslotCfg===nowTimeslotCfg)
+    {
+      activateIdx = $$i;
+    }
+	}
+
+	_SelectSlotConnections.target = memConnTarget;
+
+
+	// activate
+	if(_SelectSlot.currentIndex == activateIdx)
+	{
+		selectSlot__handleCurrentIndexChanged();
+	}
+	else
+	{
+		_SelectSlot.currentIndex = activateIdx;
+	}  
+
+
+}
+
+function selectSlot__insertSlot($slot) {
+
+  const model = _SelectSlot.model;
+
+	let idx = 0;
+	while(idx < model.count && $slot > model.get(idx))
+	{
+		++idx;
+	}
+
+	if(model.count===0)
+	{
+		model.append($slot);
+	}
+	else
+	{
+		model.insert(idx, $slot);
+	}
+
+	_SelectSlot.currentIndex = idx;
+}
+
+function selectSlot__handleCurrentIndexChanged() {
+
+	selectSlot__updateButtonsState();
+
+	currentSlotCfg = currentDeskCfg.getTimeslotForSlotmarker(_SelectSlot.model.get(_SelectSlot.currentIndex).slotmarker);
+}
+
+function selectSlot__updateButtonsState() {
+
+	btnAddTimeslot.enabled = _SelectSlot.model.count < 60 * 24;
+
+	btnRemoveTimeslot.enabled = _SelectSlot.currentIndex > 0;
+}
+
+function selectSlot__removeTimeslot() {
+
+	plasmacfgAdapter.atCfg_deleteTimeslot(currentDeskCfg, _SelectSlot.model.get(_SelectSlot.currentIndex).slotmarker);
+
+	_SelectSlot.model.remove(_SelectSlot.currentIndex);
+
+	_SelectSlot.currentIndex = Math.max(0, _SelectSlot.currentIndex - 1);
+}
+
+
+
+
+
+function selectDesktop__removeConfig() {
+
+	plasmacfgAdapter.deleteCfgNo(_SelectDesktop.model.get(_SelectDesktop.currentIndex).deskNo);
+
+	_SelectDesktop.model.remove(_SelectDesktop.currentIndex);
+
+	_SelectDesktop.currentIndex = Math.min(_SelectDesktop.currentIndex, _SelectDesktop.model.count - 1);
+}
+
+function selectDesktop__updateButtonsState() {
+
+	btnAddDesktopConfig.enabled = _SelectDesktop.model.count < _Pager.count+1;
+
+	btnRemoveDesktopConfig.enabled = _SelectDesktop.currentIndex > 0;
+}
+
+
+function selectDesktop__handleCurrentIndexChanged() {
+
+	selectDesktop__updateButtonsState();
+
+	currentDeskCfg = plasmacfgAdapter.getCfgForDeskNo(_SelectDesktop.model.get(_SelectDesktop.currentIndex).deskNo);
+}
+
+function selectDesktop__init($currentConfigDeskNo) {
+
+	let activateNo = VJS.DESKNO_GLOBAL;
+
+	// fill model
+	const memConnTarget = _SelectDesktopConnections.target;
+	_SelectDesktopConnections.target = null;
+
+	for(const $$cfg of plasmacfgAdapter.getCfgs())
+	{
+		selectDesktop__insertElement(selectDesktop__buildElement($$cfg.deskNo));
+
+		if($$cfg.deskNo === $currentConfigDeskNo)
+		{
+			activateNo = $$cfg.deskNo;
+		}
+	}
+
+	_SelectDesktopConnections.target = memConnTarget;
+
+
+  // activate current
+  const model = _SelectDesktop.model;  
+
+	let activateIndex = 0;
+	for(let i = 0; i < model.count; ++i)
+	{
+		if(model.get(i).deskNo === activateNo)
+		{
+			activateIndex = i;
+			break;
+			// <--
+		}
+	}
+
+	if(_SelectDesktop.currentIndex == activateIndex)
+	{
+		selectDesktop__handleCurrentIndexChanged();
+	}
+	else
+	{
+		_SelectDesktop.currentIndex = activateIndex;
+	}
+}
+
+function selectDesktop__buildElement($deskNo) {
+
+	const orderText = '#' + ('  '+$deskNo).slice(-3);
+
+	return {
+		'displayText': (VJS.DESKNO_GLOBAL===$deskNo?VJS.DESKNO_GLOBAL_NAME:_Pager.data(_Pager.index($deskNo-1, 0), 0)),
+    'deskNo': $deskNo,
+    'orderText': orderText
+		}
+}
+
+function selectDesktop__insertElement($desktopElement) {
+
+  const model = _SelectDesktop.model;
+
+	let idx = 0;
+	while(idx < model.count && $desktopElement.orderText > model.get(idx).orderText)
+	{
+		++idx;
+	}
+
+	if(model.count===0)
+	{
+		model.append($desktopElement);
+	}
+	else
+	{
+		model.insert(idx, $desktopElement);
+	}
+
+	_SelectDesktop.currentIndex = idx;
+}
+
+function effects__updateColorizeValue($slot) {
+
+	let alpha = Math.round(255 * $slot.colorize);
+	$slot.colorizeValue = '#' + ("00" + alpha.toString(16)).substr(-2) + $slot.colorizeColor.substr(-6);
+}
+
+function imagesources__updateButtonsState() {
+
+	_BtnAddFolder.enabled = ! (_ImageSources.model.count > 0 && _ImageSources.model.get(0).path.startsWith('http'));
+	_BtnAddFiles.enabled = _BtnAddFolder.enabled;
+
+	_BtnSetUrl.enabled = ! _ImageSources.model.count > 0;
+}
+
+function imagesources__addPathUsingDlg($$dlg) {
+
+	$$dlg.handleOnAccepted = ($$resultUrls) => {
+
+		for(let i=0; i<$$resultUrls.length; ++i)
+		{
+			let desanitized = VJS.AS_URISAFE($$resultUrls[i].toString(), false);
+			_ImageSources.model.append({ path: desanitized });
+		}
+	};
+
+
+	$$dlg.open();
+}
+
+function imagesources__setUrl() {
+
+	_DlgSetUrl.handleOnAccepted = ($$text) => {
+
+    $$text = $$text.startsWith('http')?$$text:'http://'+$$text;
+
+		_ImageSources.model.append({ path: $$text });
+	};
+
+	_DlgSetUrl.open();
+}
+
+function imagesources__removeSource($index) {
+
+	_ImageSources.model.remove($index);
+}
+
 }

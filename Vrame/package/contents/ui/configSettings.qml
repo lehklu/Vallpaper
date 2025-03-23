@@ -14,13 +14,13 @@ import org.kde.kcmutils
 import org.kde.plasma.private.pager
 
 import "../js/v.js" as VJS
-SimpleKCM {
+SimpleKCM { /*SED*/
 	id: _Root
 
-  property var connector2Plasma: plasmoid
+  property var connector2Plasma: plasmoid /*SED*/
 
-	property var cfg_vrame6
-  property var cfg_vrame6Default // unused
+	property var cfg_vrame6 /*SED*/
+  property var cfg_vrame6Default // unused /*SED*/
 
   property var plasmacfgAdapter  
 
