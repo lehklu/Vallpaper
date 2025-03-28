@@ -5,6 +5,6 @@ ConfigModel {
   ConfigCategory {
     name: "Settings"
     icon: "settings-configure"
-    source: "configSettings.qml"
+    source: "config.qml"
   }
 }

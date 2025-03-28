@@ -4,12 +4,8 @@
       xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
       http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
 
-<group name="Settings">
-
-  <entry name="vallpaper2" type="StringList">
-    <default></default>
-  </entry>
-
-</group>
-
+  <group name="Settings">
+    <entry name="vallpaper6" type="StringList">
+    </entry>
+  </group>
 </kcfg>

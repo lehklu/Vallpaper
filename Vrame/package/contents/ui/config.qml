@@ -6,10 +6,10 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Dialogs
-import org.kde.plasma.plasmoid
 import org.kde.plasma.core as PlasmaCore
 import org.kde.kirigami as Kirigami
 import org.kde.kcmutils
+import org.kde.plasma.plasmoid /*SED*/
 
 import org.kde.plasma.private.pager
 
@@ -20,7 +20,6 @@ SimpleKCM { /*SED*/
   property var connector2Plasma: plasmoid /*SED*/
 
 	property var cfg_vrame6 /*SED*/
-  property var cfg_vrame6Default // unused /*SED*/
 
   property var plasmacfgAdapter  
 
@@ -37,9 +36,8 @@ SimpleKCM { /*SED*/
   }  
 
   Component.onCompleted: {
-    dev_log("SimpleKCM onCompleted")
 
-    plasmacfgAdapter = new VJS.PlasmacfgAdapter(cfg_vrame6, $newCfg => { cfg_vrame6 = $newCfg; });
+    plasmacfgAdapter = new VJS.PlasmacfgAdapter(cfg_vrame6, $newCfg => { cfg_vrame6 = $newCfg; }); /*SED*/
     selectDesktop__init(_Pager.currentPage+1);    
   }
 
@@ -51,7 +49,9 @@ SimpleKCM { /*SED*/
 	}
 
   ColumnLayout { // Container
-	  anchors.fill: parent  
+    Layout.leftMargin: _FontMetrics.averageCharacterWidth
+    Layout.rightMargin: _FontMetrics.averageCharacterWidth
+    Layout.bottomMargin: _FontMetrics.averageCharacterWidth * 2
 
     // S E L E C T   D E S K T O P - - - - - - - - - -
     // S E L E C T   D E S K T O P - - - - - - - - - -
@@ -675,7 +675,7 @@ SimpleKCM { /*SED*/
     }
 
 
-/* Dev */
+/* Dev *
     Rectangle {
       id: _LogBackground
       color: '#00ff0000'                  
@@ -905,7 +905,7 @@ Dialog {
     const element = _ComboAddConfig.model[_ComboAddConfig.currentIndex];
     const currentDesktopConfigDeskNo = _SelectDesktop.model.get(_SelectDesktop.model.currentIndex).deskNo;
 
-    plasmacfgAdapter.newCfgForNo_cloneNo(element.deskNo, currentDesktopConfigDeskNo);
+    plasmacfgAdapter.newCfgForDeskNo_cloneDeskNo(element.deskNo, currentDesktopConfigDeskNo);
 
     selectDesktop__insertElement(element);
 	}

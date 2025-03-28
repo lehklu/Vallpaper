@@ -14,19 +14,19 @@ import Qt5Compat.GraphicalEffects
 
 import "../js/v.js" as VJS
 
-PlasmoidItem {
+PlasmoidItem { /*SED*/
 	id: _Root
 
-  Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground
+  Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground /*SED*/
 
   property var devShowInfo: true
 
-  property var connector2Plasma: plasmoid
-  property var config: Plasmoid.configuration.vrame6
+  property var connector2Plasma: plasmoid /*SED*/
+  property var config: Plasmoid.configuration.vrame6 /*SED*/
   property var previousConfig
 
   property var plasmacfgAdapter
-  property var prefixActionText: /*SED01*/'' // empty
+  property var prefixActionText: '' // empty /*SED*/
 
   property var activeDeskCfg
   property var activeImage
@@ -59,7 +59,7 @@ PlasmoidItem {
 
   Plasmoid.contextualActions: [
     PlasmaCore.Action {
-        text: "Open image"
+        text: prefixActionText + "Open image"
         icon.name: "document-open"
         priority: Plasmoid.LowPriorityAction
         visible: true
@@ -67,7 +67,7 @@ PlasmoidItem {
         onTriggered: actionOpen()
     },
     PlasmaCore.Action {
-        text: "Next image"
+        text: prefixActionText + "Next image"
         icon.name: "user-desktop"
         priority: Plasmoid.LowPriorityAction
         visible: true

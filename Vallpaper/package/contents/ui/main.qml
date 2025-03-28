@@ -22,11 +22,11 @@ WallpaperItem { /*SED*/
   property var devShowInfo: true
 
   property var connector2Plasma: wallpaper /*SED*/
-  property var config: wallpaper.configuration /*SED*/
+  property var config: configuration.vallpaper6 /*SED*/
   property var previousConfig
 
   property var plasmacfgAdapter
-  property var prefixActionText: '<Vallpaper>' /*SED*/
+  property var prefixActionText: '<Vallpaper> ' /*SED*/
 
   property var activeDeskCfg
   property var activeImage
@@ -59,7 +59,7 @@ WallpaperItem { /*SED*/
 
   Plasmoid.contextualActions: [
     PlasmaCore.Action {
-        text: "Open image"
+        text:  prefixActionText + "Open image"
         icon.name: "document-open"
         priority: Plasmoid.LowPriorityAction
         visible: true
@@ -67,7 +67,7 @@ WallpaperItem { /*SED*/
         onTriggered: actionOpen()
     },
     PlasmaCore.Action {
-        text: "Next image"
+        text: prefixActionText + "Next image"
         icon.name: "user-desktop"
         priority: Plasmoid.LowPriorityAction
         visible: true
