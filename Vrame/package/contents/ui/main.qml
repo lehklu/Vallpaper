@@ -23,7 +23,7 @@ PlasmoidItem { /*SED*/
 
   property var connector2Plasma: plasmoid /*SED*/
   property var config: Plasmoid.configuration.vrame6 /*SED*/
-  property var previousConfig
+  property var previousConfigJson
 
   property var plasmacfgAdapter
   property var prefixActionText: '' // empty /*SED*/
@@ -49,11 +49,12 @@ PlasmoidItem { /*SED*/
 
   onConfigChanged: {
 
-    if(previousConfig==config) { return;}
+    const configJson = JSON.stringify(config);
+    if(previousConfigJson==configJson) { return;}
     //<--
 
 
-    previousConfig=config;
+    previousConfigJson=configJson;
     _Canvas.cnvSetPlasmacfgAdapter();
   }
 

@@ -23,7 +23,7 @@ WallpaperItem { /*SED*/
 
   property var connector2Plasma: wallpaper /*SED*/
   property var config: configuration.vallpaper6 /*SED*/
-  property var previousConfig
+  property var previousConfigJson
 
   property var plasmacfgAdapter
   property var prefixActionText: '<Vallpaper> ' /*SED*/
@@ -49,17 +49,18 @@ WallpaperItem { /*SED*/
 
   onConfigChanged: {
 
-    if(previousConfig==config) { return;}
+    const configJson = JSON.stringify(config);
+    if(previousConfigJson==configJson) { return;}
     //<--
 
 
-    previousConfig=config;
+    previousConfigJson=configJson;
     _Canvas.cnvSetPlasmacfgAdapter();
   }
 
   Plasmoid.contextualActions: [
     PlasmaCore.Action {
-        text:  prefixActionText + "Open image"
+        text: prefixActionText + "Open image"
         icon.name: "document-open"
         priority: Plasmoid.LowPriorityAction
         visible: true
