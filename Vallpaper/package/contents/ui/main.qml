@@ -65,7 +65,7 @@ WallpaperItem { /*SED*/
         priority: Plasmoid.LowPriorityAction
         visible: true
         enabled: actionOpenEnabled
-        onTriggered: actionOpen()
+        onTriggered: { _Canvas.actionOpen(); }
     },
     PlasmaCore.Action {
         text: prefixActionText + "Next image"
@@ -73,7 +73,7 @@ WallpaperItem { /*SED*/
         priority: Plasmoid.LowPriorityAction
         visible: true
         enabled: actionNextEnabled
-        onTriggered: actionNext()
+        onTriggered: { _Canvas.actionNext(); }
     }
   ]    
 
@@ -93,6 +93,7 @@ WallpaperItem { /*SED*/
     running: true
     onTriggered: { _Canvas.cnvUpdateActiveSlotCfg();}
   }  
+
 
   // C A N V A S - - - - - - - - - - - - - - - - - -
   // C A N V A S - - - - - - - - - - - - - - - - - -
@@ -319,13 +320,6 @@ WallpaperItem { /*SED*/
 	    Qt.openUrlExternally(activeImage.source)
     }
 
-    MouseArea {
-	    anchors.fill: parent
-	    acceptedButtons: Qt.LeftButton
-	    onPressAndHold: _Canvas.actionNext();
-      onDoubleClicked: _Canvas.actionOpen();
-    }
-
 /* Dev */
     Rectangle {
       id: _LogBackground
@@ -372,22 +366,19 @@ WallpaperItem { /*SED*/
               }
           }
         }
-      }
     }
-
-  function dev_log($o) {
-
-  	_Log.say($o);
   }
-
-  function dev_logo($o) {
-
-	  _Log.sayo($o);
-  }      
 /* /Dev */    
   }
   // - - - - - - - - - - - - - C A N V A S
   // - - - - - - - - - - - - - C A N V A S
   // - - - - - - - - - - - - - C A N V A S  
 
+
+  MouseArea {
+    anchors.fill: parent
+
+    onPressAndHold: { _Canvas.actionNext(); }
+    onDoubleClicked: { _Canvas.actionOpen(); }
+  }
 }
