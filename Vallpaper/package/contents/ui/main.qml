@@ -291,12 +291,12 @@ WallpaperItem { /*SED*/
 
     function cnvUpdateActiveSlotCfg() {
 
-	    let appropiateSlotCfg = activeDeskCfg.findAppropiateSlotCfgFor_now();
+	    const appropiateSlotCfg = activeDeskCfg.findAppropiateSlotCfgFor_now();
 
-	    if(appropiateSlotCfg !== activeImage.slotCfg)
+	    if(appropiateSlotCfg !== activeSlotCfg)
 	    {
-		    activeImage.imgResetState(appropiateSlotCfg);
-	      activeSlotCfg = activeImage.slotCfg;        
+        activeSlotCfg = appropiateSlotCfg;
+		    activeImage.imgResetState(activeSlotCfg);
 	    }
 
 	    if(activeSlotCfg.imagesources.length === 0) return;
