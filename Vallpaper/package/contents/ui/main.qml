@@ -21,7 +21,6 @@ WallpaperItem { /*SED*/
 
   property var devShowInfo: true
 
-  property var connector2Plasma: wallpaper /*SED*/
   property var config: configuration.vallpaper6 /*SED*/
   property var previousConfigJson
 

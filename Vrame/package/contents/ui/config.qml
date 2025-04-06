@@ -17,8 +17,6 @@ import "../js/v.js" as VJS
 SimpleKCM { /*SED*/
 	id: _Root
 
-  property var connector2Plasma: plasmoid /*SED*/
-
 	property var cfg_vrame6 /*SED*/
 
   property var plasmacfgAdapter  
@@ -38,7 +36,7 @@ SimpleKCM { /*SED*/
   Component.onCompleted: {
 
     plasmacfgAdapter = new VJS.PlasmacfgAdapter(cfg_vrame6, $newCfg => { cfg_vrame6 = $newCfg; }); /*SED*/
-    selectDesktop__init(_Pager.currentPage+1);    
+    selectDesktop__init(_Pager.currentPage);
   }
 
 	PagerModel {
@@ -148,7 +146,7 @@ SimpleKCM { /*SED*/
       
       background: Rectangle { // group box border
         anchors.fill: parent
-        color: '#00ffffff'
+        color: "transparent"
         border.width: 1
         radius: 5
       }
@@ -236,7 +234,7 @@ SimpleKCM { /*SED*/
               onClicked: {
 
 	              dlgSelectColor.selectedColor = myColor;
-                dlgSelectColor.options = connector2Plasma === plasmoid?ColorDialog.ShowAlphaChannel:0;
+                dlgSelectColor.options = ColorDialog.ShowAlphaChannel; /*SED*/
 	              dlgSelectColor.handleOnAccepted = ($$selectedColor) => {
   	              myColor = $$selectedColor.toString();
 	              };
@@ -495,6 +493,7 @@ SimpleKCM { /*SED*/
               onClicked: {
 
 	              dlgSelectColor.selectedColor = myColor;
+                dlgSelectColor.options = 0;
 	              dlgSelectColor.handleOnAccepted = ($$selectedColor) => {
 	                myColor = $$selectedColor.toString();
 	              };
@@ -1062,7 +1061,9 @@ function selectDesktop__handleCurrentIndexChanged() {
 	currentDeskCfg = plasmacfgAdapter.getCfgForDeskNo(_SelectDesktop.model.get(_SelectDesktop.currentIndex).deskNo);
 }
 
-function selectDesktop__init($currentConfigDeskNo) {
+function selectDesktop__init($pageNo) {
+
+  const currentConfigDeskNo = $pageNo+1;
 
 	let activateNo = VJS.DESKNO_GLOBAL;
 
@@ -1074,7 +1075,7 @@ function selectDesktop__init($currentConfigDeskNo) {
 	{
 		selectDesktop__insertElement(selectDesktop__buildElement($$cfg.deskNo));
 
-		if($$cfg.deskNo === $currentConfigDeskNo)
+		if($$cfg.deskNo === currentConfigDeskNo)
 		{
 			activateNo = $$cfg.deskNo;
 		}

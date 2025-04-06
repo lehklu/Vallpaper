@@ -21,7 +21,6 @@ PlasmoidItem { /*SED*/
 
   property var devShowInfo: true
 
-  property var connector2Plasma: plasmoid /*SED*/
   property var config: Plasmoid.configuration.vrame6 /*SED*/
   property var previousConfigJson
 
