@@ -1063,7 +1063,7 @@ function selectDesktop__handleCurrentIndexChanged() {
 
 function selectDesktop__init($pageNo) {
 
-  const currentConfigDeskNo = $pageNo + 1;
+  const currentConfigDeskNo = $pageNo+1;
 
 	let activateNo = VJS.DESKNO_GLOBAL;
 
