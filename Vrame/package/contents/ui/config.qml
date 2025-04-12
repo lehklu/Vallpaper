@@ -47,9 +47,9 @@ SimpleKCM { /*SED*/
 	}
 
   ColumnLayout { // Container
-    Layout.leftMargin: _FontMetrics.averageCharacterWidth
-    Layout.rightMargin: _FontMetrics.averageCharacterWidth
-    Layout.bottomMargin: _FontMetrics.averageCharacterWidth * 2
+    anchors.top: parent.top
+    anchors.bottom: parent.bottom
+
 
     // S E L E C T   D E S K T O P - - - - - - - - - -
     // S E L E C T   D E S K T O P - - - - - - - - - -
@@ -141,8 +141,7 @@ SimpleKCM { /*SED*/
 
     GroupBox {
 	    Layout.fillWidth: true
-
-	    Layout.fillHeight: true      
+      Layout.fillHeight: true
       
       background: Rectangle { // group box border
         anchors.fill: parent
@@ -545,129 +544,121 @@ SimpleKCM { /*SED*/
 			    }          
 
           // c1-2, c1-3
-    		RowLayout {
-          Layout.columnSpan: 2
+    		  RowLayout {
+            Layout.columnSpan: 2
 
-				  Button {
-            id: '_BtnAddFolder'
-            icon.name: "list-add"
-					  text: 'Folder'
+				    Button {
+              id: '_BtnAddFolder'
+              icon.name: "list-add"
+					   text: 'Folder'
 
-            onClicked: imagesources__addPathUsingDlg(_DlgAddFolder);            
-				  }
+              onClicked: imagesources__addPathUsingDlg(_DlgAddFolder);
+				    }
 
-				  Button {
-            id: '_BtnAddFiles'
-            icon.name: "list-add"
-					  text: 'Files'
+				    Button {
+              id: '_BtnAddFiles'
+              icon.name: "list-add"
+					   text: 'Files'
 
-            onClicked: imagesources__addPathUsingDlg(_DlgAddFiles);            
-				  }
+              onClicked: imagesources__addPathUsingDlg(_DlgAddFiles);
+				    }
 
-				  Button {
-            id: '_BtnSetUrl'
-            icon.name: "internet-web-browser-symbolic"            
-					  text: 'Use url'
+				    Button {
+              id: '_BtnSetUrl'
+              icon.name: "internet-web-browser-symbolic"
+					   text: 'Use url'
 
-            onClicked: imagesources__setUrl();            
-				  }          
+              onClicked: imagesources__setUrl();
+				    }
 
-          Item {
-            Layout.fillWidth: true
+            Item {
+              Layout.fillWidth: true
+            }
+
+            CheckBox {
+              text: 'shuffle'
+
+              enabled: _ImageSources.count > 1
+
+              property alias myCfg: _Root.currentSlotCfg
+              onMyCfgChanged: checked = myCfg.shuffle
+
+              onCheckedChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+        	     myCfg.shuffle = checked?1:0;
+              });
+  		      }
           }
-
-			    CheckBox {
-      	    text: 'shuffle'
-
-            enabled: _ImageSources.count > 1
-
-            property alias myCfg: _Root.currentSlotCfg
-            onMyCfgChanged: checked = myCfg.shuffle
-
-            onCheckedChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-        	    myCfg.shuffle = checked?1:0;
-            });
-  		    }                    
-        }          
-
         }
 
         // - - - - - - - - - -   S O U R C E S
         // - - - - - - - - - -   S O U R C E S        
         // - - - - - - - - - -   S O U R C E S                
 
-		    ColumnLayout {
-			    Layout.fillWidth: true
-          Layout.fillHeight: true
 
-			    ScrollView {
-      	    Layout.fillWidth: true
+
+          ListView {
+            id: _ImageSources
+
+            Layout.fillWidth: true
             Layout.fillHeight: true
-            Layout.minimumHeight: 100
+            Layout.minimumHeight: _FontMetrics.height * 2.5
+            clip: true // !!!!!! aarrgh
+            ScrollBar.vertical: ScrollBar {}
 
+            property alias myCfg: _Root.currentSlotCfg
+            onMyCfgChanged: {
 
-            ListView {
-              id: _ImageSources
-        	    width: parent.width
+              inceptSources(myCfg.imagesources)
 
-              property alias myCfg: _Root.currentSlotCfg
-              onMyCfgChanged: {
+						  imagesources__updateButtonsState();
+		        }
 
-		      	    inceptSources(myCfg.imagesources)
+            model: ListModel {
 
-						    imagesources__updateButtonsState();
-		          }
+              onCountChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
 
-              model: ListModel {
+		      	   _ImageSources.extractSourcesToModel();
 
-                onCountChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+						   imagesources__updateButtonsState();
+					     })
+            }
 
-		      	      _ImageSources.extractSourcesToModel();
+		        function extractSourcesToModel() {
 
-						      imagesources__updateButtonsState();
-					      })                
+              const sources = [];
+
+              for(let i = 0; i < model.count; ++i)
+              {
+                sources.push(model.get(i).path);
+		      	 }
+
+              myCfg.imagesources = sources;
+		        }
+
+					  function inceptSources($sources) {
+
+						  model.clear();
+
+              for(let $$source of $sources)
+						  {
+                model.append({path: $$source});
+              }
+		        }
+
+            delegate: RowLayout {
+
+              Button {
+                icon.name: "edit-delete-remove"
+
+                onClicked: imagesources__removeSource(model.index);
               }
 
-		          function extractSourcesToModel() {
-
-		      	    let sources = [];
-
-		      	    for(let i = 0; i < model.count; ++i)
-		      	    {
-		      		    sources.push(model.get(i).path);
-		      	    }
-
-		      	    myCfg.imagesources = sources;
-		          }
-
-					    function inceptSources($sources) {
-
-						    model.clear();
-
-						    for(let $$source of $sources)
-						    {
-							    model.append({path: $$source});
-						    }
-		          }
-
-              delegate: RowLayout {
-
-                Button {
-                  icon.name: "edit-delete-remove"
-
-                  onClicked: imagesources__removeSource(model.index);                  
-								}
-
-								Text {
-								  Layout.fillWidth: true
-                  text: model.path
-								}
+							Text {
+                Layout.fillWidth: true
+                text: model.path
 							}
-				    }
-
-			    }          
-
-        }
+						}
+				  }
 
 
       }
