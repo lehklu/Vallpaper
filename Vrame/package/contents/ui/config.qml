@@ -596,71 +596,97 @@ SimpleKCM { /*SED*/
 
 
 
-          ListView {
-            id: _ImageSources
+        ListView {
+          id: _ImageSources
 
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.minimumHeight: _FontMetrics.height * 2.5
-            clip: true // !!!!!! aarrgh
-            ScrollBar.vertical: ScrollBar {}
+          /*
+          Canvas {
+            id: _DottedLine
+            width: _FontMetrics.averageCharacterWidth *2/ 3
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            onPaint: {
+              var ctx = getContext("2d");
+              ctx.lineWidth = width;
+              ctx.setLineDash([1, 1]);
+              ctx.strokeStyle = _ActiveSystemPalette.dark
 
-            property alias myCfg: _Root.currentSlotCfg
-            onMyCfgChanged: {
+              ctx.moveTo(0, 0)
+              ctx.lineTo(0, height)
 
-              inceptSources(myCfg.imagesources)
+              ctx.stroke()
+            }
+          }
+          */
 
-						  imagesources__updateButtonsState();
-		        }
+          Rectangle {
+            z: -1
+            anchors.fill: parent
+            color: _ActiveSystemPalette.light
+          }
 
-            model: ListModel {
+          Layout.fillWidth: true
+          Layout.fillHeight: true
+          Layout.minimumHeight: _FontMetrics.height * 2.5
+          clip: true // !!!!!! aarrgh
+          ScrollBar.vertical: ScrollBar { policy: ScrollBar.AlwaysOn } // ?!?? no effect from 'policy: ScrollBar.AlwaysOn'
 
-              onCountChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+          property alias myCfg: _Root.currentSlotCfg
+          onMyCfgChanged: {
 
-		      	   _ImageSources.extractSourcesToModel();
+            inceptSources(myCfg.imagesources)
 
-						   imagesources__updateButtonsState();
-					     })
+            imagesources__updateButtonsState();
+          }
+
+          model: ListModel {
+
+            onCountChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+
+              _ImageSources.extractSourcesToModel();
+
+              imagesources__updateButtonsState();
+            })
+          }
+
+		      function extractSourcesToModel() {
+
+            const sources = [];
+
+            for(let i = 0; i < model.count; ++i)
+            {
+              sources.push(model.get(i).path);
             }
 
-		        function extractSourcesToModel() {
+            myCfg.imagesources = sources;
+		      }
 
-              const sources = [];
+					function inceptSources($sources) {
 
-              for(let i = 0; i < model.count; ++i)
-              {
-                sources.push(model.get(i).path);
-		      	 }
+            model.clear();
 
-              myCfg.imagesources = sources;
-		        }
+            for(let $$source of $sources)
+						{
+              model.append({path: $$source});
+            }
+		      }
 
-					  function inceptSources($sources) {
+          delegate: RowLayout {
 
-						  model.clear();
+            Item { Layout.preferredWidth: _DottedLine.width*1.2 }
 
-              for(let $$source of $sources)
-						  {
-                model.append({path: $$source});
-              }
-		        }
+            Button {
+              icon.name: "edit-delete-remove"
 
-            delegate: RowLayout {
+              onClicked: imagesources__removeSource(model.index);
+            }
 
-              Button {
-                icon.name: "edit-delete-remove"
-
-                onClicked: imagesources__removeSource(model.index);
-              }
-
-							Text {
-                Layout.fillWidth: true
-                text: model.path
-							}
+						Text {
+              Layout.fillWidth: true
+              text: model.path
 						}
-				  }
-
-
+					}
+				}
       }
     }
 
