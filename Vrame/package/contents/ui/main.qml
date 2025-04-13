@@ -300,7 +300,7 @@ PlasmoidItem { /*SED*/
 
 	    if(activeSlotCfg.imagesources.length === 0) return;
 	    //<--
-	    if(activeSlotCfg.interval === 0 && activeImage.src !== "") return;
+	    if(activeSlotCfg.interval === 0 && activeImage.source !== "") return;
 	    //<--
 	    if(Date.now() < (activeImage.timestampFetched + activeSlotCfg.interval*1000)) return;
 	    //<--
