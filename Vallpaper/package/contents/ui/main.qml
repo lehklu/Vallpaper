@@ -14,18 +14,18 @@ import Qt5Compat.GraphicalEffects
 
 import "../js/v.js" as VJS
 
-WallpaperItem { /*SED*/
+WallpaperItem { /*MOD*/
 	id: _Root
 
-  // Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground /*SED*/
+  // Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground /*MOD*/
 
   property var devShowInfo: true
 
-  property var config: configuration.vallpaper6 /*SED*/
+  property var config: configuration.vallpaper6 /*MOD*/
   property var previousConfigJson
 
   property var plasmacfgAdapter
-  property var prefixActionText: '<Vallpaper> ' /*SED*/
+  property var prefixActionText: '<Vallpaper> ' /*MOD*/
 
   property var activeDeskCfg
   property var activeImage
@@ -300,7 +300,7 @@ WallpaperItem { /*SED*/
 
 	    if(activeSlotCfg.imagesources.length === 0) return;
 	    //<--
-	    if(activeSlotCfg.interval === 0 && activeImage.src !== "") return;
+	    if(activeSlotCfg.interval === 0 && activeImage.source !== "") return;
 	    //<--
 	    if(Date.now() < (activeImage.timestampFetched + activeSlotCfg.interval*1000)) return;
 	    //<--

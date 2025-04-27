@@ -9,93 +9,96 @@ import QtQuick.Dialogs
 import org.kde.plasma.core as PlasmaCore
 import org.kde.kirigami as Kirigami
 import org.kde.kcmutils
-// import org.kde.plasma.plasmoid /*SED*/
+// import org.kde.plasma.plasmoid /*MOD*/
 
 import org.kde.plasma.private.pager
 
 import "../js/v.js" as VJS
-ColumnLayout { /*SED*/
-	id: _Root
 
-	property var cfg_vallpaper6 /*SED*/
+ColumnLayout { id: _Root
+
+  property var title // for KDE Settings page
+
+  property var cfg_vallpaper6 /*MOD*/
 
   property var plasmacfgAdapter  
 
   property var currentDeskCfg  
   property var currentSlotCfg
 
-  FontMetrics {
-    id: _FontMetrics
+  FontMetrics { id: _FontMetrics 
   }
 
-  SystemPalette {
-    id: _ActiveSystemPalette
+  SystemPalette { id: _ActiveSystemPalette
     colorGroup: SystemPalette.Active    
   }  
 
   Component.onCompleted: {
 
-    plasmacfgAdapter = new VJS.PlasmacfgAdapter(cfg_vallpaper6, $newCfg => { cfg_vallpaper6 = $newCfg; }); /*SED*/
+    plasmacfgAdapter = new VJS.PlasmacfgAdapter(cfg_vallpaper6, $newCfg => { cfg_vallpaper6 = $newCfg; }); /*MOD*/
     selectDesktop__init(_Pager.currentPage);
   }
 
-	PagerModel {
-        id: _Pager
-
-        enabled: _Root.visible
-        pagerType: PagerModel.VirtualDesktops
+	PagerModel { id: _Pager
+    enabled: _Root.visible
+    pagerType: PagerModel.VirtualDesktops
 	}
 
-  ColumnLayout { // Container
-    Layout.leftMargin: _FontMetrics.averageCharacterWidth
-    Layout.rightMargin: _FontMetrics.averageCharacterWidth
-    Layout.bottomMargin: _FontMetrics.averageCharacterWidth * 2
+  RowLayout { // Container
 
-    // S E L E C T   D E S K T O P - - - - - - - - - -
-    // S E L E C T   D E S K T O P - - - - - - - - - -
-    // S E L E C T   D E S K T O P - - - - - - - - - -
-    RowLayout { 
-
-		      Label {
-		        text: "For desktop"
-          }
-
-          ComboBox {
-            id: _SelectDesktop
-            Layout.fillWidth: true
-            model: ListModel {}
-            textRole: 'displayText'
-
-		        Connections {
-			        id: _SelectDesktopConnections
-
-              function onCurrentIndexChanged() { selectDesktop__handleCurrentIndexChanged(); }
-              function onCountChanged() { selectDesktop__updateButtonsState();}
-		        }            
-          }
-
-          Button {
-            id: btnAddDesktopConfig
-            icon.name: "list-add"
-
-            onClicked: _DlgAddConfig.open()
-          }
-
-          Button {
-            id: btnRemoveDesktopConfig
-            icon.name: "edit-delete-remove"
-
-            onClicked: selectDesktop__removeConfig()
-          }      
+    Item { // left padding
+      width: _FontMetrics.averageCharacterWidth
     }
-    // - - - - - - - - - - S E L E C T   D E S K T O P
-    // - - - - - - - - - - S E L E C T   D E S K T O P
-    // - - - - - - - - - - S E L E C T   D E S K T O P
 
-    // S E L E C T   S L O T   - - - - - - - - - -
-    // S E L E C T   S L O T   - - - - - - - - - -
-    // S E L E C T   S L O T   - - - - - - - - - -
-    RowLayout {
+    ColumnLayout { // content
+      Layout.fillWidth: true
+
+      Item { // top padding
+        height: _FontMetrics.height
+      }
+
+      // S E L E C T   D E S K T O P - - - - - - - - - -
+      // S E L E C T   D E S K T O P - - - - - - - - - -
+      // S E L E C T   D E S K T O P - - - - - - - - - -
+      RowLayout {
+
+        Label {
+          text: "For desktop"
+        }
+
+        ComboBox { id: _SelectDesktop
+
+          Layout.fillWidth: true
+          model: ListModel {}
+          textRole: 'displayText'
+
+		      Connections { id: _SelectDesktopConnections
+
+            function onCurrentIndexChanged() { selectDesktop__handleCurrentIndexChanged(); }
+            function onCountChanged() { selectDesktop__updateButtonsState();}
+		      }            
+        }
+
+        Button { id: __BtnAddTimeslotDesktopConfig
+          icon.name: "list-add"
+
+          onClicked: _DlgAddConfig.open()
+        }
+
+        Button { id: _BtnRemoveDesktopConfig
+          icon.name: "edit-delete-remove"
+
+          onClicked: selectDesktop__removeConfig()
+        }      
+      }
+      // - - - - - - - - - - S E L E C T   D E S K T O P
+      // - - - - - - - - - - S E L E C T   D E S K T O P
+      // - - - - - - - - - - S E L E C T   D E S K T O P
+
+      // S E L E C T   S L O T   - - - - - - - - - -
+      // S E L E C T   S L O T   - - - - - - - - - -
+      // S E L E C T   S L O T   - - - - - - - - - -
+      RowLayout {
 
         Item {
           Layout.fillWidth: true
@@ -105,12 +108,10 @@ ColumnLayout { /*SED*/
 		      text: "Activated at"
         }
 
-        ComboBox {
-          id: _SelectSlot                      
+        ComboBox { id: _SelectSlot                      
           model: ListModel{}
 
-          Connections {
-			      id: _SelectSlotConnections
+          Connections { id: _SelectSlotConnections
 
             function onCurrentIndexChanged() { selectSlot__handleCurrentIndexChanged(); }
             function onCountChanged() { selectSlot__updateButtonsState();}
@@ -120,199 +121,196 @@ ColumnLayout { /*SED*/
 				  onDesktopConfigChanged: selectSlot__init()
         }
 
-		    Button {
-          id: btnAddTimeslot
+		    Button { id: __BtnAddTimeslotTimeslot
           icon.name: "list-add"                      
 
           onClicked: _DlgAddTimeslot.open()
 		    }
 
-		    Button {
-          id: btnRemoveTimeslot
+		    Button { id: _BtnRemoveTimeslot
           icon.name: "edit-delete-remove"          
 
           onClicked: selectSlot__removeTimeslot()
   		  }              
-
-    }
-    // - - - - - - - - - -  S E L E C T   S L O T
-    // - - - - - - - - - -  S E L E C T   S L O T
-    // - - - - - - - - - -  S E L E C T   S L O T
-
-    GroupBox {
-	    Layout.fillWidth: true
-
-	    Layout.fillHeight: true      
-      
-      background: Rectangle { // group box border
-        anchors.fill: parent
-        color: "transparent"
-        border.width: 1
-        radius: 5
       }
+      // - - - - - - - - - -  S E L E C T   S L O T
+      // - - - - - - - - - -  S E L E C T   S L O T
+      // - - - - - - - - - -  S E L E C T   S L O T
 
-      ColumnLayout {
-		    anchors.fill: parent      
-
-        // B A C K G R O U N D   - - - - - - - - - -
-        // B A C K G R O U N D   - - - - - - - - - -
-        // B A C K G R O U N D   - - - - - - - - - -
-        GridLayout {
-          columns: 3
-
-          // a1-1
-          Label {
-            Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 15                                        
-            
-            text: 'Background'
-          }
-          
-          // a1-2
-		      RowLayout {
-
-            property var myHeight: Screen.height
-            property var myWidth: Screen.width
-
-			      SpinBox {
-              stepSize: 1
-              to: parent.myHeight
-
-              property alias myCfg: _Root.currentSlotCfg
-              onMyCfgChanged: value = myCfg.paddingTop
-
-              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-          	    myCfg.paddingTop = value;
-              });            
-			      }
-
-			      Label {
-				      text: 'px padding top'
-			      }
-  				}          
-
-          // a1-3
-          Item {}
-
-          // a2-1
-		      RowLayout {
-            Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 12                          
-
-            property var myHeight: Screen.height
-            property var myWidth: Screen.width
-
-			      SpinBox {
-              stepSize: 1
-              to: parent.myWidth
-
-              property alias myCfg: _Root.currentSlotCfg
-              onMyCfgChanged: value = myCfg.paddingLeft
-
-              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-          	    myCfg.paddingLeft = value;
-              });            
-			      }
-
-			      Label {
-				      text: 'left'
-			      }
-  				}
-
-          // a2-2
-          RowLayout {
-            Button {
-              Layout.preferredHeight: _FontMetrics.height * 2.5
-              Layout.preferredWidth: Layout.preferredHeight
-
-              property alias myCfg: _Root.currentSlotCfg
-              onMyCfgChanged: myColor = myCfg.background            
-
-              property string myColor
-              onMyColorChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-        	      myCfg.background = myColor;
-              });
-
-              onClicked: {
-
-	              dlgSelectColor.selectedColor = myColor;
-                dlgSelectColor.options = 0; /*SED*/
-	              dlgSelectColor.handleOnAccepted = ($$selectedColor) => {
-  	              myColor = $$selectedColor.toString();
-	              };
-
-	              dlgSelectColor.open();
-              }
-
-  				    Rectangle {
-                width: parent.height * 0.6
-                height: width
-                anchors.centerIn: parent
-
-                color: parent.myColor
-	  		      }                      
-            }                      
-            
-            Label {
-				      text:  '[' + Screen.width + 'x' + Screen.height + ']'
-			      }                                
-          }
-
-          // a2-3
-		      RowLayout {
-
-            property var myHeight: Screen.height
-            property var myWidth: Screen.width
-
-			      SpinBox {
-              stepSize: 1
-              to: parent.myWidth
-
-              property alias myCfg: _Root.currentSlotCfg
-              onMyCfgChanged: value = myCfg.paddingRight
-
-              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-          	    myCfg.paddingRight = value;
-              });            
-			      }
-
-			      Label {
-				      text: 'right'
-			      }            
-  				}          
-
-          // a3-1
-          Item {
-            Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 12                          
-          }
-
-          // a3-2
-		      RowLayout {
-
-            property var myHeight: Screen.height
-            property var myWidth: Screen.width
-
-			      SpinBox {
-              stepSize: 1
-              to: parent.myHeight
-
-              property alias myCfg: _Root.currentSlotCfg
-              onMyCfgChanged: value = myCfg.paddingBottom
-
-              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-          	    myCfg.paddingBottom = value;
-              });            
-			      }
-
-			      Label {
-				      text: 'bottom'
-			      }
-  				}            
-
-          // a3-3
-          Item {}
+      Frame {
+	      Layout.fillWidth: true
+        Layout.fillHeight: true
+      
+        background: Rectangle { // group box border
+          anchors.fill: parent
+          color: "transparent"
+          border.color: _ActiveSystemPalette.mid
+          border.width: 2
+          radius: 5
         }
-        // - - - - - - - - - -  B A C K G R O U N D
-        // - - - - - - - - - -  B A C K G R O U N D
-        // - - - - - - - - - -  B A C K G R O U N D
+
+        ColumnLayout {
+		      anchors.fill: parent      
+
+          // B A C K G R O U N D   - - - - - - - - - -
+          // B A C K G R O U N D   - - - - - - - - - -
+          // B A C K G R O U N D   - - - - - - - - - -
+          GridLayout {
+            columns: 3
+
+            // a1-1
+            Label {
+              Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 15                                        
+            
+              text: 'Background'
+            }
+          
+            // a1-2
+		        RowLayout {
+
+              property var myHeight: Screen.height
+              property var myWidth: Screen.width
+
+			        SpinBox {
+                stepSize: 1
+                to: parent.myHeight
+
+                property alias myCfg: _Root.currentSlotCfg
+                onMyCfgChanged: value = myCfg.paddingTop
+
+                onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+          	      myCfg.paddingTop = value;
+                });            
+			        }
+
+			        Label {
+				        text: 'px padding top'
+			        }
+  				  }          
+
+            // a1-3
+            Item {}
+
+            // a2-1
+		        RowLayout {
+              Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 12                          
+
+              property var myHeight: Screen.height
+              property var myWidth: Screen.width
+
+			        SpinBox {
+                stepSize: 1
+                to: parent.myWidth
+
+                property alias myCfg: _Root.currentSlotCfg
+                onMyCfgChanged: value = myCfg.paddingLeft
+
+                onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+          	      myCfg.paddingLeft = value;
+                });            
+			        }
+
+			        Label {
+				        text: 'left'
+			        }
+  				  }
+
+            // a2-2
+            RowLayout {
+              Button {
+                Layout.preferredHeight: _FontMetrics.height * 2.5
+                Layout.preferredWidth: Layout.preferredHeight
+
+                property alias myCfg: _Root.currentSlotCfg
+                onMyCfgChanged: myColor = myCfg.background            
+
+                property string myColor
+                onMyColorChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+        	        myCfg.background = myColor;
+                });
+
+                onClicked: {
+
+	                _DlgSelectColor.selectedColor = myColor;
+                  _DlgSelectColor.options = 0; /*MOD*/
+	                _DlgSelectColor.handleOnAccepted = ($$selectedColor) => {
+  	                myColor = $$selectedColor.toString();
+	                };
+
+	                _DlgSelectColor.open();
+                }
+
+  				      Rectangle {
+                  width: parent.height * 0.6
+                  height: width
+                  anchors.centerIn: parent
+
+                  color: parent.myColor
+	  		        }                      
+              }                      
+            
+              Label {
+				        text:  '[' + Screen.width + 'x' + Screen.height + ']'
+			        }                                
+            }
+
+            // a2-3
+		        RowLayout {
+
+              property var myHeight: Screen.height
+              property var myWidth: Screen.width
+
+			        SpinBox {
+                stepSize: 1
+                to: parent.myWidth
+
+                property alias myCfg: _Root.currentSlotCfg
+                onMyCfgChanged: value = myCfg.paddingRight
+
+                onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+          	      myCfg.paddingRight = value;
+                });            
+			        }
+
+			        Label {
+				        text: 'right'
+			        }            
+  				  }          
+
+            // a3-1
+            Item {
+              Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 12                          
+            }
+
+            // a3-2
+		        RowLayout {
+
+              property var myHeight: Screen.height
+              property var myWidth: Screen.width
+
+			        SpinBox {
+                stepSize: 1
+                to: parent.myHeight
+
+                property alias myCfg: _Root.currentSlotCfg
+                onMyCfgChanged: value = myCfg.paddingBottom
+
+                onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+          	      myCfg.paddingBottom = value;
+                });            
+			        }
+
+			        Label {
+				        text: 'bottom'
+			        }
+  				  }            
+
+            // a3-3
+            Item {}
+          }
+          // - - - - - - - - - -  B A C K G R O U N D
+          // - - - - - - - - - -  B A C K G R O U N D
+          // - - - - - - - - - -  B A C K G R O U N D
 
         Rectangle {
           Layout.preferredWidth: parent.width
@@ -349,8 +347,7 @@ ColumnLayout { /*SED*/
               text: 'interval'
 			      }
 
-            SpinBox {
-              id: _Interval
+            SpinBox { id: _Interval
 
               stepSize: 1
               readonly property IntValidator intValidator: IntValidator {}
@@ -461,7 +458,6 @@ ColumnLayout { /*SED*/
 				      }
 			      }          
 
-
             ColumnLayout {
 
               Label {
@@ -492,13 +488,13 @@ ColumnLayout { /*SED*/
 
               onClicked: {
 
-	              dlgSelectColor.selectedColor = myColor;
-                dlgSelectColor.options = 0;
-	              dlgSelectColor.handleOnAccepted = ($$selectedColor) => {
+	              _DlgSelectColor.selectedColor = myColor;
+                _DlgSelectColor.options = 0;
+	              _DlgSelectColor.handleOnAccepted = ($$selectedColor) => {
 	                myColor = $$selectedColor.toString();
 	              };
 
-	              dlgSelectColor.open();
+	              _DlgSelectColor.open();
               }
 
   				    Rectangle {
@@ -545,185 +541,199 @@ ColumnLayout { /*SED*/
 			    }          
 
           // c1-2, c1-3
-    		RowLayout {
-          Layout.columnSpan: 2
+    		  RowLayout {
+            Layout.columnSpan: 2
 
-				  Button {
-            id: '_BtnAddFolder'
-            icon.name: "list-add"
-					  text: 'Folder'
+				    Button { id: __BtnAddTimeslotFolder
+              icon.name: "list-add"
+					   text: 'Folder'
 
-            onClicked: imagesources__addPathUsingDlg(_DlgAddFolder);            
-				  }
+              onClicked: imagesources__addPathUsingDlg(_DlgAddFolder);
+				    }
 
-				  Button {
-            id: '_BtnAddFiles'
-            icon.name: "list-add"
-					  text: 'Files'
+				    Button { id: __BtnAddTimeslotFiles
+              icon.name: "list-add"
+					   text: 'Files'
 
-            onClicked: imagesources__addPathUsingDlg(_DlgAddFiles);            
-				  }
+              onClicked: imagesources__addPathUsingDlg(_DlgAddFiles);
+				    }
 
-				  Button {
-            id: '_BtnSetUrl'
-            icon.name: "internet-web-browser-symbolic"            
-					  text: 'Use url'
+				    Button { id: _BtnSetUrl
+              icon.name: "internet-web-browser-symbolic"
+					   text: 'Use url'
 
-            onClicked: imagesources__setUrl();            
-				  }          
+              onClicked: imagesources__setUrl();
+				    }
 
-          Item {
-            Layout.fillWidth: true
+            Item {
+              Layout.fillWidth: true
+            }
+
+            CheckBox {
+              text: 'shuffle'
+
+              enabled: _ImageSources.count > 1
+
+              property alias myCfg: _Root.currentSlotCfg
+              onMyCfgChanged: checked = myCfg.shuffle
+
+              onCheckedChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+        	     myCfg.shuffle = checked?1:0;
+              });
+  		      }
           }
-
-			    CheckBox {
-      	    text: 'shuffle'
-
-            enabled: _ImageSources.count > 1
-
-            property alias myCfg: _Root.currentSlotCfg
-            onMyCfgChanged: checked = myCfg.shuffle
-
-            onCheckedChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-        	    myCfg.shuffle = checked?1:0;
-            });
-  		    }                    
-        }          
-
         }
 
         // - - - - - - - - - -   S O U R C E S
         // - - - - - - - - - -   S O U R C E S        
         // - - - - - - - - - -   S O U R C E S                
 
-		    ColumnLayout {
-			    Layout.fillWidth: true
+
+
+        ListView { id: _ImageSources
+          Layout.fillWidth: true
           Layout.fillHeight: true
+          Layout.minimumHeight: _FontMetrics.height * 2.5
+          clip: true // !!!!!! aarrgh
+          ScrollBar.vertical: ScrollBar { policy: ScrollBar.AlwaysOn } // ?!?? no effect from 'policy: ScrollBar.AlwaysOn'
 
-			    ScrollView {
-      	    Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.minimumHeight: 100
+          property alias myCfg: _Root.currentSlotCfg
+          onMyCfgChanged: {
 
+            inceptSources(myCfg.imagesources)
 
-            ListView {
-              id: _ImageSources
-        	    width: parent.width
+            imagesources__updateButtonsState();
+          }
 
-              property alias myCfg: _Root.currentSlotCfg
-              onMyCfgChanged: {
+          /*
+          Canvas { id: _DottedLine
+            width: _FontMetrics.averageCharacterWidth *2/ 3
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            onPaint: {
+              var ctx = getContext("2d");
+              ctx.lineWidth = width;
+              ctx.setLineDash([1, 1]);
+              ctx.strokeStyle = _ActiveSystemPalette.dark
 
-		      	    inceptSources(myCfg.imagesources)
+              ctx.moveTo(0, 0)
+              ctx.lineTo(0, height)
 
-						    imagesources__updateButtonsState();
-		          }
+              ctx.stroke()
+            }
+          }
+          */
 
-              model: ListModel {
+          Rectangle {
+            z: -1
+            anchors.fill: parent
+            color: _ActiveSystemPalette.light
+          }
 
-                onCountChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+          model: ListModel {
 
-		      	      _ImageSources.extractSourcesToModel();
+            onCountChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
 
-						      imagesources__updateButtonsState();
-					      })                
-              }
+              _ImageSources.extractSourcesToModel();
 
-		          function extractSourcesToModel() {
+              imagesources__updateButtonsState();
+            })
+          }
 
-		      	    let sources = [];
+		      function extractSourcesToModel() {
 
-		      	    for(let i = 0; i < model.count; ++i)
-		      	    {
-		      		    sources.push(model.get(i).path);
-		      	    }
+            const sources = [];
 
-		      	    myCfg.imagesources = sources;
-		          }
+            for(let i = 0; i < model.count; ++i)
+            {
+              sources.push(model.get(i).path);
+            }
 
-					    function inceptSources($sources) {
+            myCfg.imagesources = sources;
+		      }
 
-						    model.clear();
+					function inceptSources($sources) {
 
-						    for(let $$source of $sources)
-						    {
-							    model.append({path: $$source});
-						    }
-		          }
+            model.clear();
 
-              delegate: RowLayout {
+            for(let $$source of $sources)
+						{
+              model.append({path: $$source});
+            }
+		      }
 
-                Button {
-                  icon.name: "edit-delete-remove"
+          delegate: RowLayout {
 
-                  onClicked: imagesources__removeSource(model.index);                  
-								}
+            Item { Layout.preferredWidth: _DottedLine.width*1.2 }
 
-								Text {
-								  Layout.fillWidth: true
-                  text: model.path
-								}
-							}
-				    }
+            Button {
+              icon.name: "edit-delete-remove"
 
-			    }          
+              onClicked: imagesources__removeSource(model.index);
+            }
 
-        }
-
-
+						Text {
+              Layout.fillWidth: true
+              text: model.path
+						}
+					}
+				}
       }
     }
 
 
 /* Dev *
-    Rectangle {
-      id: _LogBackground
-      color: '#00ff0000'                  
-      Layout.fillWidth: true
-      height: 300
+Rectangle { id: _LogBackground
+  color: '#00ff0000'                  
+  Layout.fillWidth: true
+  height: 300
 
-      ScrollView {
-        anchors.fill: parent      
-        background: Rectangle {
-          color: '#0000ff00'
-        }      
+  ScrollView {
+    anchors.fill: parent      
+    background: Rectangle {
+                  color: '#0000ff00'
+    }      
 
-        TextArea {
-          id: _Log
-          background: Rectangle {
-            color: '#88ffffff'
-          }
-          wrapMode: TextEdit.Wrap
-          horizontalAlignment: TextEdit.AlignRight
+    TextArea { id: _Log
+      background: Rectangle {
+                    color: '#88ffffff'
+                  }
+      wrapMode: TextEdit.Wrap
+      horizontalAlignment: TextEdit.AlignRight
 
-          property int autoclear:0
+      property int autoclear:0
 
-          function clear() {
+      function clear() {
 
-            text='';
-            autoclear=0;
-          }
+        text='';
+        autoclear=0;
+      }
 
-          function sayo($o) {
+      function sayo($o) {
 
-        	  say(JSON.stringify($o));
-          }
+        say(JSON.stringify($o));
+      }
 
-          function say($text) {
+      function say($text) {
 
-              text=text+'\n'+$text;
-              autoclear++;
+        text=text+'\n'+$text;
+        autoclear++;
 
-              if(autoclear>30)
-              {
-                  clear();
-              }
-          }
+        if(autoclear>30)
+        {
+          clear();
         }
       }
     }
+  }
+}
 /* /Dev */
 
+    }
 
+    Item { // right padding
+      width: _FontMetrics.averageCharacterWidth
+    }
   }
 
 
@@ -741,16 +751,14 @@ function dev_logo($o) {
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-FolderDialog {
-  	id: _DlgAddFolder
+FolderDialog { id: _DlgAddFolder
 		title: "Choose a folder"
 
 	  property var handleOnAccepted
   	onAccepted: handleOnAccepted([currentFolder])
 	}
 
-FileDialog {
-  	id: _DlgAddFiles
+FileDialog { id: _DlgAddFiles
 		title: "Choose files"
 
     fileMode: FileDialog.OpenFiles
@@ -759,8 +767,7 @@ FileDialog {
   	onAccepted: handleOnAccepted(selectedFiles)
 	}
 
-Dialog {
-	id: _DlgSetUrl
+Dialog { id: _DlgSetUrl
 
 	width: parent.width * 0.6
 
@@ -768,18 +775,16 @@ Dialog {
   standardButtons: Dialog.Ok | Dialog.Cancel
 
   property var handleOnAccepted
-  onAccepted: handleOnAccepted(tfUrl.text);
+  onAccepted: handleOnAccepted(_TfUrl.text);
 
-	TextField {
-		id: tfUrl
+	TextField { id: _TfUrl
 		focus: _DlgSetUrl.visible
 
 		anchors.fill: parent
 	}
 }
 
-ColorDialog {
-	id: dlgSelectColor
+ColorDialog { id: _DlgSelectColor
 
   title: "Select color"
   modality: Qt.WindowModal
@@ -789,8 +794,7 @@ ColorDialog {
 }
 
 
-Dialog {
-	id: _DlgAddTimeslot
+Dialog { id: _DlgAddTimeslot
 
 	title: 'Add Settings activated at'
   standardButtons: Dialog.Cancel
@@ -828,8 +832,7 @@ Dialog {
 
 	RowLayout {
 
-		ComboBox {
-			id: comboHour
+		ComboBox { id: _ComboHour
       model: ListModel {}
       textRole: 'text'
 
@@ -840,16 +843,14 @@ Dialog {
     	text: ':'
 		}
 
-		ComboBox {
-			id: comboMinute
+		ComboBox { id: _ComboMinute
       model: ListModel {}
       textRole: 'text'
 
 			onCurrentIndexChanged: _DlgAddTimeslot.buildNewSlot();
 		}
 
-		Button {
-			id: btnAdd
+		Button { id: _BtnAddTimeslot
   		text: 'Add'
 
   		onClicked: _DlgAddTimeslot.accept()
@@ -858,42 +859,41 @@ Dialog {
 
   function initModels() {
 
-  	const mh = comboHour.model;
+  	const mh = _ComboHour.model;
   	for(let i = 0; i < 24; ++i)
   	{
   		const text = ('00'+i).slice(-2);
   		mh.append({'text': text});
   	}
-    comboHour.currentIndex = 0;
+    _ComboHour.currentIndex = 0;
 
-		const mm = comboMinute.model;
+		const mm = _ComboMinute.model;
   	for(let i = 0; i < 60; ++i)
   	{
   		let text = ('00'+i).slice(-2);
   		mm.append({'text': text});
   	}
-    comboMinute.currentIndex = 0;
+    _ComboMinute.currentIndex = 0;
   }
 
   function buildNewSlot() {
 
-  	if(comboHour.currentIndex < 0 || comboMinute.currentIndex < 0)
+  	if(_ComboHour.currentIndex < 0 || _ComboMinute.currentIndex < 0)
   		return;
   		//<--
 
 
-  	let hh = comboHour.model.get(comboHour.currentIndex).text;
-  	let mm = comboMinute.model.get(comboMinute.currentIndex).text;
+  	const hh = _ComboHour.model.get(_ComboHour.currentIndex).text;
+  	const mm = _ComboMinute.model.get(_ComboMinute.currentIndex).text;
 
   	newSlot = hh + ':' + mm;
-  	btnAdd.enabled = !excludeSlots.includes(newSlot);
+  	_BtnAddTimeslot.enabled = !excludeSlots.includes(newSlot);
   }
 }
 
 
 
-Dialog {
-	id: _DlgAddConfig
+Dialog { id: _DlgAddConfig
   width: parent.width * 0.6
 
 	title: 'Add Settings for'
@@ -935,8 +935,7 @@ Dialog {
   	_ComboAddConfig.model = myModel;
 	}
 
-	ComboBox {
-		id: _ComboAddConfig
+	ComboBox { id: _ComboAddConfig
 		width: parent.width
     textRole: 'displayText'    
 	}
@@ -1019,9 +1018,9 @@ function selectSlot__handleCurrentIndexChanged() {
 
 function selectSlot__updateButtonsState() {
 
-	btnAddTimeslot.enabled = _SelectSlot.model.count < 60 * 24;
+	__BtnAddTimeslotTimeslot.enabled = _SelectSlot.model.count < 60 * 24;
 
-	btnRemoveTimeslot.enabled = _SelectSlot.currentIndex > 0;
+	_BtnRemoveTimeslot.enabled = _SelectSlot.currentIndex > 0;
 }
 
 function selectSlot__removeTimeslot() {
@@ -1048,9 +1047,9 @@ function selectDesktop__removeConfig() {
 
 function selectDesktop__updateButtonsState() {
 
-	btnAddDesktopConfig.enabled = _SelectDesktop.model.count < _Pager.count+1;
+	__BtnAddTimeslotDesktopConfig.enabled = _SelectDesktop.model.count < _Pager.count+1;
 
-	btnRemoveDesktopConfig.enabled = _SelectDesktop.currentIndex > 0;
+	_BtnRemoveDesktopConfig.enabled = _SelectDesktop.currentIndex > 0;
 }
 
 
@@ -1149,8 +1148,8 @@ function effects__updateColorizeValue($slot) {
 
 function imagesources__updateButtonsState() {
 
-	_BtnAddFolder.enabled = ! (_ImageSources.model.count > 0 && _ImageSources.model.get(0).path.startsWith('http'));
-	_BtnAddFiles.enabled = _BtnAddFolder.enabled;
+	__BtnAddTimeslotFolder.enabled = ! (_ImageSources.model.count > 0 && _ImageSources.model.get(0).path.startsWith('http'));
+	__BtnAddTimeslotFiles.enabled = __BtnAddTimeslotFolder.enabled;
 
 	_BtnSetUrl.enabled = ! _ImageSources.model.count > 0;
 }

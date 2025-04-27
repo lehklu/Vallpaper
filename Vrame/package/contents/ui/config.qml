@@ -9,7 +9,7 @@ import QtQuick.Dialogs
 import org.kde.plasma.core as PlasmaCore
 import org.kde.kirigami as Kirigami
 import org.kde.kcmutils
-import org.kde.plasma.plasmoid /*SED*/
+import org.kde.plasma.plasmoid /*MOD*/
 
 import org.kde.plasma.private.pager
 
@@ -19,7 +19,7 @@ ColumnLayout { id: _Root
 
   property var title // for KDE Settings page
 
-	property var cfg_vrame6 /*SED*/
+	property var cfg_vrame6 /*MOD*/
 
   property var plasmacfgAdapter  
 
@@ -35,7 +35,7 @@ ColumnLayout { id: _Root
 
   Component.onCompleted: {
 
-    plasmacfgAdapter = new VJS.PlasmacfgAdapter(cfg_vrame6, $newCfg => { cfg_vrame6 = $newCfg; }); /*SED*/
+    plasmacfgAdapter = new VJS.PlasmacfgAdapter(cfg_vrame6, $newCfg => { cfg_vrame6 = $newCfg; }); /*MOD*/
     selectDesktop__init(_Pager.currentPage);
   }
 
@@ -52,6 +52,10 @@ ColumnLayout { id: _Root
 
     ColumnLayout { // content
       Layout.fillWidth: true
+
+      Item { // top padding
+        height: _FontMetrics.height
+      }
 
       // S E L E C T   D E S K T O P - - - - - - - - - -
       // S E L E C T   D E S K T O P - - - - - - - - - -
@@ -133,19 +137,20 @@ ColumnLayout { id: _Root
       // - - - - - - - - - -  S E L E C T   S L O T
       // - - - - - - - - - -  S E L E C T   S L O T
 
-      GroupBox {
+      Frame {
 	      Layout.fillWidth: true
         Layout.fillHeight: true
       
         background: Rectangle { // group box border
           anchors.fill: parent
           color: "transparent"
-          border.width: 1
+          border.color: _ActiveSystemPalette.mid
+          border.width: 2
           radius: 5
         }
 
         ColumnLayout {
-		      anchors.fill: parent      
+		      anchors.fill: parent
 
           // B A C K G R O U N D   - - - - - - - - - -
           // B A C K G R O U N D   - - - - - - - - - -
@@ -227,7 +232,7 @@ ColumnLayout { id: _Root
                 onClicked: {
 
 	                _DlgSelectColor.selectedColor = myColor;
-                  _DlgSelectColor.options = ColorDialog.ShowAlphaChannel; /*SED*/
+                  _DlgSelectColor.options = ColorDialog.ShowAlphaChannel; /*MOD*/
 	                _DlgSelectColor.handleOnAccepted = ($$selectedColor) => {
   	                myColor = $$selectedColor.toString();
 	                };
@@ -586,8 +591,21 @@ ColumnLayout { id: _Root
 
 
         ListView { id: _ImageSources
+          Layout.fillWidth: true
+          Layout.fillHeight: true
+          Layout.minimumHeight: _FontMetrics.height * 2.5
+          clip: true // !!!!!! aarrgh
+          ScrollBar.vertical: ScrollBar { policy: ScrollBar.AlwaysOn } // ?!?? no effect from 'policy: ScrollBar.AlwaysOn'
 
-          /*
+          property alias myCfg: _Root.currentSlotCfg
+          onMyCfgChanged: {
+
+            inceptSources(myCfg.imagesources)
+
+            imagesources__updateButtonsState();
+          }
+
+          /**
           Canvas { id: _DottedLine
             width: _FontMetrics.averageCharacterWidth *2/ 3
             anchors.top: parent.top
@@ -604,26 +622,12 @@ ColumnLayout { id: _Root
               ctx.stroke()
             }
           }
-          */
+          /**/
 
           Rectangle {
             z: -1
             anchors.fill: parent
             color: _ActiveSystemPalette.light
-          }
-
-          Layout.fillWidth: true
-          Layout.fillHeight: true
-          Layout.minimumHeight: _FontMetrics.height * 2.5
-          clip: true // !!!!!! aarrgh
-          ScrollBar.vertical: ScrollBar { policy: ScrollBar.AlwaysOn } // ?!?? no effect from 'policy: ScrollBar.AlwaysOn'
-
-          property alias myCfg: _Root.currentSlotCfg
-          onMyCfgChanged: {
-
-            inceptSources(myCfg.imagesources)
-
-            imagesources__updateButtonsState();
           }
 
           model: ListModel {
@@ -660,7 +664,7 @@ ColumnLayout { id: _Root
 
           delegate: RowLayout {
 
-            Item { Layout.preferredWidth: _DottedLine.width*1.2 }
+            /* Item { Layout.preferredWidth: _DottedLine.width*1.2 } */
 
             Button {
               icon.name: "edit-delete-remove"
@@ -676,7 +680,6 @@ ColumnLayout { id: _Root
 				}
       }
     }
-
 
 /* Dev *
 Rectangle { id: _LogBackground
@@ -725,14 +728,12 @@ Rectangle { id: _LogBackground
 }
 /* /Dev */
 
-
     }
 
-    Item {
+    Item { // right padding
       width: _FontMetrics.averageCharacterWidth
     }
   }
-
 
 function dev_log($o) {
 
@@ -880,8 +881,8 @@ Dialog { id: _DlgAddTimeslot
   		//<--
 
 
-  	let hh = _ComboHour.model.get(_ComboHour.currentIndex).text;
-  	let mm = _ComboMinute.model.get(_ComboMinute.currentIndex).text;
+  	const hh = _ComboHour.model.get(_ComboHour.currentIndex).text;
+  	const mm = _ComboMinute.model.get(_ComboMinute.currentIndex).text;
 
   	newSlot = hh + ':' + mm;
   	_BtnAddTimeslot.enabled = !excludeSlots.includes(newSlot);
