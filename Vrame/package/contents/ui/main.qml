@@ -34,6 +34,8 @@ PlasmoidItem { /*MOD*/
         text: prefixActionText + "Open image"
         icon.name: "document-open"
         priority: Plasmoid.LowPriorityAction
+        visible: true
+        enabled: activeImage.mediaframe.count>0 && activeImage.cache        
         onTriggered: { _Canvas.actionOpen(); }
     },
     PlasmaCore.Action {
@@ -41,7 +43,7 @@ PlasmoidItem { /*MOD*/
         icon.name: "user-desktop"
         priority: Plasmoid.LowPriorityAction
         visible: true
-        enabled: true
+        enabled: activeImage.mediaframe.count>1 || !activeImage.cache        
         onTriggered: { _Canvas.actionNext(); }
     }
   ]    
@@ -65,16 +67,17 @@ PlasmoidItem { /*MOD*/
 
     Component.onCompleted: { 
 
-      _ImageRepeater.model = count;
+      _ImageRepeater.model = count + 1; // +1 =^= shared image      
     }
 
     onCurrentPageChanged: { 
       
-      if( ! (configAdapter && repeaterReady)) { return; }
+      if( ! repeaterReady) { return; }
 	    //<--
 
 
-      activeImage = _ImageRepeater.itemAt(_Pager.currentPage); 
+      activeImage = _ImageRepeater.imageFor(_Pager.currentPage); 
+      activeImage.refresh();
     }
 	}
 
@@ -85,7 +88,7 @@ PlasmoidItem { /*MOD*/
     running: true
     onTriggered: { 
 
-      if( ! (configAdapter && repeaterReady)) { return; }
+      if( ! activeImage) { return; }
 	    //<--            
 
 
@@ -113,9 +116,18 @@ PlasmoidItem { /*MOD*/
 
         repeaterReady=true; 
 
-        activeImage = _ImageRepeater.itemAt(_Pager.currentPage);         
+        activeImage = _ImageRepeater.imageFor(_Pager.currentPage);         
+        activeImage.refresh();
       }
 
+      function imageFor($pageNo) {
+
+        const deskCfg = configAdapter.findAppropiateDeskCfgFor_pageNo($pageNo);
+
+        const imageIdx = deskCfg.deskNo==VJS.DESKNO_GLOBAL?count-1:$pageNo;
+
+        return itemAt(imageIdx);
+      }
 
       // I M A G E - - - - - - - - - - - - - - - - - -
       // I M A G E - - - - - - - - - - - - - - - - - -
@@ -151,7 +163,7 @@ PlasmoidItem { /*MOD*/
 
           if(appropiateSlotCfg!=slotCfg)
           {
-            source = "";
+            source = "";infoText=source;
 			      timestampFetched = -1;
 			      slotCfg = appropiateSlotCfg;
 
@@ -166,7 +178,8 @@ PlasmoidItem { /*MOD*/
 			      mediaframe.random = slotCfg.shuffle;
             for(let $$path of slotCfg.imagesources)
 			      {
-				      mediaframe.add($$path, true); // path, recursive
+              const safePath = VJS.AS_URISAFE($$path);
+              mediaframe.add(safePath, true); // path, recursive
 			      }
           }
 
@@ -174,47 +187,34 @@ PlasmoidItem { /*MOD*/
           imgFetchNext();              
 		    }
 
-		    function imgFetchNext($watchdog = 10) {
+		    function imgFetchNext($force=false) {
 
-          if( ! slotCfg) { return; }
+          if( ! $force &&
+              ! (timestampFetched===-1) &&
+              (slotCfg.interval==0 || (Date.now() < (timestampFetched + slotCfg.interval*1000)))
+          ) { return; }
+          //<--
+
+          if(mediaframe.count === 0) { return; }
           //<--
 
 
-          if( timestampFetched==-1 || 
-              (slotCfg.interval > 0 && (timestampFetched + slotCfg.interval*1000)<Date.now())
-            )
-          {
-            if(mediaframe.count === 0) { return; }
-            //<--
+          mediaframe.get($$path => {
 
+            cache = ! $$path.startsWith('http');
 
-			      mediaframe.get($$path => {
+            if($$path.startsWith('http'))
+            {
+              source = ""; // trigger reload
+            }
+            else if( ! $$path.startsWith('file://'))
+            {
+              $$path = 'file://' + $$path;
+            }
 
-				      if($$path.indexOf(':')<0)
-				      {
-					      $$path = 'file://' + $$path;
-				      }
-
-				      if($$path.startsWith('http'))
-				      {
-                source = ""; // trigger reload
-                $watchdog=0
-				      }
-
-              const safePath = VJS.AS_URISAFE($$path);
-				      if(safePath!=source || $watchdog===0)
-				      {
-					      infoText=safePath;                
-
-					      source = safePath;
-					      timestampFetched = Date.now();
-				      }
-				      else
-				      {
-  					    imgFetchNext($watchdog-1);
-	  			    }
-			      });
-          }
+            source = $$path;infoText=source;
+            timestampFetched = Date.now();
+			    });
 		    }
 	    }
       // - - - - - - - - - - - - - I M A G E
@@ -275,7 +275,7 @@ PlasmoidItem { /*MOD*/
 
     function actionNext() {
 
-	    activeImage.imgFetchNext();
+	    activeImage.imgFetchNext(true);
     }
 
     function actionOpen() {

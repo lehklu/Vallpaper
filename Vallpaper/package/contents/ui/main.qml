@@ -17,34 +17,36 @@ import "../js/v.js" as VJS
 WallpaperItem { /*MOD*/
 	id: _Root
 
+  property var config: configuration.vallpaper6 /*MOD*/
   // Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground /*MOD*/
+  property var prefixActionText: '<Vallpaper> ' /*MOD*/  
 
   property var devShowInfo: true
 
-  property var config: configuration.vallpaper6 /*MOD*/
   property var previousConfigJson
+  property var configAdapter
 
-  property var plasmacfgAdapter
-  property var prefixActionText: '<Vallpaper> ' /*MOD*/
-
-  property var activeDeskCfg
   property var activeImage
-  property var activeSlotCfg
-
-  property var actionOpenEnabled: true
-  property var actionNextEnabled: true  
-
   property bool repeaterReady: false
 
-  onActiveImageChanged: { 
-    // Workaround: activeImage wird durch irgendwas auf null gesetzt!??1!
-    
-    if(activeImage!=null) { return; }
-    //<--
-
-    
-    activeImage = _ImageRepeater.itemAt(_Pager.currentPage);
-   }    
+  Plasmoid.contextualActions: [
+    PlasmaCore.Action {
+        text: prefixActionText + "Open image"
+        icon.name: "document-open"
+        priority: Plasmoid.LowPriorityAction
+        visible: true
+        enabled: activeImage.mediaframe.count>0 && activeImage.cache
+        onTriggered: { _Canvas.actionOpen(); }
+    },
+    PlasmaCore.Action {
+        text: prefixActionText + "Next image"
+        icon.name: "user-desktop"
+        priority: Plasmoid.LowPriorityAction
+        visible: true
+        enabled: activeImage.mediaframe.count>1 || !activeImage.cache
+        onTriggered: { _Canvas.actionNext(); }
+    }
+  ]    
 
   onConfigChanged: {
 
@@ -54,27 +56,8 @@ WallpaperItem { /*MOD*/
 
 
     previousConfigJson=configJson;
-    _Canvas.cnvSetPlasmacfgAdapter();
+    configAdapter = new VJS.PlasmacfgAdapter(config);
   }
-
-  Plasmoid.contextualActions: [
-    PlasmaCore.Action {
-        text: prefixActionText + "Open image"
-        icon.name: "document-open"
-        priority: Plasmoid.LowPriorityAction
-        visible: true
-        enabled: actionOpenEnabled
-        onTriggered: { _Canvas.actionOpen(); }
-    },
-    PlasmaCore.Action {
-        text: prefixActionText + "Next image"
-        icon.name: "user-desktop"
-        priority: Plasmoid.LowPriorityAction
-        visible: true
-        enabled: actionNextEnabled
-        onTriggered: { _Canvas.actionNext(); }
-    }
-  ]    
 
 	PagerModel {
     id: _Pager
@@ -82,7 +65,20 @@ WallpaperItem { /*MOD*/
     enabled: _Root.visible
     pagerType: PagerModel.VirtualDesktops
 
-    onCurrentPageChanged: { _Canvas.cnvSetActiveDeskCfg(); }
+    Component.onCompleted: { 
+
+      _ImageRepeater.model = count + 1; // +1 =^= shared image
+    }
+
+    onCurrentPageChanged: { 
+      
+      if( ! repeaterReady) { return; }
+	    //<--
+
+
+      activeImage = _ImageRepeater.imageFor(_Pager.currentPage);       
+      activeImage.refresh();
+    }
 	}
 
   Timer {
@@ -90,9 +86,15 @@ WallpaperItem { /*MOD*/
     interval: 1000 * 1 // sec
     repeat: true
     running: true
-    onTriggered: { _Canvas.cnvUpdateActiveSlotCfg();}
-  }  
+    onTriggered: { 
 
+      if( ! activeImage) { return; }
+	    //<--            
+
+
+      activeImage.refresh();
+    }
+  }  
 
   // C A N V A S - - - - - - - - - - - - - - - - - -
   // C A N V A S - - - - - - - - - - - - - - - - - -
@@ -101,20 +103,31 @@ WallpaperItem { /*MOD*/
     id: _Canvas
 
     anchors.fill: parent          
-    color: activeSlotCfg.background
+    color: activeImage.slotCfg.background
 
     Repeater {
 	    id: _ImageRepeater
-  
-      model: _Pager.count
 
-      Component.onCompleted: {
-        
-        repeaterReady=true;
+      onModelChanged: {
 
-        _Canvas.cnvSetActiveDeskCfg();
-		  }
+        if(model==0) { return; };
+        //<--
 
+
+        repeaterReady=true; 
+
+        activeImage = _ImageRepeater.imageFor(_Pager.currentPage);                 
+        activeImage.refresh();
+      }
+
+      function imageFor($pageNo) {
+
+        const deskCfg = configAdapter.findAppropiateDeskCfgFor_pageNo($pageNo);
+
+        const imageIdx = deskCfg.deskNo==VJS.DESKNO_GLOBAL?count-1:$pageNo;
+
+        return itemAt(imageIdx);
+      }
 
       // I M A G E - - - - - - - - - - - - - - - - - -
       // I M A G E - - - - - - - - - - - - - - - - - -
@@ -131,80 +144,76 @@ WallpaperItem { /*MOD*/
         asynchronous: true
         autoTransform: true
 
+        property var slotCfg
+
         property string infoText
 		    property var timestampFetched
-        property var slotCfg
         property var mediaframe: MediaFrame {}
 
-		    Component.onCompleted: { imgResetState(); }
+		    Component.onCompleted: { refresh(); }
 
-		    function imgResetState($newSlotCfg=undefined) {
+		    function refresh() {
 
-			    timestampFetched = -1;
-			    slotCfg = $newSlotCfg;
-
-			    if(slotCfg===undefined) return;
-			    //<--
+          if( ! configAdapter) { return; }
+	        //<--
 
 
-			    imgApplyCfg();
-		    }
+          const deskCfg = configAdapter.findAppropiateDeskCfgFor_pageNo(_Pager.currentPage);
+          const appropiateSlotCfg = deskCfg.findAppropiateSlotCfgFor_now();
 
-		    function imgApplyCfg() {
-
-			    fillMode = slotCfg.fillMode;
-
-			    anchors.topMargin =     slotCfg.paddingTop;
-          anchors.bottomMargin =  slotCfg.paddingBottom;
-          anchors.leftMargin =    slotCfg.paddingLeft;
-          anchors.rightMargin =   slotCfg.paddingRight;
-
-			    mediaframe.clear();
-			    mediaframe.random = slotCfg.shuffle;
-          for(let $$path of slotCfg.imagesources)
-			    {
-				    mediaframe.add($$path, true); // path, recursive
-			    }
-
-			    imgFetchNext();
-		    }
-
-		    function imgFetchNext($watchdog = 10) {
-
-          if(mediaframe.count === 0)
+          if(appropiateSlotCfg!=slotCfg)
           {
-            source = "";
+            source = "";infoText = source;
+			      timestampFetched = -1;
+			      slotCfg = appropiateSlotCfg;
 
-            return;
-            //<--
+			      anchors.topMargin =     slotCfg.paddingTop;
+            anchors.bottomMargin =  slotCfg.paddingBottom;
+            anchors.leftMargin =    slotCfg.paddingLeft;
+            anchors.rightMargin =   slotCfg.paddingRight;              
+			    
+            fillMode = slotCfg.fillMode;
+
+            mediaframe.clear();
+			      mediaframe.random = slotCfg.shuffle;
+            for(let $$path of slotCfg.imagesources)
+			      {
+              const safePath = VJS.AS_URISAFE($$path);
+				      mediaframe.add(safePath, true); // path, recursive
+			      }
           }
 
 
-			    mediaframe.get($$path => {
+          imgFetchNext();              
+		    }
 
-				    if($$path.indexOf(':')<0)
-				    {
-					    $$path = 'file://' + $$path;
-				    }
+		    function imgFetchNext($force=false) {
 
-				    if($$path.startsWith('http'))
-				    {
-					    cache = false;
+          if( ! $force &&
+              ! (timestampFetched===-1) &&
+              (slotCfg.interval==0 || (Date.now() < (timestampFetched + slotCfg.interval*1000)))
+          ) { return; }
+          //<--          
+
+          if(mediaframe.count === 0) { return; }
+          //<--
+
+
+          mediaframe.get($$path => {
+
+            cache = ! $$path.startsWith('http');
+
+            if($$path.startsWith('http'))
+            {
               source = ""; // trigger reload
-              gc();
-				    }
+            }
+            else if( ! $$path.startsWith('file://'))
+            {
+              $$path = 'file://' + $$path;
+            }
 
-				    if($$path!=source || $watchdog===0)
-				    {
-					    let resanitized = VJS.AS_URISAFE($$path);
-					    source = resanitized;
-					    infoText=$$path;
-					    timestampFetched = Date.now();
-				    }
-				    else
-				    {
-					    imgFetchNext($watchdog-1);
-				    }
+            source = $$path;infoText = source;                
+            timestampFetched = Date.now();
 			    });
 		    }
 	    }
@@ -223,7 +232,7 @@ WallpaperItem { /*MOD*/
       anchors.fill: activeImage
       visible: activeImage.source!=""
 
-      desaturation: activeSlotCfg.desaturate
+      desaturation: activeImage.slotCfg.desaturate
     }
 
     FastBlur {
@@ -233,7 +242,7 @@ WallpaperItem { /*MOD*/
       anchors.fill: dcDesaturate
       visible: dcDesaturate.visible
 
-      radius: activeSlotCfg.blur * 100
+      radius: activeImage.slotCfg.blur * 100
     }
 
     ColorOverlay {
@@ -243,7 +252,7 @@ WallpaperItem { /*MOD*/
       anchors.fill: dcBlur
       visible: dcBlur.visible
 
-      color: activeSlotCfg.colorizeValue
+      color: activeImage.slotCfg.colorizeValue
     }
     // - - - - - - - - - - - - - D I S P L A Y C H A I N
     // - - - - - - - - - - - - - D I S P L A Y C H A I N
@@ -264,54 +273,9 @@ WallpaperItem { /*MOD*/
       }
     }
 
-    function cnvSetPlasmacfgAdapter() {
-
-	    plasmacfgAdapter = new VJS.PlasmacfgAdapter(config);
-	    cnvSetActiveDeskCfg();
-    }
-
-    function cnvSetActiveDeskCfg() {
-
-	    if( ! plasmacfgAdapter) { return; }
-	    //<--
-	    if( ! repeaterReady) { return; }
-	    //<--      
-
-      const deskCfg = plasmacfgAdapter.findAppropiateDeskCfgFor_pageNo(_Pager.currentPage);
-      if(activeDeskCfg == deskCfg) { return; }
-      //<--
-
-
-      activeDeskCfg = deskCfg;
-      activeImage = _ImageRepeater.itemAt(_Pager.currentPage);
-
-	    cnvUpdateActiveSlotCfg();
-    }
-
-    function cnvUpdateActiveSlotCfg() {
-
-	    const appropiateSlotCfg = activeDeskCfg.findAppropiateSlotCfgFor_now();
-
-	    if(appropiateSlotCfg !== activeSlotCfg)
-	    {
-        activeSlotCfg = appropiateSlotCfg;
-		    activeImage.imgResetState(activeSlotCfg);
-	    }
-
-	    if(activeSlotCfg.imagesources.length === 0) return;
-	    //<--
-	    if(activeSlotCfg.interval === 0 && activeImage.source !== "") return;
-	    //<--
-	    if(Date.now() < (activeImage.timestampFetched + activeSlotCfg.interval*1000)) return;
-	    //<--
-
-
-	    activeImage.imgFetchNext();
-    }
-
     function actionNext() {
 
-	    activeImage.imgFetchNext();
+	    activeImage.imgFetchNext(true);
     }
 
     function actionOpen() {

@@ -560,7 +560,7 @@ ColumnLayout { id: _Root
 
 				    Button { id: _BtnSetUrl
               icon.name: "internet-web-browser-symbolic"
-					   text: 'Use url'
+					    text: 'Use url'            
 
               onClicked: imagesources__setUrl();
 				    }
@@ -572,7 +572,7 @@ ColumnLayout { id: _Root
             CheckBox {
               text: 'shuffle'
 
-              enabled: _ImageSources.count > 1
+              enabled: _ImageSources.count > 1              
 
               property alias myCfg: _Root.currentSlotCfg
               onMyCfgChanged: checked = myCfg.shuffle
@@ -602,10 +602,10 @@ ColumnLayout { id: _Root
 
             inceptSources(myCfg.imagesources)
 
-            imagesources__updateButtonsState();
+            imagesources__updateButtonsState();            
           }
 
-          /*
+          /**
           Canvas { id: _DottedLine
             width: _FontMetrics.averageCharacterWidth *2/ 3
             anchors.top: parent.top
@@ -622,7 +622,7 @@ ColumnLayout { id: _Root
               ctx.stroke()
             }
           }
-          */
+          /**/
 
           Rectangle {
             z: -1
@@ -664,7 +664,7 @@ ColumnLayout { id: _Root
 
           delegate: RowLayout {
 
-            Item { Layout.preferredWidth: _DottedLine.width*1.2 }
+            /* Item { Layout.preferredWidth: _DottedLine.width*1.2 } */
 
             Button {
               icon.name: "edit-delete-remove"
@@ -680,7 +680,6 @@ ColumnLayout { id: _Root
 				}
       }
     }
-
 
 /* Dev *
 Rectangle { id: _LogBackground
@@ -735,7 +734,6 @@ Rectangle { id: _LogBackground
       width: _FontMetrics.averageCharacterWidth
     }
   }
-
 
 function dev_log($o) {
 
@@ -1160,7 +1158,7 @@ function imagesources__addPathUsingDlg($$dlg) {
 
 		for(let i=0; i<$$resultUrls.length; ++i)
 		{
-			let desanitized = VJS.AS_URISAFE($$resultUrls[i].toString(), false);
+			const desanitized = VJS.AS_URISAFE($$resultUrls[i].toString(), false);
 			_ImageSources.model.append({ path: desanitized });
 		}
 	};

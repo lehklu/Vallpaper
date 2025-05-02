@@ -1158,7 +1158,7 @@ function imagesources__addPathUsingDlg($$dlg) {
 
 		for(let i=0; i<$$resultUrls.length; ++i)
 		{
-			let desanitized = VJS.AS_URISAFE($$resultUrls[i].toString(), false);
+			const desanitized = VJS.AS_URISAFE($$resultUrls[i].toString(), false);
 			_ImageSources.model.append({ path: desanitized });
 		}
 	};
