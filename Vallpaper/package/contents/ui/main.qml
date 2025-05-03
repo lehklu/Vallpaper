@@ -284,7 +284,7 @@ WallpaperItem { /*MOD*/
 	    Qt.openUrlExternally(activeImage.source)
     }
 
-/* Dev */
+/* Dev *
     Rectangle {
       id: _LogBackground
       color: '#00ff0000'                  
