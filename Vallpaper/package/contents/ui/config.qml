@@ -150,7 +150,7 @@ ColumnLayout { id: _Root
         }
 
         ColumnLayout {
-		      anchors.fill: parent      
+		      anchors.fill: parent
 
           // B A C K G R O U N D   - - - - - - - - - -
           // B A C K G R O U N D   - - - - - - - - - -
@@ -424,57 +424,51 @@ ColumnLayout { id: _Root
           RowLayout {
             Layout.columnSpan: 2
 
-            ColumnLayout {
+            SpinBox {
+              stepSize: 1
+              to: 100
 
-              Label {
-                horizontalAlignment: Text.AlignHCenter
-					      text: 'desaturate'
-				      }
+              property alias myCfg: _Root.currentSlotCfg
+              onMyCfgChanged: value = myCfg.desaturate * 100
 
-				      Slider {
-                property alias myCfg: _Root.currentSlotCfg
-                onMyCfgChanged: value = myCfg.desaturate
-
-                onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-          	      myCfg.desaturate = value;
-                });                                                  
-				      }
-			      }                      
-
-            ColumnLayout {
-
-              Label {
-                horizontalAlignment: Text.AlignHCenter
-		  			    text: 'blur'
-				      }
-
-				      Slider {
-                property alias myCfg: _Root.currentSlotCfg
-                onMyCfgChanged: value = myCfg.blur
-
-                onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-            	    myCfg.blur = value;
-                });                                                                
-				      }
-			      }          
-
-            ColumnLayout {
-
-              Label {
-					      text: 'colorize'
-				      }
-
-    				  Slider {
-                property alias myCfg: _Root.currentSlotCfg
-                onMyCfgChanged: value = myCfg.colorize
-
-                onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-          	      myCfg.colorize = value;
-                  effects__updateColorizeValue(myCfg);
-                });                                
-				      }
+              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+          	    myCfg.desaturate = value/100;
+              });            
 			      }
+            Label {
+					    text: '% desaturate '
+				    }
 
+            SpinBox {
+              stepSize: 1
+              to: 100
+
+              property alias myCfg: _Root.currentSlotCfg
+              onMyCfgChanged: value = myCfg.blur * 100
+
+              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+          	    myCfg.blur = value/100;
+              });            
+			      }
+            Label {
+		  			  text: '% blur '
+				    }
+
+            SpinBox {
+              stepSize: 1
+              to: 100
+
+              property alias myCfg: _Root.currentSlotCfg
+              onMyCfgChanged: value = myCfg.colorize * 100
+
+              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+          	    myCfg.colorize = value / 100;
+                effects__updateColorizeValue(myCfg);                
+              });            
+			      }
+            Label {
+					    text: '% colorize'
+				    }
 			      Button {
 
               property alias myCfg: _Root.currentSlotCfg
@@ -560,7 +554,7 @@ ColumnLayout { id: _Root
 
 				    Button { id: _BtnSetUrl
               icon.name: "internet-web-browser-symbolic"
-					    text: 'Use url'            
+					   text: 'Use url'
 
               onClicked: imagesources__setUrl();
 				    }
@@ -572,7 +566,7 @@ ColumnLayout { id: _Root
             CheckBox {
               text: 'shuffle'
 
-              enabled: _ImageSources.count > 1              
+              enabled: _ImageSources.count > 1
 
               property alias myCfg: _Root.currentSlotCfg
               onMyCfgChanged: checked = myCfg.shuffle
@@ -602,7 +596,7 @@ ColumnLayout { id: _Root
 
             inceptSources(myCfg.imagesources)
 
-            imagesources__updateButtonsState();            
+            imagesources__updateButtonsState();
           }
 
           /**

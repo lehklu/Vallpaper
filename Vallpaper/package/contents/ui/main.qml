@@ -35,7 +35,7 @@ WallpaperItem { /*MOD*/
         icon.name: "document-open"
         priority: Plasmoid.LowPriorityAction
         visible: true
-        enabled: activeImage.mediaframe.count>0 && activeImage.cache
+        enabled: activeImage.mediaframe.count>0
         onTriggered: { _Canvas.actionOpen(); }
     },
     PlasmaCore.Action {
@@ -76,8 +76,9 @@ WallpaperItem { /*MOD*/
 	    //<--
 
 
-      activeImage = _ImageRepeater.imageFor(_Pager.currentPage);       
-      activeImage.refresh();
+      const newActiveImage = _ImageRepeater.imageFor(_Pager.currentPage);       
+      newActiveImage.refresh();
+      activeImage = newActiveImage;
     }
 	}
 

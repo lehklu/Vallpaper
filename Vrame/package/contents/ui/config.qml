@@ -424,57 +424,51 @@ ColumnLayout { id: _Root
           RowLayout {
             Layout.columnSpan: 2
 
-            ColumnLayout {
+            SpinBox {
+              stepSize: 1
+              to: 100
 
-              Label {
-                horizontalAlignment: Text.AlignHCenter
-					      text: 'desaturate'
-				      }
+              property alias myCfg: _Root.currentSlotCfg
+              onMyCfgChanged: value = myCfg.desaturate * 100
 
-				      Slider {
-                property alias myCfg: _Root.currentSlotCfg
-                onMyCfgChanged: value = myCfg.desaturate
-
-                onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-          	      myCfg.desaturate = value;
-                });                                                  
-				      }
-			      }                      
-
-            ColumnLayout {
-
-              Label {
-                horizontalAlignment: Text.AlignHCenter
-		  			    text: 'blur'
-				      }
-
-				      Slider {
-                property alias myCfg: _Root.currentSlotCfg
-                onMyCfgChanged: value = myCfg.blur
-
-                onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-            	    myCfg.blur = value;
-                });                                                                
-				      }
-			      }          
-
-            ColumnLayout {
-
-              Label {
-					      text: 'colorize'
-				      }
-
-    				  Slider {
-                property alias myCfg: _Root.currentSlotCfg
-                onMyCfgChanged: value = myCfg.colorize
-
-                onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-          	      myCfg.colorize = value;
-                  effects__updateColorizeValue(myCfg);
-                });                                
-				      }
+              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+          	    myCfg.desaturate = value/100;
+              });            
 			      }
+            Label {
+					    text: '% desaturate '
+				    }
 
+            SpinBox {
+              stepSize: 1
+              to: 100
+
+              property alias myCfg: _Root.currentSlotCfg
+              onMyCfgChanged: value = myCfg.blur * 100
+
+              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+          	    myCfg.blur = value/100;
+              });            
+			      }
+            Label {
+		  			  text: '% blur '
+				    }
+
+            SpinBox {
+              stepSize: 1
+              to: 100
+
+              property alias myCfg: _Root.currentSlotCfg
+              onMyCfgChanged: value = myCfg.colorize * 100
+
+              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+          	    myCfg.colorize = value / 100;
+                effects__updateColorizeValue(myCfg);                
+              });            
+			      }
+            Label {
+					    text: '% colorize'
+				    }
 			      Button {
 
               property alias myCfg: _Root.currentSlotCfg

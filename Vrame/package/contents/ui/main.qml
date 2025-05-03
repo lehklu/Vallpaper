@@ -35,7 +35,7 @@ PlasmoidItem { /*MOD*/
         icon.name: "document-open"
         priority: Plasmoid.LowPriorityAction
         visible: true
-        enabled: activeImage.mediaframe.count>0 && activeImage.cache        
+        enabled: activeImage.mediaframe.count>0
         onTriggered: { _Canvas.actionOpen(); }
     },
     PlasmaCore.Action {
@@ -43,7 +43,7 @@ PlasmoidItem { /*MOD*/
         icon.name: "user-desktop"
         priority: Plasmoid.LowPriorityAction
         visible: true
-        enabled: activeImage.mediaframe.count>1 || !activeImage.cache        
+        enabled: activeImage.mediaframe.count>1 || !activeImage.cache
         onTriggered: { _Canvas.actionNext(); }
     }
   ]    
@@ -67,7 +67,7 @@ PlasmoidItem { /*MOD*/
 
     Component.onCompleted: { 
 
-      _ImageRepeater.model = count + 1; // +1 =^= shared image      
+      _ImageRepeater.model = count + 1; // +1 =^= shared image
     }
 
     onCurrentPageChanged: { 
@@ -76,8 +76,9 @@ PlasmoidItem { /*MOD*/
 	    //<--
 
 
-      activeImage = _ImageRepeater.imageFor(_Pager.currentPage); 
-      activeImage.refresh();
+      const newActiveImage = _ImageRepeater.imageFor(_Pager.currentPage);       
+      newActiveImage.refresh();
+      activeImage = newActiveImage;
     }
 	}
 
@@ -116,7 +117,7 @@ PlasmoidItem { /*MOD*/
 
         repeaterReady=true; 
 
-        activeImage = _ImageRepeater.imageFor(_Pager.currentPage);         
+        activeImage = _ImageRepeater.imageFor(_Pager.currentPage);                 
         activeImage.refresh();
       }
 
@@ -163,7 +164,7 @@ PlasmoidItem { /*MOD*/
 
           if(appropiateSlotCfg!=slotCfg)
           {
-            source = "";infoText=source;
+            source = "";infoText = source;
 			      timestampFetched = -1;
 			      slotCfg = appropiateSlotCfg;
 
@@ -179,7 +180,7 @@ PlasmoidItem { /*MOD*/
             for(let $$path of slotCfg.imagesources)
 			      {
               const safePath = VJS.AS_URISAFE($$path);
-              mediaframe.add(safePath, true); // path, recursive
+				      mediaframe.add(safePath, true); // path, recursive
 			      }
           }
 
@@ -193,7 +194,7 @@ PlasmoidItem { /*MOD*/
               ! (timestampFetched===-1) &&
               (slotCfg.interval==0 || (Date.now() < (timestampFetched + slotCfg.interval*1000)))
           ) { return; }
-          //<--
+          //<--          
 
           if(mediaframe.count === 0) { return; }
           //<--
@@ -212,7 +213,7 @@ PlasmoidItem { /*MOD*/
               $$path = 'file://' + $$path;
             }
 
-            source = $$path;infoText=source;
+            source = $$path;infoText = source;                
             timestampFetched = Date.now();
 			    });
 		    }
