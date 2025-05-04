@@ -429,15 +429,32 @@ ColumnLayout { id: _Root
               to: 100
 
               property alias myCfg: _Root.currentSlotCfg
-              onMyCfgChanged: value = myCfg.desaturate * 100
+              onMyCfgChanged: value = 100 - myCfg.desaturate * 100
 
               onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-          	    myCfg.desaturate = value/100;
+          	    myCfg.desaturate = 1 - value/100;
               });            
 			      }
             Label {
-					    text: '% desaturate '
+					    text: '% saturate '
 				    }
+            Canvas {
+              width: _FontMetrics.averageCharacterWidth *1/ 3
+              anchors.top: parent.top
+              anchors.bottom: parent.bottom
+              onPaint: {
+                var ctx = getContext("2d");
+                ctx.lineWidth = width;
+                ctx.setLineDash([1, 1]);
+                ctx.strokeStyle = _ActiveSystemPalette.dark
+
+                ctx.moveTo(0, 0)
+                ctx.lineTo(0, height)
+
+                ctx.stroke()
+              }
+            }
+            
 
             SpinBox {
               stepSize: 1
@@ -453,6 +470,22 @@ ColumnLayout { id: _Root
             Label {
 		  			  text: '% blur '
 				    }
+            Canvas {
+              width: _FontMetrics.averageCharacterWidth *1/ 3
+              anchors.top: parent.top
+              anchors.bottom: parent.bottom
+              onPaint: {
+                var ctx = getContext("2d");
+                ctx.lineWidth = width;
+                ctx.setLineDash([1, 1]);
+                ctx.strokeStyle = _ActiveSystemPalette.dark
+
+                ctx.moveTo(0, 0)
+                ctx.lineTo(0, height)
+
+                ctx.stroke()
+              }
+            }            
 
             SpinBox {
               stepSize: 1
