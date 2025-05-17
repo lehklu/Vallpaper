@@ -21,7 +21,7 @@ WallpaperItem { /*MOD*/
   // Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground /*MOD*/
   property var prefixActionText: '<Vallpaper> ' /*MOD*/  
 
-  property var devShowInfo: true
+  property var devShowInfo: false
 
   property var previousConfigJson
   property var configAdapter
