@@ -632,25 +632,6 @@ ColumnLayout { id: _Root
             imagesources__updateButtonsState();
           }
 
-          /**
-          Canvas { id: _DottedLine
-            width: _FontMetrics.averageCharacterWidth *2/ 3
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            onPaint: {
-              var ctx = getContext("2d");
-              ctx.lineWidth = width;
-              ctx.setLineDash([1, 1]);
-              ctx.strokeStyle = _ActiveSystemPalette.dark
-
-              ctx.moveTo(0, 0)
-              ctx.lineTo(0, height)
-
-              ctx.stroke()
-            }
-          }
-          /**/
-
           Rectangle {
             z: -1
             anchors.fill: parent
