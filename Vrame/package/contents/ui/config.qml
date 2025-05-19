@@ -585,21 +585,8 @@ ColumnLayout { id: _Root
               onClicked: imagesources__addPathUsingDlg(_DlgAddFiles);
 				    }
 
-				    Button { id: _BtnSetUrl
-              icon.name: "internet-web-browser-symbolic"
-					   text: 'Use url'
-
-              onClicked: imagesources__setUrl();
-				    }
-
-            Item {
-              Layout.fillWidth: true
-            }
-
             CheckBox {
               text: 'shuffle'
-
-              enabled: _ImageSources.count > 1
 
               property alias myCfg: _Root.currentSlotCfg
               onMyCfgChanged: checked = myCfg.shuffle
@@ -607,7 +594,31 @@ ColumnLayout { id: _Root
               onCheckedChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
         	     myCfg.shuffle = checked?1:0;
               });
-  		      }
+  		      }            
+
+            Canvas {
+              width: _FontMetrics.averageCharacterWidth *1/ 3
+              anchors.top: parent.top
+              anchors.bottom: parent.bottom
+              onPaint: {
+                var ctx = getContext("2d");
+                ctx.lineWidth = width;
+                ctx.setLineDash([1, 1]);
+                ctx.strokeStyle = _ActiveSystemPalette.dark
+
+                ctx.moveTo(0, 0)
+                ctx.lineTo(0, height)
+
+                ctx.stroke()
+              }
+            }            
+
+				    Button { id: _BtnSetUrl
+              icon.name: "internet-web-browser-symbolic"
+					   text: 'Use url'
+
+              onClicked: imagesources__setUrl();
+				    }            
           }
         }
 
