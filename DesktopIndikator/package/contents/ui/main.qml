@@ -14,7 +14,13 @@ PlasmoidItem {
 	property int _fullWidth: height * 4
 	property int _currentDateWidth: _fullWidth / 4 * 3
 	property int _deskWidth: _fullWidth / 4 * 1
-	property var _deskColors: ["#c1dec1", "#a7a7f1", "#ecaaec", "#eeeea0", "#dddddd"]
+	property var _deskColors: [
+		"#a0ffa0", 
+		"#a8a8ff", 
+		"#ff97ff", 
+		"#ffff8f", 
+		"#ffffff"
+	]
 	property var _contrastColor: "#000000"
 
 	property date _currentDate: new Date()
