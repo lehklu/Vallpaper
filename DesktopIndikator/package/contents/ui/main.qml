@@ -19,7 +19,8 @@ PlasmoidItem {
 		"#a8a8ff", 
 		"#ff97ff", 
 		"#ffff8f", 
-		"#ffffff"
+		"#ffffff",
+		"#41f2f2"
 	]
 	property var _contrastColor: "#000000"
 
