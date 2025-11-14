@@ -10,6 +10,7 @@ const SLOTMARKER_DEFAULT = '00:00';
 const TIMESLOT_DEFAULT_jsonstr = `{
 	"slotmarker": "` + SLOTMARKER_DEFAULT + `",
 	"background": "#1d1d85",
+	"displayCurrentSource": 0,
 	"paddingTop": 0,
 	"paddingBottom": 0,
 	"paddingLeft": 0,
@@ -26,15 +27,15 @@ const TIMESLOT_DEFAULT_jsonstr = `{
 }`;
 
 const DESKCFG_DEFAULT_jsonstr = `{
-  "deskNo": ` + DESKNO_GLOBAL + `, 
-  "timeslots": { 
-    "` + SLOTMARKER_DEFAULT + `": ` + TIMESLOT_DEFAULT_jsonstr + ` 
+  "deskNo": ` + DESKNO_GLOBAL + `,
+  "timeslots": {
+    "` + SLOTMARKER_DEFAULT + `": ` + TIMESLOT_DEFAULT_jsonstr + `
     }
   }`;
 
-// P l a s m a c f g A d a p t e r  
-// P l a s m a c f g A d a p t e r  
-// P l a s m a c f g A d a p t e r  
+// P l a s m a c f g A d a p t e r
+// P l a s m a c f g A d a p t e r
+// P l a s m a c f g A d a p t e r
 class PlasmacfgAdapter {
 
 	constructor($plasmacfg_jsonstrs, $fOnCfgChanged=undefined) {
@@ -59,8 +60,8 @@ class PlasmacfgAdapter {
 
   	if($fAction) { $fAction(); }
 
-		if(this.fOnCfgChanged) 
-    { 
+		if(this.fOnCfgChanged)
+    {
       const newCfgJSONs=[];
 
       for(const $$cfg of this.getCfgs())
@@ -68,7 +69,7 @@ class PlasmacfgAdapter {
         newCfgJSONs.push(JSON.stringify($$cfg));
       }
 
-      this.fOnCfgChanged(newCfgJSONs); 
+      this.fOnCfgChanged(newCfgJSONs);
     }
 	}
 
@@ -101,7 +102,7 @@ class PlasmacfgAdapter {
  	}
 
 	findAppropiateDeskCfgFor_pageNo($pageNo) {
-    
+
     const deskNo = $pageNo+1;
 
   	return this.deskCfgs[deskNo]!==undefined?this.deskCfgs[deskNo]:this.deskCfgs[DESKNO_GLOBAL];

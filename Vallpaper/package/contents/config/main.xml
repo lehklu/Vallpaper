@@ -5,7 +5,7 @@
       http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
 
   <group name="Settings">
-    <entry name="vallpaper6" type="StringList">
+    <entry name="vallpaper6" type="StringList"><!--MOD-->
     </entry>
   </group>
 </kcfg>

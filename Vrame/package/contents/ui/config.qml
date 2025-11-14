@@ -21,17 +21,17 @@ ColumnLayout { id: _Root
 
 	property var cfg_vrame6 /*MOD*/
 
-  property var plasmacfgAdapter  
+  property var plasmacfgAdapter
 
-  property var currentDeskCfg  
+  property var currentDeskCfg
   property var currentSlotCfg
 
-  FontMetrics { id: _FontMetrics 
+  FontMetrics { id: _FontMetrics
   }
 
   SystemPalette { id: _ActiveSystemPalette
-    colorGroup: SystemPalette.Active    
-  }  
+    colorGroup: SystemPalette.Active
+  }
 
   Component.onCompleted: {
 
@@ -76,7 +76,7 @@ ColumnLayout { id: _Root
 
             function onCurrentIndexChanged() { selectDesktop__handleCurrentIndexChanged(); }
             function onCountChanged() { selectDesktop__updateButtonsState();}
-		      }            
+		      }
         }
 
         Button { id: __BtnAddTimeslotDesktopConfig
@@ -89,7 +89,7 @@ ColumnLayout { id: _Root
           icon.name: "edit-delete-remove"
 
           onClicked: selectDesktop__removeConfig()
-        }      
+        }
       }
       // - - - - - - - - - - S E L E C T   D E S K T O P
       // - - - - - - - - - - S E L E C T   D E S K T O P
@@ -108,30 +108,30 @@ ColumnLayout { id: _Root
 		      text: "Activated at"
         }
 
-        ComboBox { id: _SelectSlot                      
+        ComboBox { id: _SelectSlot
           model: ListModel{}
 
           Connections { id: _SelectSlotConnections
 
             function onCurrentIndexChanged() { selectSlot__handleCurrentIndexChanged(); }
             function onCountChanged() { selectSlot__updateButtonsState();}
-		      }                      
+		      }
 
   				property alias desktopConfig: _Root.currentDeskCfg
 				  onDesktopConfigChanged: selectSlot__init()
         }
 
 		    Button { id: __BtnAddTimeslotTimeslot
-          icon.name: "list-add"                      
+          icon.name: "list-add"
 
           onClicked: _DlgAddTimeslot.open()
 		    }
 
 		    Button { id: _BtnRemoveTimeslot
-          icon.name: "edit-delete-remove"          
+          icon.name: "edit-delete-remove"
 
           onClicked: selectSlot__removeTimeslot()
-  		  }              
+  		  }
       }
       // - - - - - - - - - -  S E L E C T   S L O T
       // - - - - - - - - - -  S E L E C T   S L O T
@@ -140,7 +140,7 @@ ColumnLayout { id: _Root
       Frame {
 	      Layout.fillWidth: true
         Layout.fillHeight: true
-      
+
         background: Rectangle { // group box border
           anchors.fill: parent
           color: "transparent"
@@ -158,13 +158,30 @@ ColumnLayout { id: _Root
           GridLayout {
             columns: 3
 
-            // a1-1
+            // a0-1
             Label {
-              Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 15                                        
-            
+              Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 15
+
               text: 'Background'
             }
-          
+
+            // a0-2
+            Item {}
+
+            // a0-3
+            Item {}
+
+            // a1-1
+            Switch {
+              text: 'display source'
+
+              property alias myCfg: _Root.currentSlotCfg
+              onMyCfgChanged: checked = myCfg.displayCurrentSource
+              onClicked: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+        	      myCfg.displayCurrentSource = checked?1:0;
+              });
+            }
+
             // a1-2
 		        RowLayout {
 
@@ -180,20 +197,20 @@ ColumnLayout { id: _Root
 
                 onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
           	      myCfg.paddingTop = value;
-                });            
+                });
 			        }
 
 			        Label {
 				        text: 'px padding top'
 			        }
-  				  }          
+  				  }
 
             // a1-3
             Item {}
 
             // a2-1
 		        RowLayout {
-              Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 12                          
+              Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 12
 
               property var myHeight: Screen.height
               property var myWidth: Screen.width
@@ -207,7 +224,7 @@ ColumnLayout { id: _Root
 
                 onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
           	      myCfg.paddingLeft = value;
-                });            
+                });
 			        }
 
 			        Label {
@@ -222,7 +239,7 @@ ColumnLayout { id: _Root
                 Layout.preferredWidth: Layout.preferredHeight
 
                 property alias myCfg: _Root.currentSlotCfg
-                onMyCfgChanged: myColor = myCfg.background            
+                onMyCfgChanged: myColor = myCfg.background
 
                 property string myColor
                 onMyColorChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
@@ -246,12 +263,12 @@ ColumnLayout { id: _Root
                   anchors.centerIn: parent
 
                   color: parent.myColor
-	  		        }                      
-              }                      
-            
+	  		        }
+              }
+
               Label {
 				        text:  '[' + Screen.width + 'x' + Screen.height + ']'
-			        }                                
+			        }
             }
 
             // a2-3
@@ -269,17 +286,17 @@ ColumnLayout { id: _Root
 
                 onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
           	      myCfg.paddingRight = value;
-                });            
+                });
 			        }
 
 			        Label {
 				        text: 'right'
-			        }            
-  				  }          
+			        }
+  				  }
 
             // a3-1
             Item {
-              Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 12                          
+              Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 12
             }
 
             // a3-2
@@ -297,13 +314,13 @@ ColumnLayout { id: _Root
 
                 onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
           	      myCfg.paddingBottom = value;
-                });            
+                });
 			        }
 
 			        Label {
 				        text: 'bottom'
 			        }
-  				  }            
+  				  }
 
             // a3-3
             Item {}
@@ -317,32 +334,32 @@ ColumnLayout { id: _Root
           Layout.preferredHeight: _FontMetrics.height
 
           color: "transparent"
-        
+
           Rectangle {
             anchors.centerIn: parent
             width: parent.width * .95
             height: 1
 
             color: _ActiveSystemPalette.mid
-          }        
+          }
         }
 
-        // I M A G E  - - - - - - - - - -        
-        // I M A G E  - - - - - - - - - -        
-        // I M A G E  - - - - - - - - - -        
+        // I M A G E  - - - - - - - - - -
+        // I M A G E  - - - - - - - - - -
+        // I M A G E  - - - - - - - - - -
         GridLayout {
           columns: 3
 
           // b1-1
           Label {
-            Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 10              
+            Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 10
 
             text: 'Image'
-          }          
+          }
 
           // b1-2
     		  RowLayout {
-			  
+
             Label {
               text: 'interval'
 			      }
@@ -358,15 +375,15 @@ ColumnLayout { id: _Root
 
               onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
         	      myCfg.interval = value;
-              });                                    
+              });
 			      }
 
 			      Label {
-              Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 8              
+              Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 8
   				    text: _Interval.value==0?'infinite':(_Interval.value==1?'second':'seconds')
               font.italic: _Interval.value==0
-	  		    }          
-          }                            
+	  		    }
+          }
 
           // b1-3
 		      RowLayout {
@@ -384,7 +401,7 @@ ColumnLayout { id: _Root
 
               onCurrentIndexChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
         	      myCfg.fillMode = model[currentIndex].value;
-              });                                                
+              });
 
 				      model:
         	      [
@@ -394,7 +411,7 @@ ColumnLayout { id: _Root
                   { 'text': 'Tile',                           'value': Image.Tile },
                   { 'text': 'Tile vertically',                'value': Image.TileVertically },
                   { 'text': 'Tile horizontally',              'value': Image.TileHorizontally },
-                  { 'text': 'As is',                          'value': Image.Pad }                
+                  { 'text': 'As is',                          'value': Image.Pad }
                 ]
 
               function indexFromFillMode($mode) {
@@ -411,9 +428,9 @@ ColumnLayout { id: _Root
 					      }
 
         	      return idx;
-              }              
+              }
 			      }
-		      }                  
+		      }
 
           // b2-1
           Item {
@@ -433,7 +450,7 @@ ColumnLayout { id: _Root
 
               onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
           	    myCfg.desaturate = 1 - value/100;
-              });            
+              });
 			      }
             Label {
 					    text: '% saturate '
@@ -454,7 +471,7 @@ ColumnLayout { id: _Root
                 ctx.stroke()
               }
             }
-            
+
 
             SpinBox {
               stepSize: 1
@@ -465,7 +482,7 @@ ColumnLayout { id: _Root
 
               onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
           	    myCfg.blur = value/100;
-              });            
+              });
 			      }
             Label {
 		  			  text: '% blur '
@@ -485,7 +502,7 @@ ColumnLayout { id: _Root
 
                 ctx.stroke()
               }
-            }            
+            }
 
             SpinBox {
               stepSize: 1
@@ -496,8 +513,8 @@ ColumnLayout { id: _Root
 
               onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
           	    myCfg.colorize = value / 100;
-                effects__updateColorizeValue(myCfg);                
-              });            
+                effects__updateColorizeValue(myCfg);
+              });
 			      }
             Label {
 					    text: '% colorize'
@@ -537,35 +554,35 @@ ColumnLayout { id: _Root
 
         // - - - - - - - - - -  I M A G E
         // - - - - - - - - - -  I M A G E
-        // - - - - - - - - - -  I M A G E                        
+        // - - - - - - - - - -  I M A G E
 
         Rectangle {
           Layout.preferredWidth: parent.width
           Layout.preferredHeight: _FontMetrics.height
 
           color: "transparent"
-        
+
           Rectangle {
             anchors.centerIn: parent
             width: parent.width * .95
             height: 1
 
             color: _ActiveSystemPalette.mid
-          }        
+          }
         }
 
-        // S O U R C E S  - - - - - - - - - -        
-        // S O U R C E S  - - - - - - - - - -                
-        // S O U R C E S  - - - - - - - - - -        
+        // S O U R C E S  - - - - - - - - - -
+        // S O U R C E S  - - - - - - - - - -
+        // S O U R C E S  - - - - - - - - - -
         GridLayout {
           columns: 3
 
           // c1-1
 			    Label {
-            Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 10              
+            Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 10
 
             text: 'Sources'
-			    }          
+			    }
 
           // c1-2, c1-3
     		  RowLayout {
@@ -592,9 +609,9 @@ ColumnLayout { id: _Root
               onMyCfgChanged: checked = myCfg.shuffle
 
               onCheckedChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-        	     myCfg.shuffle = checked?1:0;
+                myCfg.shuffle = checked?1:0;
               });
-  		      }            
+            }
 
             Canvas {
               width: _FontMetrics.averageCharacterWidth *1/ 3
@@ -611,20 +628,20 @@ ColumnLayout { id: _Root
 
                 ctx.stroke()
               }
-            }            
+            }
 
 				    Button { id: _BtnSetUrl
               icon.name: "internet-web-browser-symbolic"
 					   text: 'Use url'
 
               onClicked: imagesources__setUrl();
-				    }            
+				    }
           }
         }
 
         // - - - - - - - - - -   S O U R C E S
-        // - - - - - - - - - -   S O U R C E S        
-        // - - - - - - - - - -   S O U R C E S                
+        // - - - - - - - - - -   S O U R C E S
+        // - - - - - - - - - -   S O U R C E S
 
 
 
@@ -702,15 +719,15 @@ ColumnLayout { id: _Root
 
 /* Dev *
 Rectangle { id: _LogBackground
-  color: '#00ff0000'                  
+  color: '#00ff0000'
   Layout.fillWidth: true
   height: 300
 
   ScrollView {
-    anchors.fill: parent      
+    anchors.fill: parent
     background: Rectangle {
                   color: '#0000ff00'
-    }      
+    }
 
     TextArea { id: _Log
       background: Rectangle {
@@ -948,13 +965,13 @@ Dialog { id: _DlgAddConfig
 
       myModel.push(selectDesktop__buildElement(deskNo));
 		}
-	
+
   	_ComboAddConfig.model = myModel;
 	}
 
 	ComboBox { id: _ComboAddConfig
 		width: parent.width
-    textRole: 'displayText'    
+    textRole: 'displayText'
 	}
 }
 
@@ -972,7 +989,7 @@ function selectSlot__init() {
 	_SelectSlotConnections.target = null;
 
 	_SelectSlot.model.clear();
-	const nowTimeslotCfg = currentDeskCfg.findAppropiateSlotCfgFor_now();  
+	const nowTimeslotCfg = currentDeskCfg.findAppropiateSlotCfgFor_now();
 	const orderedTimeslotCfgs = currentDeskCfg.getOrderedTimeslots();
 
 	let activateIdx = 0;
@@ -999,7 +1016,7 @@ function selectSlot__init() {
 	else
 	{
 		_SelectSlot.currentIndex = activateIdx;
-	}  
+	}
 
 
 }
@@ -1101,7 +1118,7 @@ function selectDesktop__init($pageNo) {
 
 
   // activate current
-  const model = _SelectDesktop.model;  
+  const model = _SelectDesktop.model;
 
 	let activateIndex = 0;
 	for(let i = 0; i < model.count; ++i)

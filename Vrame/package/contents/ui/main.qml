@@ -21,8 +21,6 @@ PlasmoidItem { /*MOD*/
   Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground /*MOD*/
   property var prefixActionText: '' // empty /*MOD*/  
 
-  property var devShowInfo: false
-
   property var previousConfigJson
   property var configAdapter
 
@@ -260,7 +258,7 @@ PlasmoidItem { /*MOD*/
     // - - - - - - - - - - - - - D I S P L A Y C H A I N    
 
     Rectangle {
-      visible: devShowInfo
+      visible: activeImage.slotCfg.displayCurrentSource
 	    width: labelInfo.contentWidth
       height: labelInfo.contentHeight
       anchors.top: parent.top
