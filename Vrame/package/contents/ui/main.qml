@@ -27,7 +27,7 @@ PlasmoidItem { /*MOD*/
   property var activeImage
   property bool repeaterReady: false
 
-  contextualActions: [
+  Plasmoid.contextualActions: [ /*MOD*/
     PlasmaCore.Action {
         text: prefixActionText + "Open image"
         icon.name: "document-open"

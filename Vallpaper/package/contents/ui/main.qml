@@ -27,7 +27,7 @@ WallpaperItem { /*MOD*/
   property var activeImage
   property bool repeaterReady: false
 
-  contextualActions: [
+  contextualActions: [ /*MOD*/
     PlasmaCore.Action {
         text: prefixActionText + "Open image"
         icon.name: "document-open"
