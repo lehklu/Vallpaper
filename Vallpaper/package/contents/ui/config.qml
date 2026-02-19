@@ -1072,7 +1072,7 @@ function selectSlot__removeTimeslot() {
 
 function selectDesktop__removeConfig() {
 
-	plasmacfgAdapter.deleteCfgNo(_SelectDesktop.model.get(_SelectDesktop.currentIndex).deskNo);
+	plasmacfgAdapter.deleteCfgDeskNo(_SelectDesktop.model.get(_SelectDesktop.currentIndex).deskNo);
 
 	_SelectDesktop.model.remove(_SelectDesktop.currentIndex);
 
