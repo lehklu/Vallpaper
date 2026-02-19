@@ -1,9 +1,9 @@
 {
     "KPackageStructure": "Plasma/Wallpaper",
     "KPlugin": {
-        "Name": "Vallpaper 6.0.3",
+        "Name": "Vallpaper 6.0.4",
         "Description": "Slideshow wallpaper for virtual desktops",
-        "Version": "6.0.3",
+        "Version": "6.0.4",
         "Id": "at.lehklu.plasma.vallpaper6",
         "Icon": "preferences-desktop-wallpaper",
         "Authors": [
