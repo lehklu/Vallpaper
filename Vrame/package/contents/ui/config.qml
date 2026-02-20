@@ -1,5 +1,5 @@
 /*
- *  Copyright 2025  Werner Lechner <werner.lechner@lehklu.at>
+ *  Copyright 2026  Werner Lechner <werner.lechner@lehklu.at>
  */
 
 import QtQuick
@@ -12,6 +12,7 @@ import org.kde.kcmutils
 import org.kde.plasma.plasmoid /*MOD*/
 
 import org.kde.plasma.private.pager
+import org.kde.plasma.wallpapers.image as Wallpaper
 
 import "../js/v.js" as VJS
 
@@ -79,7 +80,7 @@ ColumnLayout { id: _Root
 		      }
         }
 
-        Button { id: __BtnAddTimeslotDesktopConfig
+        Button { id: _BtnAddTimeslotDesktopConfig
           icon.name: "list-add"
 
           onClicked: _DlgAddConfig.open()
@@ -121,7 +122,7 @@ ColumnLayout { id: _Root
 				  onDesktopConfigChanged: selectSlot__init()
         }
 
-		    Button { id: __BtnAddTimeslotTimeslot
+		    Button { id: _BtnAddTimeslotTimeslot
           icon.name: "list-add"
 
           onClicked: _DlgAddTimeslot.open()
@@ -588,30 +589,53 @@ ColumnLayout { id: _Root
     		  RowLayout {
             Layout.columnSpan: 2
 
-				    Button { id: __BtnAddTimeslotFolder
+				    Button { id: _BtnAddTimeslotFolder
               icon.name: "list-add"
 					   text: 'Folder'
 
               onClicked: imagesources__addPathUsingDlg(_DlgAddFolder);
 				    }
 
-				    Button { id: __BtnAddTimeslotFiles
-              icon.name: "list-add"
-					   text: 'Files'
-
-              onClicked: imagesources__addPathUsingDlg(_DlgAddFiles);
+            Label {
+					    text: 'shuffle'
 				    }
 
-            CheckBox {
-              text: 'shuffle'
+			      ComboBox {
+				      currentIndex: 0
+              textRole: 'text'
 
               property alias myCfg: _Root.currentSlotCfg
-              onMyCfgChanged: checked = myCfg.shuffle
+              onMyCfgChanged: currentIndex = indexFromShuffleMode(myCfg.shuffleMode)
 
-              onCheckedChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-                myCfg.shuffle = checked?1:0;
+              onCurrentIndexChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+        	      myCfg.shuffleMode = model[currentIndex].value;
               });
-            }
+
+				      model:
+        	      [
+                  { 'text': 'Random',       'value': Wallpaper.SortingMode.Random },
+                  { 'text': 'A to Z',       'value': Wallpaper.SortingMode.Alphabetical },
+                  { 'text': 'Z to A',       'value': Wallpaper.SortingMode.AlphabeticalReversed },
+                  { 'text': 'Newest first', 'value': Wallpaper.SortingMode.ModifiedReversed },
+                  { 'text': 'Oldest first', 'value': Wallpaper.SortingMode.Modified }
+                ]
+
+              function indexFromShuffleMode($mode) {
+
+          	    let idx;
+
+					      for(idx in model)
+                {
+          	      if(model[idx].value===$mode)
+          	      {
+ 							      break;
+ 							      //<--
+          	      }
+					      }
+
+        	      return idx || 0;
+              }
+			      }
 
             Canvas {
               width: _FontMetrics.averageCharacterWidth *1/ 3
@@ -781,15 +805,6 @@ FolderDialog { id: _DlgAddFolder
 
 	  property var handleOnAccepted
   	onAccepted: handleOnAccepted([currentFolder])
-	}
-
-FileDialog { id: _DlgAddFiles
-		title: "Choose files"
-
-    fileMode: FileDialog.OpenFiles
-
-	  property var handleOnAccepted
-  	onAccepted: handleOnAccepted(selectedFiles)
 	}
 
 Dialog { id: _DlgSetUrl
@@ -1043,7 +1058,7 @@ function selectSlot__handleCurrentIndexChanged() {
 
 function selectSlot__updateButtonsState() {
 
-	__BtnAddTimeslotTimeslot.enabled = _SelectSlot.model.count < 60 * 24;
+	_BtnAddTimeslotTimeslot.enabled = _SelectSlot.model.count < 60 * 24;
 
 	_BtnRemoveTimeslot.enabled = _SelectSlot.currentIndex > 0;
 }
@@ -1072,7 +1087,7 @@ function selectDesktop__removeConfig() {
 
 function selectDesktop__updateButtonsState() {
 
-	__BtnAddTimeslotDesktopConfig.enabled = _SelectDesktop.model.count < _Pager.count+1;
+	_BtnAddTimeslotDesktopConfig.enabled = _SelectDesktop.model.count < _Pager.count+1;
 
 	_BtnRemoveDesktopConfig.enabled = _SelectDesktop.currentIndex > 0;
 }
@@ -1173,8 +1188,7 @@ function effects__updateColorizeValue($slot) {
 
 function imagesources__updateButtonsState() {
 
-	__BtnAddTimeslotFolder.enabled = ! (_ImageSources.model.count > 0 && _ImageSources.model.get(0).path.startsWith('http'));
-	__BtnAddTimeslotFiles.enabled = __BtnAddTimeslotFolder.enabled;
+	_BtnAddTimeslotFolder.enabled = ! (_ImageSources.model.count > 0 && _ImageSources.model.get(0).path.startsWith('http'));
 
 	_BtnSetUrl.enabled = ! _ImageSources.model.count > 0;
 }

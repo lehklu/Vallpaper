@@ -79,7 +79,7 @@ ColumnLayout { id: _Root
 		      }
         }
 
-        Button { id: __BtnAddTimeslotDesktopConfig
+        Button { id: _BtnAddTimeslotDesktopConfig
           icon.name: "list-add"
 
           onClicked: _DlgAddConfig.open()
@@ -121,7 +121,7 @@ ColumnLayout { id: _Root
 				  onDesktopConfigChanged: selectSlot__init()
         }
 
-		    Button { id: __BtnAddTimeslotTimeslot
+		    Button { id: _BtnAddTimeslotTimeslot
           icon.name: "list-add"
 
           onClicked: _DlgAddTimeslot.open()
@@ -588,7 +588,7 @@ ColumnLayout { id: _Root
     		  RowLayout {
             Layout.columnSpan: 2
 
-				    Button { id: __BtnAddTimeslotFolder
+				    Button { id: _BtnAddTimeslotFolder
               icon.name: "list-add"
 					   text: 'Folder'
 
@@ -1043,7 +1043,7 @@ function selectSlot__handleCurrentIndexChanged() {
 
 function selectSlot__updateButtonsState() {
 
-	__BtnAddTimeslotTimeslot.enabled = _SelectSlot.model.count < 60 * 24;
+	_BtnAddTimeslotTimeslot.enabled = _SelectSlot.model.count < 60 * 24;
 
 	_BtnRemoveTimeslot.enabled = _SelectSlot.currentIndex > 0;
 }
@@ -1072,7 +1072,7 @@ function selectDesktop__removeConfig() {
 
 function selectDesktop__updateButtonsState() {
 
-	__BtnAddTimeslotDesktopConfig.enabled = _SelectDesktop.model.count < _Pager.count+1;
+	_BtnAddTimeslotDesktopConfig.enabled = _SelectDesktop.model.count < _Pager.count+1;
 
 	_BtnRemoveDesktopConfig.enabled = _SelectDesktop.currentIndex > 0;
 }
@@ -1173,8 +1173,8 @@ function effects__updateColorizeValue($slot) {
 
 function imagesources__updateButtonsState() {
 
-	__BtnAddTimeslotFolder.enabled = ! (_ImageSources.model.count > 0 && _ImageSources.model.get(0).path.startsWith('http'));
-	__BtnAddTimeslotFiles.enabled = __BtnAddTimeslotFolder.enabled;
+	_BtnAddTimeslotFolder.enabled = ! (_ImageSources.model.count > 0 && _ImageSources.model.get(0).path.startsWith('http'));
+	__BtnAddTimeslotFiles.enabled = _BtnAddTimeslotFolder.enabled;
 
 	_BtnSetUrl.enabled = ! _ImageSources.model.count > 0;
 }

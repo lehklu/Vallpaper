@@ -1,5 +1,5 @@
 /*
- *  Copyright 2025  Werner Lechner <werner.lechner@lehklu.at>
+ *  Copyright 2026  Werner Lechner <werner.lechner@lehklu.at>
  */
 
 const DESKNO_GLOBAL = 0;
@@ -22,7 +22,7 @@ const TIMESLOT_DEFAULT_jsonstr = `{
 	"colorizeColor": "#ffffff",
 	"colorizeValue": "#00ffffff",
 	"interval": 0,
-	"shuffle": 0,
+	"shuffleMode": 0,
 	"imagesources": []
 }`;
 

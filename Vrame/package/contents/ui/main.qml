@@ -179,6 +179,7 @@ PlasmoidItem { /*MOD*/
             fillMode = slotCfg.fillMode;
 
             wpBackend.slidePaths = [];
+            wpBackend.slideshowMode = slotCfg.shuffleMode;
             for(let $$path of slotCfg.imagesources)
 			      {
               const safePath = VJS.AS_URISAFE($$path);
