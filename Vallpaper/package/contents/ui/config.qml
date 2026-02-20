@@ -11,7 +11,8 @@ import org.kde.kirigami as Kirigami
 import org.kde.kcmutils
 // import org.kde.plasma.plasmoid /*MOD*/
 
-import org.kde.plasma.private.pager
+/* 6.5 */ import org.kde.plasma.private.pager /**/
+/* 6.6 * import plasma.applet.org.kde.plasma.pager /**/
 
 import "../js/v.js" as VJS
 

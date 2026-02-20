@@ -7,10 +7,13 @@ import QtQuick.Controls
 import org.kde.kquickcontrolsaddons
 import org.kde.plasma.core as PlasmaCore
 import org.kde.plasma.plasmoid
-import org.kde.plasma.wallpapers.image as Wallpaper
-import org.kde.plasma.private.pager
 
 import Qt5Compat.GraphicalEffects
+
+/* 6.5 */ import org.kde.plasma.private.pager /**/
+/* 6.6 * import plasma.applet.org.kde.plasma.pager /**/
+import org.kde.plasma.wallpapers.image as Wallpaper
+
 
 import "../js/v.js" as VJS
 
