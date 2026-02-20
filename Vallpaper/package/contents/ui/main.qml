@@ -7,7 +7,7 @@ import QtQuick.Controls
 import org.kde.kquickcontrolsaddons
 import org.kde.plasma.core as PlasmaCore
 import org.kde.plasma.plasmoid
-import org.kde.plasma.private.mediaframe
+import org.kde.plasma.wallpapers.image as Wallpaper
 import org.kde.plasma.private.pager
 
 import Qt5Compat.GraphicalEffects
@@ -33,7 +33,7 @@ WallpaperItem { /*MOD*/
         icon.name: "document-open"
         priority: Plasmoid.LowPriorityAction
         visible: true
-        enabled: activeImage.mediaframe.count>0
+        enabled: activeImage.getCount()>0
         onTriggered: { _Canvas.actionOpen(); }
     },
     PlasmaCore.Action {
@@ -41,7 +41,7 @@ WallpaperItem { /*MOD*/
         icon.name: "user-desktop"
         priority: Plasmoid.LowPriorityAction
         visible: true
-        enabled: activeImage.mediaframe.count>1 || !activeImage.cache
+        enabled: activeImage.getCount()>1 || !activeImage.cache
         onTriggered: { _Canvas.actionNext(); }
     }
   ]
@@ -147,9 +147,18 @@ WallpaperItem { /*MOD*/
 
         property string infoText
 		    property var timestampFetched
-        property var mediaframe: MediaFrame {}
+        property var wpBackend: Wallpaper.ImageBackend {
+          usedInConfig: false
+          renderingMode: Wallpaper.ImageBackend.SlideShow
+        }
 
 		    Component.onCompleted: { refresh(); }
+
+        function getCount() {
+          return wpBackend.renderingMode==Wallpaper.ImageBackend.SingleImage?
+            1:
+            wpBackend.slideFilterModel.rowCount();
+        }
 
 		    function refresh() {
 
@@ -173,15 +182,13 @@ WallpaperItem { /*MOD*/
 
             fillMode = slotCfg.fillMode;
 
-            mediaframe.clear();
-			      mediaframe.random = slotCfg.shuffle;
+            wpBackend.slidePaths = [];
             for(let $$path of slotCfg.imagesources)
 			      {
               const safePath = VJS.AS_URISAFE($$path);
-				      mediaframe.add(safePath, true); // path, recursive
+				      wpBackend.addSlidePath(safePath);
 			      }
           }
-
 
           imgFetchNext();
 		    }
@@ -194,26 +201,13 @@ WallpaperItem { /*MOD*/
           ) { return; }
           //<--
 
-          if(mediaframe.count === 0) { return; }
+          if(getCount() === 0) { return; }
           //<--
 
 
-          mediaframe.get($$path => {
-
-            cache = ! $$path.startsWith('http');
-
-            if($$path.startsWith('http'))
-            {
-              source = ""; // trigger reload
-            }
-            else if( ! $$path.startsWith('file://'))
-            {
-              $$path = 'file://' + $$path;
-            }
-
-            source = $$path;infoText = source;
-            timestampFetched = Date.now();
-			    });
+          wpBackend.nextSlide();
+          source = wpBackend.image;infoText = source;
+          timestampFetched = Date.now();
 		    }
 	    }
       // - - - - - - - - - - - - - I M A G E
