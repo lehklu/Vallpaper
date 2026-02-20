@@ -154,11 +154,7 @@ PlasmoidItem { /*MOD*/
 
 		    Component.onCompleted: { refresh(); }
 
-        function getCount() {
-          return wpBackend.renderingMode==Wallpaper.ImageBackend.SingleImage?
-            1:
-            wpBackend.slideFilterModel.rowCount();
-        }
+        function getCount() { return wpBackend.slideFilterModel.rowCount(); }
 
 		    function refresh() {
 
@@ -200,6 +196,7 @@ PlasmoidItem { /*MOD*/
               (slotCfg.interval==0 || (Date.now() < (timestampFetched + slotCfg.interval*1000)))
           ) { return; }
           //<--
+
 
           if(getCount() === 0) { return; }
           //<--
