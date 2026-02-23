@@ -370,8 +370,7 @@ ColumnLayout { id: _Root
             SpinBox { id: _Interval
 
               stepSize: 1
-              readonly property IntValidator intValidator: IntValidator {}
-              to: intValidator.top
+              to: VJS.QT_SLIDETIMER_MAXVALUE
 
               property alias myCfg: _Root.currentSlotCfg
               onMyCfgChanged: value = myCfg.interval

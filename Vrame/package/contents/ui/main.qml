@@ -157,7 +157,7 @@ PlasmoidItem { /*MOD*/
 
 		    Component.onCompleted: { refresh(); }
 
-        function getCount() { return wpBackend.slideFilterModel.rowCount(); }
+        function getCount() { return slotCfg.isUseUrl()?1:wpBackend.slideFilterModel.rowCount(); }
 
 		    function refresh() {
 
@@ -181,8 +181,11 @@ PlasmoidItem { /*MOD*/
 
             fillMode = slotCfg.fillMode;
 
+            wpBackend.pauseSlideshow = slotCfg.interval==0;
             wpBackend.slidePaths = [];
             wpBackend.slideshowMode = slotCfg.shuffleMode;
+            wpBackend.slideTimer = slotCfg.interval==0?VJS.QT_SLIDETIMER_MAXVALUE:slotCfg.interval;
+
             for(let $$path of slotCfg.imagesources)
 			      {
               const safePath = VJS.AS_URISAFE($$path);
@@ -206,8 +209,21 @@ PlasmoidItem { /*MOD*/
           //<--
 
 
-          wpBackend.nextSlide();
-          source = wpBackend.image;infoText = source;
+          if(slotCfg.isUseUrl())
+          {
+            cache = false;
+
+            source = ""; // trigger reload
+            source = slotCfg.getUrl();
+          }
+          else
+          {
+            cache = true;
+
+            if($force) { wpBackend.nextSlide(); }
+            source = wpBackend.image;
+          }
+          infoText = source;
           timestampFetched = Date.now();
 		    }
 	    }

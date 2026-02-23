@@ -2,6 +2,8 @@
  *  Copyright 2026  Werner Lechner <werner.lechner@lehklu.at>
  */
 
+const QT_SLIDETIMER_MAXVALUE = 3520558; // Found by trial&error
+
 const DESKNO_GLOBAL = 0;
 const DESKNO_GLOBAL_NAME = '*';
 
@@ -206,6 +208,15 @@ class TimeslotCfg {
 		clone.slotmarker = $slotmarker;
 
 		return clone;
+	}
+
+	isUseUrl() {
+
+		return this.imagesources.length==1 && this.imagesources[0].startsWith('http');
+	}
+
+	getUrl() {
+		return this.imagesources[0];
 	}
 }
 
