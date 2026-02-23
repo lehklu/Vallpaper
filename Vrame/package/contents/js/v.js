@@ -222,3 +222,8 @@ const AS_URISAFE = function($text, $asUriSafe=true) {
 
   return result;
 }
+
+const AS_URL = function($text) {
+
+	return $text.startsWith('http')?$text:'http://'+$text;
+}

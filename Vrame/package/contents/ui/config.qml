@@ -602,7 +602,7 @@ ColumnLayout { id: _Root
 					    text: 'shuffle'
 				    }
 
-			      ComboBox {
+			      ComboBox { id: _ComboShuffleMode
 				      currentIndex: 0
               textRole: 'text'
 
@@ -1191,6 +1191,7 @@ function effects__updateColorizeValue($slot) {
 function imagesources__updateButtonsState() {
 
 	_BtnAddTimeslotFolder.enabled = ! (_ImageSources.model.count > 0 && _ImageSources.model.get(0).path.startsWith('http'));
+  _ComboShuffleMode.enabled = _BtnAddTimeslotFolder.enabled;
 
 	_BtnSetUrl.enabled = ! _ImageSources.model.count > 0;
 }
@@ -1214,9 +1215,7 @@ function imagesources__setUrl() {
 
 	_DlgSetUrl.handleOnAccepted = ($$text) => {
 
-    $$text = $$text.startsWith('http')?$$text:'http://'+$$text;
-
-		_ImageSources.model.append({ path: $$text });
+		_ImageSources.model.append({ path: VJS.AS_URL($$text) });
 	};
 
 	_DlgSetUrl.open();
