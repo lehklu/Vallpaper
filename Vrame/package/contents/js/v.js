@@ -2,7 +2,7 @@
  *  Copyright 2026  Werner Lechner <werner.lechner@lehklu.at>
  */
 
-const QT_SLIDETIMER_MAXVALUE = 3520558; // Found by trial&error
+const PLASMA_SLIDETIMER_MAXVALUE = 3520558; // Found by trial&error
 
 const DESKNO_GLOBAL = 0;
 const DESKNO_GLOBAL_NAME = '*';
@@ -209,15 +209,6 @@ class TimeslotCfg {
 
 		return clone;
 	}
-
-	isUseUrl() {
-
-		return this.imagesources.length==1 && this.imagesources[0].startsWith('http');
-	}
-
-	getUrl() {
-		return this.imagesources[0];
-	}
 }
 
 
@@ -237,4 +228,14 @@ const AS_URISAFE = function($text, $asUriSafe=true) {
 const AS_URL = function($text) {
 
 	return $text.startsWith('http')?$text:'http://'+$text;
+}
+
+const IS_USE_URL = function($imagesources) {
+
+	return $imagesources.length==1 && $imagesources[0].startsWith('http');
+}
+
+const GET_URL = function($imagesources) {
+
+	return $imagesources[0];
 }

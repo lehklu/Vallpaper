@@ -1,5 +1,5 @@
 /*
- *  Copyright 2025  Werner Lechner <werner.lechner@lehklu.at>
+ *  Copyright 2026  Werner Lechner <werner.lechner@lehklu.at>
  */
 
 import QtQuick
@@ -13,6 +13,8 @@ import org.kde.kcmutils
 
 /* 6.5 */ import org.kde.plasma.private.pager /**/
 /* 6.6 * import plasma.applet.org.kde.plasma.pager /**/
+import org.kde.plasma.wallpapers.image as Wallpaper
+
 
 import "../js/v.js" as VJS
 
@@ -368,8 +370,7 @@ ColumnLayout { id: _Root
             SpinBox { id: _Interval
 
               stepSize: 1
-              readonly property IntValidator intValidator: IntValidator {}
-              to: intValidator.top
+              to: VJS.PLASMA_SLIDETIMER_MAXVALUE
 
               property alias myCfg: _Root.currentSlotCfg
               onMyCfgChanged: value = myCfg.interval
@@ -591,28 +592,51 @@ ColumnLayout { id: _Root
 
 				    Button { id: _BtnAddTimeslotFolder
               icon.name: "list-add"
-					   text: 'Folder'
+					    text: 'Folder'
 
               onClicked: imagesources__addPathUsingDlg(_DlgAddFolder);
 				    }
 
-				    Button { id: __BtnAddTimeslotFiles
-              icon.name: "list-add"
-					   text: 'Files'
-
-              onClicked: imagesources__addPathUsingDlg(_DlgAddFiles);
+            Label {
+					    text: 'shuffle'
 				    }
 
-            CheckBox {
-              text: 'shuffle'
+			      ComboBox { id: _ComboShuffleMode
+				      currentIndex: 0
+              textRole: 'text'
 
               property alias myCfg: _Root.currentSlotCfg
-              onMyCfgChanged: checked = myCfg.shuffle
+              onMyCfgChanged: currentIndex = indexFromShuffleMode(myCfg.shuffleMode)
 
-              onCheckedChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-                myCfg.shuffle = checked?1:0;
+              onCurrentIndexChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
+        	      myCfg.shuffleMode = model[currentIndex].value;
               });
-            }
+
+				      model:
+        	      [
+                  { 'text': 'Random',       'value': Wallpaper.SortingMode.Random },
+                  { 'text': 'A to Z',       'value': Wallpaper.SortingMode.Alphabetical },
+                  { 'text': 'Z to A',       'value': Wallpaper.SortingMode.AlphabeticalReversed },
+                  { 'text': 'Newest first', 'value': Wallpaper.SortingMode.ModifiedReversed },
+                  { 'text': 'Oldest first', 'value': Wallpaper.SortingMode.Modified }
+                ]
+
+              function indexFromShuffleMode($mode) {
+
+          	    let idx;
+
+					      for(idx in model)
+                {
+          	      if(model[idx].value===$mode)
+          	      {
+ 							      break;
+ 							      //<--
+          	      }
+					      }
+
+        	      return idx || 0;
+              }
+			      }
 
             Canvas {
               width: _FontMetrics.averageCharacterWidth *1/ 3
@@ -718,7 +742,7 @@ ColumnLayout { id: _Root
       }
     }
 
-/* Dev *
+/* Dev */
 Rectangle { id: _LogBackground
   color: '#00ff0000'
   Layout.fillWidth: true
@@ -782,15 +806,6 @@ FolderDialog { id: _DlgAddFolder
 
 	  property var handleOnAccepted
   	onAccepted: handleOnAccepted([currentFolder])
-	}
-
-FileDialog { id: _DlgAddFiles
-		title: "Choose files"
-
-    fileMode: FileDialog.OpenFiles
-
-	  property var handleOnAccepted
-  	onAccepted: handleOnAccepted(selectedFiles)
 	}
 
 Dialog { id: _DlgSetUrl
@@ -928,7 +943,7 @@ Dialog { id: _DlgAddConfig
   onAccepted: {
 
     const element = _ComboAddConfig.model[_ComboAddConfig.currentIndex];
-    const currentDesktopConfigDeskNo = _SelectDesktop.model.get(_SelectDesktop.model.currentIndex).deskNo;
+    const currentDesktopConfigDeskNo = _SelectDesktop.model.get(_SelectDesktop.currentIndex).deskNo;
 
     plasmacfgAdapter.newCfgForDeskNo_cloneDeskNo(element.deskNo, currentDesktopConfigDeskNo);
 
@@ -1174,8 +1189,8 @@ function effects__updateColorizeValue($slot) {
 
 function imagesources__updateButtonsState() {
 
-	_BtnAddTimeslotFolder.enabled = ! (_ImageSources.model.count > 0 && _ImageSources.model.get(0).path.startsWith('http'));
-	__BtnAddTimeslotFiles.enabled = _BtnAddTimeslotFolder.enabled;
+	_BtnAddTimeslotFolder.enabled = ! VJS.IS_USE_URL(_ImageSources.myCfg.imagesources);
+  _ComboShuffleMode.enabled = _BtnAddTimeslotFolder.enabled;
 
 	_BtnSetUrl.enabled = ! _ImageSources.model.count > 0;
 }
@@ -1199,9 +1214,7 @@ function imagesources__setUrl() {
 
 	_DlgSetUrl.handleOnAccepted = ($$text) => {
 
-    $$text = $$text.startsWith('http')?$$text:'http://'+$$text;
-
-		_ImageSources.model.append({ path: $$text });
+		_ImageSources.model.append({ path: VJS.AS_URL($$text) });
 	};
 
 	_DlgSetUrl.open();

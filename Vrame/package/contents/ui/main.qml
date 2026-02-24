@@ -157,7 +157,7 @@ PlasmoidItem { /*MOD*/
 
 		    Component.onCompleted: { refresh(); }
 
-        function getCount() { return slotCfg.isUseUrl()?1:wpBackend.slideFilterModel.rowCount(); }
+        function getCount() { return VJS.IS_USE_URL(slotCfg.imagesources)?1:wpBackend.slideFilterModel.rowCount(); }
 
 		    function refresh() {
 
@@ -170,7 +170,9 @@ PlasmoidItem { /*MOD*/
 
           if(appropiateSlotCfg!=slotCfg)
           {
-            source = "";infoText = source;
+            if(appropiateSlotCfg && slotCfg) { _Log.say(appropiateSlotCfg.slotmarker + " <- " + slotCfg.slotmarker); }
+            source = "";
+            infoText = source;
 			      timestampFetched = -1;
 			      slotCfg = appropiateSlotCfg;
 
@@ -183,14 +185,18 @@ PlasmoidItem { /*MOD*/
 
             wpBackend.pauseSlideshow = slotCfg.interval==0;
             wpBackend.slidePaths = [];
-            wpBackend.slideshowMode = slotCfg.shuffleMode;
-            wpBackend.slideTimer = slotCfg.interval==0?VJS.QT_SLIDETIMER_MAXVALUE:slotCfg.interval;
 
-            for(let $$path of slotCfg.imagesources)
-			      {
-              const safePath = VJS.AS_URISAFE($$path);
-				      wpBackend.addSlidePath(safePath);
-			      }
+            if( ! VJS.IS_USE_URL(slotCfg.imagesources))
+            {
+              wpBackend.slideshowMode = slotCfg.shuffleMode;
+              wpBackend.slideTimer = slotCfg.interval==0?VJS.PLASMA_SLIDETIMER_MAXVALUE:slotCfg.interval;
+
+              for(let $$path of slotCfg.imagesources)
+			        {
+                const safePath = VJS.AS_URISAFE($$path);
+				        wpBackend.addSlidePath(safePath);
+			        }
+            }
           }
 
           imgFetchNext();
@@ -209,12 +215,12 @@ PlasmoidItem { /*MOD*/
           //<--
 
 
-          if(slotCfg.isUseUrl())
+          if(VJS.IS_USE_URL(slotCfg.imagesources))
           {
             cache = false;
 
             source = ""; // trigger reload
-            source = slotCfg.getUrl();
+            source = VJS.GET_URL(slotCfg.imagesources);
           }
           else
           {
@@ -223,6 +229,7 @@ PlasmoidItem { /*MOD*/
             if($force) { wpBackend.nextSlide(); }
             source = wpBackend.image;
           }
+
           infoText = source;
           timestampFetched = Date.now();
 		    }

@@ -370,7 +370,7 @@ ColumnLayout { id: _Root
             SpinBox { id: _Interval
 
               stepSize: 1
-              to: VJS.QT_SLIDETIMER_MAXVALUE
+              to: VJS.PLASMA_SLIDETIMER_MAXVALUE
 
               property alias myCfg: _Root.currentSlotCfg
               onMyCfgChanged: value = myCfg.interval
@@ -592,7 +592,7 @@ ColumnLayout { id: _Root
 
 				    Button { id: _BtnAddTimeslotFolder
               icon.name: "list-add"
-					   text: 'Folder'
+					    text: 'Folder'
 
               onClicked: imagesources__addPathUsingDlg(_DlgAddFolder);
 				    }
@@ -742,7 +742,7 @@ ColumnLayout { id: _Root
       }
     }
 
-/* Dev *
+/* Dev */
 Rectangle { id: _LogBackground
   color: '#00ff0000'
   Layout.fillWidth: true
@@ -943,7 +943,7 @@ Dialog { id: _DlgAddConfig
   onAccepted: {
 
     const element = _ComboAddConfig.model[_ComboAddConfig.currentIndex];
-    const currentDesktopConfigDeskNo = _SelectDesktop.model.get(_SelectDesktop.model.currentIndex).deskNo;
+    const currentDesktopConfigDeskNo = _SelectDesktop.model.get(_SelectDesktop.currentIndex).deskNo;
 
     plasmacfgAdapter.newCfgForDeskNo_cloneDeskNo(element.deskNo, currentDesktopConfigDeskNo);
 
@@ -1189,7 +1189,7 @@ function effects__updateColorizeValue($slot) {
 
 function imagesources__updateButtonsState() {
 
-	_BtnAddTimeslotFolder.enabled = ! (_ImageSources.model.count > 0 && _ImageSources.model.get(0).path.startsWith('http'));
+	_BtnAddTimeslotFolder.enabled = ! VJS.IS_USE_URL(_ImageSources.myCfg.imagesources);
   _ComboShuffleMode.enabled = _BtnAddTimeslotFolder.enabled;
 
 	_BtnSetUrl.enabled = ! _ImageSources.model.count > 0;

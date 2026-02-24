@@ -1,6 +1,8 @@
 /*
- *  Copyright 2025  Werner Lechner <werner.lechner@lehklu.at>
+ *  Copyright 2026  Werner Lechner <werner.lechner@lehklu.at>
  */
+
+const PLASMA_SLIDETIMER_MAXVALUE = 3520558; // Found by trial&error
 
 const DESKNO_GLOBAL = 0;
 const DESKNO_GLOBAL_NAME = '*';
@@ -22,7 +24,7 @@ const TIMESLOT_DEFAULT_jsonstr = `{
 	"colorizeColor": "#ffffff",
 	"colorizeValue": "#00ffffff",
 	"interval": 0,
-	"shuffle": 0,
+	"shuffleMode": 0,
 	"imagesources": []
 }`;
 
@@ -221,4 +223,19 @@ const AS_URISAFE = function($text, $asUriSafe=true) {
   const result = $text.replace(new RegExp(target, "g"), replacement);
 
   return result;
+}
+
+const AS_URL = function($text) {
+
+	return $text.startsWith('http')?$text:'http://'+$text;
+}
+
+const IS_USE_URL = function($imagesources) {
+
+	return $imagesources.length==1 && $imagesources[0].startsWith('http');
+}
+
+const GET_URL = function($imagesources) {
+
+	return $imagesources[0];
 }
