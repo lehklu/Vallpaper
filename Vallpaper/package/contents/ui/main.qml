@@ -170,13 +170,12 @@ WallpaperItem { /*MOD*/
 
           if(appropiateSlotCfg!=slotCfg)
           {
-            if(appropiateSlotCfg && slotCfg) { _Log.say(appropiateSlotCfg.slotmarker + " <- " + slotCfg.slotmarker); }
             source = "";
             infoText = source;
-			      timestampFetched = -1;
-			      slotCfg = appropiateSlotCfg;
+            timestampFetched = -1;
+            slotCfg = appropiateSlotCfg;
 
-			      anchors.topMargin =     slotCfg.paddingTop;
+            anchors.topMargin =     slotCfg.paddingTop;
             anchors.bottomMargin =  slotCfg.paddingBottom;
             anchors.leftMargin =    slotCfg.paddingLeft;
             anchors.rightMargin =   slotCfg.paddingRight;
@@ -300,7 +299,7 @@ WallpaperItem { /*MOD*/
 	    Qt.openUrlExternally(activeImage.source)
     }
 
-/* Dev */
+/* Dev *
     Rectangle {
       id: _LogBackground
       color: '#00ff0000'

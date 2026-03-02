@@ -170,7 +170,6 @@ PlasmoidItem { /*MOD*/
 
           if(appropiateSlotCfg!=slotCfg)
           {
-            if(appropiateSlotCfg && slotCfg) { _Log.say(appropiateSlotCfg.slotmarker + " <- " + slotCfg.slotmarker); }
             source = "";
             infoText = source;
 			      timestampFetched = -1;
@@ -300,7 +299,7 @@ PlasmoidItem { /*MOD*/
 	    Qt.openUrlExternally(activeImage.source)
     }
 
-/* Dev */
+/* Dev *
     Rectangle {
       id: _LogBackground
       color: '#00ff0000'
