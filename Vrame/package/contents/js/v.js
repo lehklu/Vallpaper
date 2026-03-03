@@ -227,7 +227,7 @@ const AS_URISAFE = function($text, $asUriSafe=true) {
 
 const AS_URL = function($text) {
 
-	return $text.startsWith('http')?$text:'http://'+$text;
+	return $text.startsWith('http')?$text:'https://'+$text;
 }
 
 const IS_USE_URL = function($imagesources) {

@@ -13,6 +13,7 @@ import org.kde.plasma.plasmoid /*MOD*/
 
 /* 6.5 */ import org.kde.plasma.private.pager /**/
 /* 6.6 * import plasma.applet.org.kde.plasma.pager /**/
+
 import org.kde.plasma.wallpapers.image as Wallpaper
 
 
@@ -742,7 +743,7 @@ ColumnLayout { id: _Root
       }
     }
 
-/* Dev */
+/* Dev *
 Rectangle { id: _LogBackground
   color: '#00ff0000'
   Layout.fillWidth: true

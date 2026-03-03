@@ -1,5 +1,5 @@
 /*
- *  Copyright 2025  Werner Lechner <werner.lechner@lehklu.at>
+ *  Copyright 2026  Werner Lechner <werner.lechner@lehklu.at>
  */
 
 import QtQuick
@@ -12,6 +12,7 @@ import Qt5Compat.GraphicalEffects
 
 /* 6.5 */ import org.kde.plasma.private.pager /**/
 /* 6.6 * import plasma.applet.org.kde.plasma.pager /**/
+
 import org.kde.plasma.wallpapers.image as Wallpaper
 
 
@@ -172,10 +173,10 @@ WallpaperItem { /*MOD*/
           {
             source = "";
             infoText = source;
-            timestampFetched = -1;
-            slotCfg = appropiateSlotCfg;
+			      timestampFetched = -1;
+			      slotCfg = appropiateSlotCfg;
 
-            anchors.topMargin =     slotCfg.paddingTop;
+			      anchors.topMargin =     slotCfg.paddingTop;
             anchors.bottomMargin =  slotCfg.paddingBottom;
             anchors.leftMargin =    slotCfg.paddingLeft;
             anchors.rightMargin =   slotCfg.paddingRight;
