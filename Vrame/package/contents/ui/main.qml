@@ -300,27 +300,27 @@ import "../js/v.js" as VJS
 	    Qt.openUrlExternally(activeImage.source)
     }
 
-/* Dev *
+/* Dev */
     QTQ.Rectangle {
       id: _LogBackground
       color: '#00ff0000'
       anchors.fill: parent
 
-      ScrollView {
+      QTQ_C.ScrollView {
         anchors.fill: parent
         background: QTQ.Rectangle {
           color: '#0000ff00'
         }
 
-        TextArea {
+        QTQ_C.TextArea {
           id: _Log
           readOnly: true
 
           background: QTQ.Rectangle {
             color: '#88ffffff'
           }
-          wrapMode: TextEdit.Wrap
-          horizontalAlignment: TextEdit.AlignRight
+          wrapMode: QTQ.TextEdit.Wrap
+          horizontalAlignment: QTQ.TextEdit.AlignRight
 
           property int autoclear:0
 

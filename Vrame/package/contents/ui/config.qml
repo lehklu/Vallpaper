@@ -185,8 +185,8 @@ QTQ_L.ColumnLayout { id: _Root
             // a1-2
 		        QTQ_L.RowLayout {
 
-              property var myHeight: Screen.height
-              property var myWidth: Screen.width
+              property var myHeight: QTQ.Screen.height
+              property var myWidth: QTQ.Screen.width
 
 			        QTQ_C.SpinBox {
                 stepSize: 1
@@ -212,8 +212,8 @@ QTQ_L.ColumnLayout { id: _Root
 		        QTQ_L.RowLayout {
               QTQ_L.Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 12
 
-              property var myHeight: Screen.height
-              property var myWidth: Screen.width
+              property var myHeight: QTQ.Screen.height
+              property var myWidth: QTQ.Screen.width
 
 			        QTQ_C.SpinBox {
                 stepSize: 1
@@ -267,15 +267,15 @@ QTQ_L.ColumnLayout { id: _Root
               }
 
               QTQ_C.Label {
-				        text:  '[' + Screen.width + 'x' + Screen.height + ']'
+				        text:  '[' + QTQ.Screen.width + 'x' + QTQ.Screen.height + ']'
 			        }
             }
 
             // a2-3
 		        QTQ_L.RowLayout {
 
-              property var myHeight: Screen.height
-              property var myWidth: Screen.width
+              property var myHeight: QTQ.Screen.height
+              property var myWidth: QTQ.Screen.width
 
 			        QTQ_C.SpinBox {
                 stepSize: 1
@@ -302,8 +302,8 @@ QTQ_L.ColumnLayout { id: _Root
             // a3-2
 		        QTQ_L.RowLayout {
 
-              property var myHeight: Screen.height
-              property var myWidth: Screen.width
+              property var myHeight: QTQ.Screen.height
+              property var myWidth: QTQ.Screen.width
 
 			        QTQ_C.SpinBox {
                 stepSize: 1
@@ -404,13 +404,13 @@ QTQ_L.ColumnLayout { id: _Root
 
 				      model:
         	      [
-                  { 'text': 'Stretch',                           'value': Image.Stretch },
-                  { 'text': 'Fit',                            'value': Image.PreserveAspectFit },
-                  { 'text': 'Crop',   'value': Image.PreserveAspectCrop },
-                  { 'text': 'Tile',                           'value': Image.Tile },
-                  { 'text': 'Tile vertically',                'value': Image.TileVertically },
-                  { 'text': 'Tile horizontally',              'value': Image.TileHorizontally },
-                  { 'text': 'As is',                          'value': Image.Pad }
+                  { 'text': 'Stretch',            'value': QTQ.Image.Stretch },
+                  { 'text': 'Fit',                'value': QTQ.Image.PreserveAspectFit },
+                  { 'text': 'Crop',               'value': QTQ.Image.PreserveAspectCrop },
+                  { 'text': 'Tile',               'value': QTQ.Image.Tile },
+                  { 'text': 'Tile vertically',    'value': QTQ.Image.TileVertically },
+                  { 'text': 'Tile horizontally',  'value': QTQ.Image.TileHorizontally },
+                  { 'text': 'As is',              'value': QTQ.Image.Pad }
                 ]
 
               function indexFromFillMode($mode) {
@@ -737,24 +737,24 @@ QTQ_L.ColumnLayout { id: _Root
       }
     }
 
-/* Dev *
+/* Dev */
 QTQ.Rectangle { id: _LogBackground
   color: '#00ff0000'
   QTQ_L.Layout.fillWidth: true
   height: 300
 
-  ScrollView {
+  QTQ_C.ScrollView {
     anchors.fill: parent
     background: QTQ.Rectangle {
                   color: '#0000ff00'
     }
 
-    TextArea { id: _Log
+    QTQ_C.TextArea { id: _Log
       background: QTQ.Rectangle {
                     color: '#88ffffff'
                   }
-      wrapMode: TextEdit.Wrap
-      horizontalAlignment: TextEdit.AlignRight
+      wrapMode: QTQ_C.TextEdit.Wrap
+      horizontalAlignment: QTQ_C.TextEdit.AlignRight
 
       property int autoclear:0
 
