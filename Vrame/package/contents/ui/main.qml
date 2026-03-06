@@ -17,12 +17,12 @@ import org.kde.plasma.wallpapers.image as KDE_wallpaper
 
 import "../js/v.js" as VJS
 
-KDE_plasmoid.PlasmoidItem { /*MOD*/
+/*MOD*/KDE_plasmoid.PlasmoidItem {
 	id: _Root
 
-  property var config: KDE_plasmoid.Plasmoid.configuration.vrame6 /*MOD*/
-  KDE_plasmoid.Plasmoid.backgroundHints: KDE_pc.Types.NoBackground /*MOD*/
-  property var prefixActionText: '' // empty /*MOD*/
+/*MOD*/property var config: KDE_plasmoid.Plasmoid.configuration.vrame6
+/*MOD*/KDE_plasmoid.Plasmoid.backgroundHints: KDE_pc.Types.NoBackground
+/*MOD*/property var prefixActionText: '' // empty
 
   property var previousConfigJson
   property var configAdapter
@@ -30,7 +30,7 @@ KDE_plasmoid.PlasmoidItem { /*MOD*/
   property var activeImage
   property bool repeaterReady: false
 
-  KDE_plasmoid.Plasmoid.contextualActions: [ /*MOD*/
+/*MOD*/KDE_plasmoid.Plasmoid.contextualActions: [
     KDE_pc.Action {
         text: prefixActionText + "Open image"
         icon.name: "document-open"

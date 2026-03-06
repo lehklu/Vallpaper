@@ -19,7 +19,7 @@ QTQ_L.ColumnLayout { id: _Root
 
   property var title // for KDE Settings page
 
-  property var cfg_vallpaper6 /*MOD*/
+/*MOD*/property var cfg_vallpaper6
 
   property var plasmacfgAdapter
 
@@ -35,7 +35,7 @@ QTQ_L.ColumnLayout { id: _Root
 
   QTQ.Component.onCompleted: {
 
-    plasmacfgAdapter = new VJS.PlasmacfgAdapter(cfg_vallpaper6, $newCfg => { cfg_vallpaper6 = $newCfg; }); /*MOD*/
+/*MOD*/plasmacfgAdapter = new VJS.PlasmacfgAdapter(cfg_vallpaper6, $newCfg => { cfg_vallpaper6 = $newCfg; });
     selectDesktop__init(_Pager.currentPage);
   }
 
@@ -249,7 +249,7 @@ QTQ_L.ColumnLayout { id: _Root
                 onClicked: {
 
 	                _DlgSelectColor.selectedColor = myColor;
-                  _DlgSelectColor.options = 0; /*MOD*/
+/*MOD*/           _DlgSelectColor.options = 0;
 	                _DlgSelectColor.handleOnAccepted = ($$selectedColor) => {
   	                myColor = $$selectedColor.toString();
 	                };
