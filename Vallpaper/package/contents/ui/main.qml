@@ -2,27 +2,26 @@
  *  Copyright 2026  Werner Lechner <werner.lechner@lehklu.at>
  */
 
-import QtQuick
-import QtQuick.Controls
-import org.kde.kquickcontrolsaddons
-import org.kde.plasma.core as PlasmaCore
-import org.kde.plasma.plasmoid
+import QtQuick as QTQ
+import QtQuick.Controls as QTQ_C
+import org.kde.plasma.core as KDE_pc
+import org.kde.plasma.plasmoid as KDE_plasmoid
 
-import Qt5Compat.GraphicalEffects
+import Qt5Compat.GraphicalEffects as QT5_ge
 
-/* 6.5 */ import org.kde.plasma.private.pager /**/
-/* 6.6 * import plasma.applet.org.kde.plasma.pager /**/
+/* 6.5 */ import org.kde.plasma.private.pager as KDE_pager /**/
+/* 6.6 * import plasma.applet.org.kde.plasma.pager as KDE_pager /**/
 
-import org.kde.plasma.wallpapers.image as Wallpaper
+import org.kde.plasma.wallpapers.image as KDE_wallpaper
 
 
 import "../js/v.js" as VJS
 
-WallpaperItem { /*MOD*/
+KDE_plasmoid.WallpaperItem { /*MOD*/
 	id: _Root
 
   property var config: configuration.vallpaper6 /*MOD*/
-  // Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground /*MOD*/
+  // KDE_plasmoid.Plasmoid.backgroundHints: KDE_pc.Types.NoBackground /*MOD*/
   property var prefixActionText: '<Vallpaper> ' /*MOD*/
 
   property var previousConfigJson
@@ -32,18 +31,18 @@ WallpaperItem { /*MOD*/
   property bool repeaterReady: false
 
   contextualActions: [ /*MOD*/
-    PlasmaCore.Action {
+    KDE_pc.Action {
         text: prefixActionText + "Open image"
         icon.name: "document-open"
-        priority: Plasmoid.LowPriorityAction
+        priority: KDE_plasmoid.Plasmoid.LowPriorityAction
         visible: true
         enabled: activeImage.getCount()>0
         onTriggered: { _Canvas.actionOpen(); }
     },
-    PlasmaCore.Action {
+    KDE_pc.Action {
         text: prefixActionText + "Next image"
         icon.name: "user-desktop"
-        priority: Plasmoid.LowPriorityAction
+        priority: KDE_plasmoid.Plasmoid.LowPriorityAction
         visible: true
         enabled: activeImage.getCount()>1 || !activeImage.cache
         onTriggered: { _Canvas.actionNext(); }
@@ -61,13 +60,13 @@ WallpaperItem { /*MOD*/
     configAdapter = new VJS.PlasmacfgAdapter(config);
   }
 
-	PagerModel {
+	KDE_pager.PagerModel {
     id: _Pager
 
     enabled: _Root.visible
-    pagerType: PagerModel.VirtualDesktops
+    pagerType: KDE_pager.PagerModel.VirtualDesktops
 
-    Component.onCompleted: {
+    QTQ.Component.onCompleted: {
 
       _ImageRepeater.model = count + 1; // +1 =^= shared image
     }
@@ -84,7 +83,7 @@ WallpaperItem { /*MOD*/
     }
 	}
 
-  Timer {
+  QTQ.Timer {
 	  id: _Timer
     interval: 1000 * 1 // sec
     repeat: true
@@ -102,13 +101,13 @@ WallpaperItem { /*MOD*/
   // C A N V A S - - - - - - - - - - - - - - - - - -
   // C A N V A S - - - - - - - - - - - - - - - - - -
   // C A N V A S - - - - - - - - - - - - - - - - - -
-  Rectangle {
+  QTQ.Rectangle {
     id: _Canvas
 
     anchors.fill: parent
     color: activeImage.slotCfg.background
 
-    Repeater {
+    QTQ.Repeater {
 	    id: _ImageRepeater
 
       onModelChanged: {
@@ -135,7 +134,7 @@ WallpaperItem { /*MOD*/
       // I M A G E - - - - - - - - - - - - - - - - - -
       // I M A G E - - - - - - - - - - - - - - - - - -
       // I M A G E - - - - - - - - - - - - - - - - - -
-      Image {
+      QTQ.Image {
         anchors.fill: parent
 
         visible: false // displayed through Graphical effects
@@ -151,12 +150,12 @@ WallpaperItem { /*MOD*/
 
         property string infoText
 		    property var timestampFetched
-        property var wpBackend: Wallpaper.ImageBackend {
+        property var wpBackend: KDE_wallpaper.ImageBackend {
           usedInConfig: false
-          renderingMode: Wallpaper.ImageBackend.SlideShow
+          renderingMode: KDE_wallpaper.ImageBackend.SlideShow
         }
 
-		    Component.onCompleted: { refresh(); }
+		    QTQ.Component.onCompleted: { refresh(); }
 
         function getCount() { return VJS.IS_USE_URL(slotCfg.imagesources)?1:wpBackend.slideFilterModel.rowCount(); }
 
@@ -183,11 +182,12 @@ WallpaperItem { /*MOD*/
 
             fillMode = slotCfg.fillMode;
 
-            wpBackend.pauseSlideshow = slotCfg.interval==0;
+            wpBackend.pauseSlideshow = true;
             wpBackend.slidePaths = [];
 
             if( ! VJS.IS_USE_URL(slotCfg.imagesources))
             {
+              wpBackend.pauseSlideshow = slotCfg.interval==0;
               wpBackend.slideshowMode = slotCfg.shuffleMode;
               wpBackend.slideTimer = slotCfg.interval==0?VJS.PLASMA_SLIDETIMER_MAXVALUE:slotCfg.interval;
 
@@ -242,7 +242,7 @@ WallpaperItem { /*MOD*/
     // D I S P L A Y C H A I N - - - - - - - - - - - - - - - - - -
     // D I S P L A Y C H A I N - - - - - - - - - - - - - - - - - -
     // D I S P L A Y C H A I N - - - - - - - - - - - - - - - - - -
-    Desaturate {
+    QT5_ge.Desaturate {
 	    id: dcDesaturate
 
       source: activeImage
@@ -252,7 +252,7 @@ WallpaperItem { /*MOD*/
       desaturation: activeImage.slotCfg.desaturate
     }
 
-    FastBlur {
+    QT5_ge.FastBlur {
 	    id: dcBlur
 
       source: dcDesaturate
@@ -262,7 +262,7 @@ WallpaperItem { /*MOD*/
       radius: activeImage.slotCfg.blur * 100
     }
 
-    ColorOverlay {
+    QT5_ge.ColorOverlay {
 	    id: dcColorOverlay
 
       source: dcBlur
@@ -275,7 +275,7 @@ WallpaperItem { /*MOD*/
     // - - - - - - - - - - - - - D I S P L A Y C H A I N
     // - - - - - - - - - - - - - D I S P L A Y C H A I N
 
-    Rectangle {
+    QTQ.Rectangle {
       visible: activeImage.slotCfg.displayCurrentSource
 	    width: labelInfo.contentWidth
       height: labelInfo.contentHeight
@@ -283,7 +283,7 @@ WallpaperItem { /*MOD*/
       anchors.left: parent.left
       color: '#ff1d1d85'
 
-	    Label {
+	    QTQ_C.Label {
 		    id: labelInfo
   	    color: "#ffffffff"
   	    text: activeImage.infoText
@@ -301,14 +301,14 @@ WallpaperItem { /*MOD*/
     }
 
 /* Dev *
-    Rectangle {
+    QTQ.Rectangle {
       id: _LogBackground
       color: '#00ff0000'
       anchors.fill: parent
 
       ScrollView {
         anchors.fill: parent
-        background: Rectangle {
+        background: QTQ.Rectangle {
           color: '#0000ff00'
         }
 
@@ -316,7 +316,7 @@ WallpaperItem { /*MOD*/
           id: _Log
           readOnly: true
 
-          background: Rectangle {
+          background: QTQ.Rectangle {
             color: '#88ffffff'
           }
           wrapMode: TextEdit.Wrap
@@ -355,7 +355,7 @@ WallpaperItem { /*MOD*/
   // - - - - - - - - - - - - - C A N V A S
 
 
-  MouseArea {
+  QTQ.MouseArea {
     anchors.fill: parent
 
     onPressAndHold: { _Canvas.actionNext(); }
