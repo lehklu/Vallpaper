@@ -2,24 +2,20 @@
  *  Copyright 2026  Werner Lechner <werner.lechner@lehklu.at>
  */
 
-import QtQuick
-import QtQuick.Controls
-import QtQuick.Layouts
-import QtQuick.Dialogs
-import org.kde.plasma.core as PlasmaCore
-import org.kde.kirigami as Kirigami
-import org.kde.kcmutils
-import org.kde.plasma.plasmoid /*MOD*/
+import QtQuick as QTQ
+import QtQuick.Controls as QTQ_C
+import QtQuick.Layouts as QTQ_L
+import QtQuick.Dialogs as QTQ_D
 
-/* 6.5 */ import org.kde.plasma.private.pager /**/
-/* 6.6 * import plasma.applet.org.kde.plasma.pager /**/
+/* 6.5 */ import org.kde.plasma.private.pager as KDE_pager /**/
+/* 6.6 * import plasma.applet.org.kde.plasma.pager as KDE_pager /**/
 
-import org.kde.plasma.wallpapers.image as Wallpaper
+import org.kde.plasma.wallpapers.image as KDE_wallpaper
 
 
 import "../js/v.js" as VJS
 
-ColumnLayout { id: _Root
+QTQ_L.ColumnLayout { id: _Root
 
   property var title // for KDE Settings page
 
@@ -30,66 +26,66 @@ ColumnLayout { id: _Root
   property var currentDeskCfg
   property var currentSlotCfg
 
-  FontMetrics { id: _FontMetrics
+  QTQ.FontMetrics { id: _FontMetrics
   }
 
-  SystemPalette { id: _ActiveSystemPalette
-    colorGroup: SystemPalette.Active
+  QTQ.SystemPalette { id: _ActiveSystemPalette
+    colorGroup: QTQ.SystemPalette.Active
   }
 
-  Component.onCompleted: {
+  QTQ.Component.onCompleted: {
 
     plasmacfgAdapter = new VJS.PlasmacfgAdapter(cfg_vrame6, $newCfg => { cfg_vrame6 = $newCfg; }); /*MOD*/
     selectDesktop__init(_Pager.currentPage);
   }
 
-	PagerModel { id: _Pager
+	 KDE_pager.PagerModel { id: _Pager
     enabled: _Root.visible
-    pagerType: PagerModel.VirtualDesktops
+    pagerType: KDE_pager.PagerModel.VirtualDesktops
 	}
 
-  RowLayout { // Container
+  QTQ_L.RowLayout { // Container
 
-    Item { // left padding
+    QTQ.Item { // left padding
       width: _FontMetrics.averageCharacterWidth
     }
 
-    ColumnLayout { // content
-      Layout.fillWidth: true
+    QTQ_L.ColumnLayout { // content
+      QTQ_L.Layout.fillWidth: true
 
-      Item { // top padding
+      QTQ.Item { // top padding
         height: _FontMetrics.height
       }
 
       // S E L E C T   D E S K T O P - - - - - - - - - -
       // S E L E C T   D E S K T O P - - - - - - - - - -
       // S E L E C T   D E S K T O P - - - - - - - - - -
-      RowLayout {
+      QTQ_L.RowLayout {
 
-        Label {
+        QTQ_C.Label {
           text: "For desktop"
         }
 
-        ComboBox { id: _SelectDesktop
+        QTQ_C.ComboBox { id: _SelectDesktop
 
-          Layout.fillWidth: true
-          model: ListModel {}
+          QTQ_L.Layout.fillWidth: true
+          model: QTQ.ListModel {}
           textRole: 'displayText'
 
-		      Connections { id: _SelectDesktopConnections
+		      QTQ.Connections { id: _SelectDesktopConnections
 
             function onCurrentIndexChanged() { selectDesktop__handleCurrentIndexChanged(); }
             function onCountChanged() { selectDesktop__updateButtonsState();}
 		      }
         }
 
-        Button { id: _BtnAddTimeslotDesktopConfig
+        QTQ_C.Button { id: _BtnAddTimeslotDesktopConfig
           icon.name: "list-add"
 
           onClicked: _DlgAddConfig.open()
         }
 
-        Button { id: _BtnRemoveDesktopConfig
+        QTQ_C.Button { id: _BtnRemoveDesktopConfig
           icon.name: "edit-delete-remove"
 
           onClicked: selectDesktop__removeConfig()
@@ -102,20 +98,20 @@ ColumnLayout { id: _Root
       // S E L E C T   S L O T   - - - - - - - - - -
       // S E L E C T   S L O T   - - - - - - - - - -
       // S E L E C T   S L O T   - - - - - - - - - -
-      RowLayout {
+      QTQ_L.RowLayout {
 
-        Item {
-          Layout.fillWidth: true
+        QTQ.Item {
+          QTQ_L.Layout.fillWidth: true
         }
 
-        Label {
+        QTQ_C.Label {
 		      text: "Activated at"
         }
 
-        ComboBox { id: _SelectSlot
-          model: ListModel{}
+        QTQ_C.ComboBox { id: _SelectSlot
+          model: QTQ.ListModel{}
 
-          Connections { id: _SelectSlotConnections
+          QTQ.Connections { id: _SelectSlotConnections
 
             function onCurrentIndexChanged() { selectSlot__handleCurrentIndexChanged(); }
             function onCountChanged() { selectSlot__updateButtonsState();}
@@ -125,13 +121,13 @@ ColumnLayout { id: _Root
 				  onDesktopConfigChanged: selectSlot__init()
         }
 
-		    Button { id: _BtnAddTimeslotTimeslot
+		    QTQ_C.Button { id: _BtnAddTimeslotTimeslot
           icon.name: "list-add"
 
           onClicked: _DlgAddTimeslot.open()
 		    }
 
-		    Button { id: _BtnRemoveTimeslot
+		    QTQ_C.Button { id: _BtnRemoveTimeslot
           icon.name: "edit-delete-remove"
 
           onClicked: selectSlot__removeTimeslot()
@@ -141,11 +137,11 @@ ColumnLayout { id: _Root
       // - - - - - - - - - -  S E L E C T   S L O T
       // - - - - - - - - - -  S E L E C T   S L O T
 
-      Frame {
-	      Layout.fillWidth: true
-        Layout.fillHeight: true
+      QTQ_C.Frame {
+	      QTQ_L.Layout.fillWidth: true
+        QTQ_L.Layout.fillHeight: true
 
-        background: Rectangle { // group box border
+        background: QTQ.Rectangle { // group box border
           anchors.fill: parent
           color: "transparent"
           border.color: _ActiveSystemPalette.mid
@@ -153,30 +149,30 @@ ColumnLayout { id: _Root
           radius: 5
         }
 
-        ColumnLayout {
+        QTQ_L.ColumnLayout {
 		      anchors.fill: parent
 
           // B A C K G R O U N D   - - - - - - - - - -
           // B A C K G R O U N D   - - - - - - - - - -
           // B A C K G R O U N D   - - - - - - - - - -
-          GridLayout {
+          QTQ_L.GridLayout {
             columns: 3
 
             // a0-1
-            Label {
-              Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 15
+            QTQ_C.Label {
+              QTQ_L.Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 15
 
               text: 'Background'
             }
 
             // a0-2
-            Item {}
+            QTQ.Item {}
 
             // a0-3
-            Item {}
+            QTQ.Item {}
 
             // a1-1
-            Switch {
+            QTQ_C.Switch {
               text: 'display source'
 
               property alias myCfg: _Root.currentSlotCfg
@@ -187,12 +183,12 @@ ColumnLayout { id: _Root
             }
 
             // a1-2
-		        RowLayout {
+		        QTQ_L.RowLayout {
 
               property var myHeight: Screen.height
               property var myWidth: Screen.width
 
-			        SpinBox {
+			        QTQ_C.SpinBox {
                 stepSize: 1
                 to: parent.myHeight
 
@@ -204,22 +200,22 @@ ColumnLayout { id: _Root
                 });
 			        }
 
-			        Label {
+			        QTQ_C.Label {
 				        text: 'px padding top'
 			        }
   				  }
 
             // a1-3
-            Item {}
+            QTQ.Item {}
 
             // a2-1
-		        RowLayout {
-              Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 12
+		        QTQ_L.RowLayout {
+              QTQ_L.Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 12
 
               property var myHeight: Screen.height
               property var myWidth: Screen.width
 
-			        SpinBox {
+			        QTQ_C.SpinBox {
                 stepSize: 1
                 to: parent.myWidth
 
@@ -231,16 +227,16 @@ ColumnLayout { id: _Root
                 });
 			        }
 
-			        Label {
+			        QTQ_C.Label {
 				        text: 'left'
 			        }
   				  }
 
             // a2-2
-            RowLayout {
-              Button {
-                Layout.preferredHeight: _FontMetrics.height * 2.5
-                Layout.preferredWidth: Layout.preferredHeight
+            QTQ_L.RowLayout {
+              QTQ_C.Button {
+                QTQ_L.Layout.preferredHeight: _FontMetrics.height * 2.5
+                QTQ_L.Layout.preferredWidth: QTQ_L.Layout.preferredHeight
 
                 property alias myCfg: _Root.currentSlotCfg
                 onMyCfgChanged: myColor = myCfg.background
@@ -253,7 +249,7 @@ ColumnLayout { id: _Root
                 onClicked: {
 
 	                _DlgSelectColor.selectedColor = myColor;
-                  _DlgSelectColor.options = ColorDialog.ShowAlphaChannel; /*MOD*/
+                  _DlgSelectColor.options = QTQ_D.ColorDialog.ShowAlphaChannel; /*MOD*/
 	                _DlgSelectColor.handleOnAccepted = ($$selectedColor) => {
   	                myColor = $$selectedColor.toString();
 	                };
@@ -261,7 +257,7 @@ ColumnLayout { id: _Root
 	                _DlgSelectColor.open();
                 }
 
-  				      Rectangle {
+  				      QTQ.Rectangle {
                   width: parent.height * 0.6
                   height: width
                   anchors.centerIn: parent
@@ -270,18 +266,18 @@ ColumnLayout { id: _Root
 	  		        }
               }
 
-              Label {
+              QTQ_C.Label {
 				        text:  '[' + Screen.width + 'x' + Screen.height + ']'
 			        }
             }
 
             // a2-3
-		        RowLayout {
+		        QTQ_L.RowLayout {
 
               property var myHeight: Screen.height
               property var myWidth: Screen.width
 
-			        SpinBox {
+			        QTQ_C.SpinBox {
                 stepSize: 1
                 to: parent.myWidth
 
@@ -293,23 +289,23 @@ ColumnLayout { id: _Root
                 });
 			        }
 
-			        Label {
+			        QTQ_C.Label {
 				        text: 'right'
 			        }
   				  }
 
             // a3-1
-            Item {
-              Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 12
+            QTQ.Item {
+              QTQ_L.Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 12
             }
 
             // a3-2
-		        RowLayout {
+		        QTQ_L.RowLayout {
 
               property var myHeight: Screen.height
               property var myWidth: Screen.width
 
-			        SpinBox {
+			        QTQ_C.SpinBox {
                 stepSize: 1
                 to: parent.myHeight
 
@@ -321,25 +317,25 @@ ColumnLayout { id: _Root
                 });
 			        }
 
-			        Label {
+			        QTQ_C.Label {
 				        text: 'bottom'
 			        }
   				  }
 
             // a3-3
-            Item {}
+            QTQ.Item {}
           }
           // - - - - - - - - - -  B A C K G R O U N D
           // - - - - - - - - - -  B A C K G R O U N D
           // - - - - - - - - - -  B A C K G R O U N D
 
-        Rectangle {
-          Layout.preferredWidth: parent.width
-          Layout.preferredHeight: _FontMetrics.height
+        QTQ.Rectangle {
+          QTQ_L.Layout.preferredWidth: parent.width
+          QTQ_L.Layout.preferredHeight: _FontMetrics.height
 
           color: "transparent"
 
-          Rectangle {
+          QTQ.Rectangle {
             anchors.centerIn: parent
             width: parent.width * .95
             height: 1
@@ -351,24 +347,24 @@ ColumnLayout { id: _Root
         // I M A G E  - - - - - - - - - -
         // I M A G E  - - - - - - - - - -
         // I M A G E  - - - - - - - - - -
-        GridLayout {
+        QTQ_L.GridLayout {
           columns: 3
 
           // b1-1
-          Label {
-            Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 10
+          QTQ_C.Label {
+            QTQ_L.Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 10
 
             text: 'Image'
           }
 
           // b1-2
-    		  RowLayout {
+    		  QTQ_L.RowLayout {
 
-            Label {
+            QTQ_C.Label {
               text: 'interval'
 			      }
 
-            SpinBox { id: _Interval
+            QTQ_C.SpinBox { id: _Interval
 
               stepSize: 1
               to: VJS.PLASMA_SLIDETIMER_MAXVALUE
@@ -381,21 +377,21 @@ ColumnLayout { id: _Root
               });
 			      }
 
-			      Label {
-              Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 8
+			      QTQ_C.Label {
+              QTQ_L.Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 8
   				    text: _Interval.value==0?'infinite':(_Interval.value==1?'second':'seconds')
               font.italic: _Interval.value==0
 	  		    }
           }
 
           // b1-3
-		      RowLayout {
+		      QTQ_L.RowLayout {
 
-			      Label {
+			      QTQ_C.Label {
 				      text: 'fill mode'
 			      }
 
-			      ComboBox {
+			      QTQ_C.ComboBox {
 				      currentIndex: 0
               textRole: 'text'
 
@@ -436,15 +432,15 @@ ColumnLayout { id: _Root
 		      }
 
           // b2-1
-          Item {
-            Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 10
+          QTQ.Item {
+            QTQ_L.Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 10
           }
 
           // b2-2, b2-3
-          RowLayout {
-            Layout.columnSpan: 2
+          QTQ_L.RowLayout {
+            QTQ_L.Layout.columnSpan: 2
 
-            SpinBox {
+            QTQ_C.SpinBox {
               stepSize: 1
               to: 100
 
@@ -455,10 +451,10 @@ ColumnLayout { id: _Root
           	    myCfg.desaturate = 1 - value/100;
               });
 			      }
-            Label {
+            QTQ_C.Label {
 					    text: '% saturate '
 				    }
-            Canvas {
+            QTQ.Canvas {
               width: _FontMetrics.averageCharacterWidth *1/ 3
               anchors.top: parent.top
               anchors.bottom: parent.bottom
@@ -476,7 +472,7 @@ ColumnLayout { id: _Root
             }
 
 
-            SpinBox {
+            QTQ_C.SpinBox {
               stepSize: 1
               to: 100
 
@@ -487,10 +483,10 @@ ColumnLayout { id: _Root
           	    myCfg.blur = value/100;
               });
 			      }
-            Label {
+            QTQ_C.Label {
 		  			  text: '% blur '
 				    }
-            Canvas {
+            QTQ.Canvas {
               width: _FontMetrics.averageCharacterWidth *1/ 3
               anchors.top: parent.top
               anchors.bottom: parent.bottom
@@ -507,7 +503,7 @@ ColumnLayout { id: _Root
               }
             }
 
-            SpinBox {
+            QTQ_C.SpinBox {
               stepSize: 1
               to: 100
 
@@ -519,10 +515,10 @@ ColumnLayout { id: _Root
                 effects__updateColorizeValue(myCfg);
               });
 			      }
-            Label {
+            QTQ_C.Label {
 					    text: '% colorize'
 				    }
-			      Button {
+			      QTQ_C.Button {
 
               property alias myCfg: _Root.currentSlotCfg
               onMyCfgChanged: myColor = myCfg.colorizeColor
@@ -544,7 +540,7 @@ ColumnLayout { id: _Root
 	              _DlgSelectColor.open();
               }
 
-  				    Rectangle {
+  				    QTQ.Rectangle {
                 anchors.centerIn: parent
                 width: 20
                 height: 20
@@ -559,13 +555,13 @@ ColumnLayout { id: _Root
         // - - - - - - - - - -  I M A G E
         // - - - - - - - - - -  I M A G E
 
-        Rectangle {
-          Layout.preferredWidth: parent.width
-          Layout.preferredHeight: _FontMetrics.height
+        QTQ.Rectangle {
+          QTQ_L.Layout.preferredWidth: parent.width
+          QTQ_L.Layout.preferredHeight: _FontMetrics.height
 
           color: "transparent"
 
-          Rectangle {
+          QTQ.Rectangle {
             anchors.centerIn: parent
             width: parent.width * .95
             height: 1
@@ -577,32 +573,32 @@ ColumnLayout { id: _Root
         // S O U R C E S  - - - - - - - - - -
         // S O U R C E S  - - - - - - - - - -
         // S O U R C E S  - - - - - - - - - -
-        GridLayout {
+        QTQ_L.GridLayout {
           columns: 3
 
           // c1-1
-			    Label {
-            Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 10
+			    QTQ_C.Label {
+            QTQ_L.Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 10
 
             text: 'Sources'
 			    }
 
           // c1-2, c1-3
-    		  RowLayout {
-            Layout.columnSpan: 2
+    		  QTQ_L.RowLayout {
+            QTQ_L.Layout.columnSpan: 2
 
-				    Button { id: _BtnAddTimeslotFolder
+				    QTQ_C.Button { id: _BtnAddTimeslotFolder
               icon.name: "list-add"
 					    text: 'Folder'
 
               onClicked: imagesources__addPathUsingDlg(_DlgAddFolder);
 				    }
 
-            Label {
+            QTQ_C.Label {
 					    text: 'shuffle'
 				    }
 
-			      ComboBox { id: _ComboShuffleMode
+			      QTQ_C.ComboBox { id: _ComboShuffleMode
 				      currentIndex: 0
               textRole: 'text'
 
@@ -615,11 +611,11 @@ ColumnLayout { id: _Root
 
 				      model:
         	      [
-                  { 'text': 'Random',       'value': Wallpaper.SortingMode.Random },
-                  { 'text': 'A to Z',       'value': Wallpaper.SortingMode.Alphabetical },
-                  { 'text': 'Z to A',       'value': Wallpaper.SortingMode.AlphabeticalReversed },
-                  { 'text': 'Newest first', 'value': Wallpaper.SortingMode.ModifiedReversed },
-                  { 'text': 'Oldest first', 'value': Wallpaper.SortingMode.Modified }
+                  { 'text': 'Random',       'value': KDE_wallpaper.SortingMode.Random },
+                  { 'text': 'A to Z',       'value': KDE_wallpaper.SortingMode.Alphabetical },
+                  { 'text': 'Z to A',       'value': KDE_wallpaper.SortingMode.AlphabeticalReversed },
+                  { 'text': 'Newest first', 'value': KDE_wallpaper.SortingMode.ModifiedReversed },
+                  { 'text': 'Oldest first', 'value': KDE_wallpaper.SortingMode.Modified }
                 ]
 
               function indexFromShuffleMode($mode) {
@@ -639,7 +635,7 @@ ColumnLayout { id: _Root
               }
 			      }
 
-            Canvas {
+            QTQ.Canvas {
               width: _FontMetrics.averageCharacterWidth *1/ 3
               anchors.top: parent.top
               anchors.bottom: parent.bottom
@@ -656,7 +652,7 @@ ColumnLayout { id: _Root
               }
             }
 
-				    Button { id: _BtnSetUrl
+				    QTQ_C.Button { id: _BtnSetUrl
               icon.name: "internet-web-browser-symbolic"
 					   text: 'Use url'
 
@@ -671,12 +667,12 @@ ColumnLayout { id: _Root
 
 
 
-        ListView { id: _ImageSources
-          Layout.fillWidth: true
-          Layout.fillHeight: true
-          Layout.minimumHeight: _FontMetrics.height * 2.5
+        QTQ.ListView { id: _ImageSources
+          QTQ_L.Layout.fillWidth: true
+          QTQ_L.Layout.fillHeight: true
+          QTQ_L.Layout.minimumHeight: _FontMetrics.height * 2.5
           clip: true // !!!!!! aarrgh
-          ScrollBar.vertical: ScrollBar { policy: ScrollBar.AlwaysOn } // ?!?? no effect from 'policy: ScrollBar.AlwaysOn'
+          QTQ_C.ScrollBar.vertical: QTQ_C.ScrollBar { policy: QTQ_C.ScrollBar.AlwaysOn } // ?!?? no effect from 'policy: QTQ_C.ScrollBar.AlwaysOn'
 
           property alias myCfg: _Root.currentSlotCfg
           onMyCfgChanged: {
@@ -686,13 +682,13 @@ ColumnLayout { id: _Root
             imagesources__updateButtonsState();
           }
 
-          Rectangle {
+          QTQ.Rectangle {
             z: -1
             anchors.fill: parent
             color: _ActiveSystemPalette.light
           }
 
-          model: ListModel {
+          model: QTQ.ListModel {
 
             onCountChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
 
@@ -724,18 +720,16 @@ ColumnLayout { id: _Root
             }
 		      }
 
-          delegate: RowLayout {
+          delegate: QTQ_L.RowLayout {
 
-            /* Item { Layout.preferredWidth: _DottedLine.width*1.2 } */
-
-            Button {
+            QTQ_C.Button {
               icon.name: "edit-delete-remove"
 
               onClicked: imagesources__removeSource(model.index);
             }
 
-						Text {
-              Layout.fillWidth: true
+						QTQ.Text {
+              QTQ_L.Layout.fillWidth: true
               text: model.path
 						}
 					}
@@ -744,19 +738,19 @@ ColumnLayout { id: _Root
     }
 
 /* Dev *
-Rectangle { id: _LogBackground
+QTQ.Rectangle { id: _LogBackground
   color: '#00ff0000'
-  Layout.fillWidth: true
+  QTQ_L.Layout.fillWidth: true
   height: 300
 
   ScrollView {
     anchors.fill: parent
-    background: Rectangle {
+    background: QTQ.Rectangle {
                   color: '#0000ff00'
     }
 
     TextArea { id: _Log
-      background: Rectangle {
+      background: QTQ.Rectangle {
                     color: '#88ffffff'
                   }
       wrapMode: TextEdit.Wrap
@@ -792,7 +786,7 @@ Rectangle { id: _LogBackground
 
     }
 
-    Item { // right padding
+    QTQ.Item { // right padding
       width: _FontMetrics.averageCharacterWidth
     }
   }
@@ -802,31 +796,31 @@ Rectangle { id: _LogBackground
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-FolderDialog { id: _DlgAddFolder
+QTQ_D.FolderDialog { id: _DlgAddFolder
 		title: "Choose a folder"
 
 	  property var handleOnAccepted
   	onAccepted: handleOnAccepted([currentFolder])
 	}
 
-Dialog { id: _DlgSetUrl
+QTQ_C.Dialog { id: _DlgSetUrl
 
 	width: parent.width * 0.6
 
 	title: 'Use Url'
-  standardButtons: Dialog.Ok | Dialog.Cancel
+  standardButtons: QTQ_C.Dialog.Ok | QTQ_C.Dialog.Cancel
 
   property var handleOnAccepted
   onAccepted: handleOnAccepted(_TfUrl.text);
 
-	TextField { id: _TfUrl
+	QTQ_C.TextField { id: _TfUrl
 		focus: _DlgSetUrl.visible
 
 		anchors.fill: parent
 	}
 }
 
-ColorDialog { id: _DlgSelectColor
+QTQ_D.ColorDialog { id: _DlgSelectColor
 
   title: "Select color"
   modality: Qt.WindowModal
@@ -836,10 +830,10 @@ ColorDialog { id: _DlgSelectColor
 }
 
 
-Dialog { id: _DlgAddTimeslot
+QTQ_C.Dialog { id: _DlgAddTimeslot
 
 	title: 'Add Settings activated at'
-  standardButtons: Dialog.Cancel
+  standardButtons: QTQ_C.Dialog.Cancel
 
   property var excludeSlots: []
   property string newSlot
@@ -853,7 +847,7 @@ Dialog { id: _DlgAddTimeslot
     selectSlot__insertSlot(element);
 	}
 
-  Component.onCompleted: initModels();
+  QTQ.Component.onCompleted: initModels();
 
   onVisibleChanged: {
 
@@ -872,27 +866,27 @@ Dialog { id: _DlgAddTimeslot
 		buildNewSlot();
 		}
 
-	RowLayout {
+	QTQ_L.RowLayout {
 
-		ComboBox { id: _ComboHour
-      model: ListModel {}
+		QTQ_C.ComboBox { id: _ComboHour
+      model: QTQ.ListModel {}
       textRole: 'text'
 
 			onCurrentIndexChanged: _DlgAddTimeslot.buildNewSlot();
 		}
 
-		Label {
+		QTQ_C.Label {
     	text: ':'
 		}
 
-		ComboBox { id: _ComboMinute
-      model: ListModel {}
+		QTQ_C.ComboBox { id: _ComboMinute
+      model: QTQ.ListModel {}
       textRole: 'text'
 
 			onCurrentIndexChanged: _DlgAddTimeslot.buildNewSlot();
 		}
 
-		Button { id: _BtnAddTimeslot
+		QTQ_C.Button { id: _BtnAddTimeslot
   		text: 'Add'
 
   		onClicked: _DlgAddTimeslot.accept()
@@ -935,11 +929,11 @@ Dialog { id: _DlgAddTimeslot
 
 
 
-Dialog { id: _DlgAddConfig
+QTQ_C.Dialog { id: _DlgAddConfig
   width: parent.width * 0.6
 
 	title: 'Add Settings for'
-  standardButtons: Dialog.Ok | Dialog.Cancel
+  standardButtons: QTQ_C.Dialog.Ok | QTQ_C.Dialog.Cancel
 
   onAccepted: {
 
@@ -977,7 +971,7 @@ Dialog { id: _DlgAddConfig
   	_ComboAddConfig.model = myModel;
 	}
 
-	ComboBox { id: _ComboAddConfig
+	QTQ_C.ComboBox { id: _ComboAddConfig
 		width: parent.width
     textRole: 'displayText'
 	}
