@@ -165,7 +165,7 @@ import "../js/v.js" as VJS
 	        //<--
 
 
-          const deskCfg = configAdapter.findAppropiateDeskCfgFor_pageNo(_Pager.currentPage);
+          const deskCfg = configAdapter.findAppropiateDeskCfgFor_pageNo(index);
           const appropiateSlotCfg = deskCfg.findAppropiateSlotCfgFor_now();
 
           if(appropiateSlotCfg!=slotCfg)
