@@ -187,8 +187,8 @@ import "../js/v.js" as VJS
 
             if( ! VJS.IS_USE_URL(slotCfg.imagesources))
             {
-              wpBackend.pauseSlideshow = slotCfg.interval==0;
               wpBackend.slideshowMode = slotCfg.shuffleMode;
+              //wpBackend.slideFilterModel.sortRole = wpBackend.slideshowMode;
               wpBackend.slideTimer = slotCfg.interval==0?VJS.PLASMA_SLIDETIMER_MAXVALUE:slotCfg.interval;
 
               for(let $$path of slotCfg.imagesources)
@@ -196,6 +196,8 @@ import "../js/v.js" as VJS
                 const safePath = VJS.AS_URISAFE($$path);
 				        wpBackend.addSlidePath(safePath);
 			        }
+
+              wpBackend.pauseSlideshow = slotCfg.interval==0;
             }
           }
 
@@ -300,7 +302,7 @@ import "../js/v.js" as VJS
 	    Qt.openUrlExternally(activeImage.source)
     }
 
-/* Dev */
+/* Dev *
     QTQ.Rectangle {
       id: _LogBackground
       color: '#00ff0000'

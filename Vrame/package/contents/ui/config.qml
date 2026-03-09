@@ -379,7 +379,7 @@ QTQ_L.ColumnLayout { id: _Root
 
 			      QTQ_C.Label {
               QTQ_L.Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 8
-  				    text: _Interval.value==0?'infinite':(_Interval.value==1?'second':'seconds')
+  				    text: _Interval.value==0?(VJS.IS_USE_URL(_ImageSources.myCfg.imagesources)?'infinite':'1 week'):(_Interval.value==1?'second':'seconds')
               font.italic: _Interval.value==0
 	  		    }
           }
@@ -737,7 +737,7 @@ QTQ_L.ColumnLayout { id: _Root
       }
     }
 
-/* Dev */
+/* Dev *
 QTQ.Rectangle { id: _LogBackground
   color: '#00ff0000'
   QTQ_L.Layout.fillWidth: true
