@@ -2,7 +2,7 @@
  *  Copyright 2026  Werner Lechner <werner.lechner@lehklu.at>
  */
 
-const PLASMA_SLIDETIMER_MAXVALUE = 3520558; // Found by trial&error
+const PLASMA_SLIDETIMER_MAXVALUE = 604800; // 1 week  ?Found by trial&error?
 
 const DESKNO_GLOBAL = 0;
 const DESKNO_GLOBAL_NAME = '*';
