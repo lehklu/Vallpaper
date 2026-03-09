@@ -185,17 +185,21 @@ import "../js/v.js" as VJS
             wpBackend.pauseSlideshow = true;
             wpBackend.slidePaths = [];
 
-            if( ! VJS.IS_USE_URL(slotCfg.imagesources))
+            if( ! VJS.IS_USE_URL(slotCfg.imagesources) && slotCfg.imagesources.length>0)
             {
+              wpBackend.pauseSlideshow = false; // reset slideshow
+
+              let newPaths = [];
+              for(let $$path of slotCfg.imagesources)
+			        {
+                const safePath = VJS.AS_URISAFE($$path).substring("file://".length);
+				        newPaths.push(safePath);
+			        }
+              wpBackend.slidePaths = newPaths;
+
               wpBackend.slideshowMode = slotCfg.shuffleMode;
               //wpBackend.slideFilterModel.sortRole = wpBackend.slideshowMode;
               wpBackend.slideTimer = slotCfg.interval==0?VJS.PLASMA_SLIDETIMER_MAXVALUE:slotCfg.interval;
-
-              for(let $$path of slotCfg.imagesources)
-			        {
-                const safePath = VJS.AS_URISAFE($$path);
-				        wpBackend.addSlidePath(safePath);
-			        }
 
               wpBackend.pauseSlideshow = slotCfg.interval==0;
             }
@@ -228,7 +232,7 @@ import "../js/v.js" as VJS
           {
             cache = true;
 
-            if($force) { wpBackend.nextSlide(); }
+            if($force || slotCfg.interval==0) { wpBackend.nextSlide(); }
             source = wpBackend.image;
           }
 
