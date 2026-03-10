@@ -153,6 +153,7 @@ import "../js/v.js" as VJS
         property var wpBackend: KDE_wallpaper.ImageBackend {
           usedInConfig: false
           renderingMode: KDE_wallpaper.ImageBackend.SlideShow
+          slideTimer: VJS.PLASMA_SLIDETIMER_MAXVALUE // don't let ImageBackend do its slideshow
         }
 
 		    QTQ.Component.onCompleted: { refresh(); }
@@ -182,22 +183,19 @@ import "../js/v.js" as VJS
 
             fillMode = slotCfg.fillMode;
 
-            wpBackend.pauseSlideshow = true;
             wpBackend.slidePaths = [];
 
-            if( ! VJS.IS_USE_URL(slotCfg.imagesources))
+            if( ! VJS.IS_USE_URL(slotCfg.imagesources) && slotCfg.imagesources.length>0)
             {
-              wpBackend.slideshowMode = slotCfg.shuffleMode;
-              //wpBackend.slideFilterModel.sortRole = wpBackend.slideshowMode;
-              wpBackend.slideTimer = slotCfg.interval==0?VJS.PLASMA_SLIDETIMER_MAXVALUE:slotCfg.interval;
-
+              let newPaths = [];
               for(let $$path of slotCfg.imagesources)
 			        {
-                const safePath = VJS.AS_URISAFE($$path);
-				        wpBackend.addSlidePath(safePath);
+                const safePath = VJS.AS_URISAFE($$path).substring("file://".length);
+				        newPaths.push(safePath);
 			        }
+              wpBackend.slidePaths = newPaths;
 
-              wpBackend.pauseSlideshow = slotCfg.interval==0;
+              wpBackend.slideshowMode = slotCfg.shuffleMode;
             }
           }
 
@@ -228,7 +226,7 @@ import "../js/v.js" as VJS
           {
             cache = true;
 
-            if($force) { wpBackend.nextSlide(); }
+            if(timestampFetched !== -1) { wpBackend.nextSlide(); }
             source = wpBackend.image;
           }
 
