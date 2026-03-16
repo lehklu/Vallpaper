@@ -813,11 +813,32 @@ QTQ_C.Dialog { id: _DlgSetUrl
   property var handleOnAccepted
   onAccepted: handleOnAccepted(_TfUrl.text);
 
-	QTQ_C.TextField { id: _TfUrl
-		focus: _DlgSetUrl.visible
+  contentItem: QTQ_L.ColumnLayout {
 
-		anchors.fill: parent
-	}
+    QTQ.Rectangle {
+
+      QTQ_L.Layout.alignment: Qt.AlignHCenter
+      QTQ_L.Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 10
+      QTQ_L.Layout.preferredHeight: QTQ_L.Layout.preferredWidth
+
+      color: (_ImgUrl.status == QTQ.Image.Ready)?"transparent":_ActiveSystemPalette.mid
+
+      QTQ.Image { id: _ImgUrl
+        autoTransform: true
+
+        anchors.fill: parent
+        fillMode: QTQ.Image.PreserveAspectFit
+
+        source: _TfUrl.text
+      }
+    }
+
+    QTQ_C.TextField { id: _TfUrl
+		  focus: _DlgSetUrl.visible
+
+      QTQ_L.Layout.fillWidth: true
+  	}
+  }
 }
 
 QTQ_D.ColorDialog { id: _DlgSelectColor
@@ -1197,7 +1218,7 @@ function imagesources__addPathUsingDlg($$dlg) {
 		for(let i=0; i<$$resultUrls.length; ++i)
 		{
 			const desanitized = VJS.AS_URISAFE($$resultUrls[i].toString(), false);
-			_ImageSources.model.append({ path: desanitized });
+			_ImageSources.model.append({ path: desanitized.substring("file://".length) });
 		}
 	};
 
@@ -1209,7 +1230,7 @@ function imagesources__setUrl() {
 
 	_DlgSetUrl.handleOnAccepted = ($$text) => {
 
-		_ImageSources.model.append({ path: VJS.AS_URL($$text) });
+		_ImageSources.model.append({ path: $$text });
 	};
 
 	_DlgSetUrl.open();

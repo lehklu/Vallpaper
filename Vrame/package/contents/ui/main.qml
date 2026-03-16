@@ -190,7 +190,7 @@ import "../js/v.js" as VJS
               let newPaths = [];
               for(let $$path of slotCfg.imagesources)
 			        {
-                const safePath = VJS.AS_URISAFE($$path).substring("file://".length);
+                const safePath = VJS.AS_URISAFE($$path);
 				        newPaths.push(safePath);
 			        }
               wpBackend.slidePaths = newPaths;

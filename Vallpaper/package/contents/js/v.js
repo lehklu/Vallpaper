@@ -225,14 +225,9 @@ const AS_URISAFE = function($text, $asUriSafe=true) {
   return result;
 }
 
-const AS_URL = function($text) {
-
-	return $text.startsWith('http')?$text:'https://'+$text;
-}
-
 const IS_USE_URL = function($imagesources) {
 
-	return $imagesources.length==1 && $imagesources[0].startsWith('http');
+	return $imagesources.length==1 && ($imagesources[0].startsWith('http') || $imagesources[0].startsWith('file://'));
 }
 
 const GET_URL = function($imagesources) {
