@@ -20,7 +20,7 @@ import "../js/v.js" as VJS
 /*MOD*/KDE_plasmoid.PlasmoidItem {
 	id: _Root
 
-/*MOD*/property var config: KDE_plasmoid.Plasmoid.configuration.vrame6
+/*MOD*/property var config: KDE_plasmoid.Plasmoid.configuration.vrame601
 /*MOD*/KDE_plasmoid.Plasmoid.backgroundHints: KDE_pc.Types.NoBackground
 /*MOD*/property var prefixActionText: '' // empty
 

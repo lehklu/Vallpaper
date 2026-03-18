@@ -19,7 +19,7 @@ QTQ_L.ColumnLayout { id: _Root
 
   property var title // for KDE Settings page
 
-/*MOD*/property var cfg_vrame6
+/*MOD*/property var cfg_vrame601
 
   property var plasmacfgAdapter
 
@@ -35,7 +35,7 @@ QTQ_L.ColumnLayout { id: _Root
 
   QTQ.Component.onCompleted: {
 
-/*MOD*/plasmacfgAdapter = new VJS.PlasmacfgAdapter(cfg_vrame6, $newCfg => { cfg_vrame6 = $newCfg; });
+/*MOD*/plasmacfgAdapter = new VJS.PlasmacfgAdapter(cfg_vrame601, $newCfg => { cfg_vrame601 = $newCfg; });
     selectDesktop__init(_Pager.currentPage);
   }
 

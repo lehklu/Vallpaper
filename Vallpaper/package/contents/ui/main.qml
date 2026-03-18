@@ -20,7 +20,7 @@ import "../js/v.js" as VJS
 /*MOD*/KDE_plasmoid.WallpaperItem {
 	id: _Root
 
-/*MOD*/property var config: configuration.vallpaper6
+/*MOD*/property var config: configuration.vallpaper601
 /*MOD*/ // KDE_plasmoid.Plasmoid.backgroundHints: KDE_pc.Types.NoBackground
 /*MOD*/property var prefixActionText: '<Vallpaper> '
 
