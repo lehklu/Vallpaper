@@ -66,7 +66,7 @@ import "../js/v.js" as VJS
     enabled: _Root.visible
     pagerType: KDE_pager.PagerModel.VirtualDesktops
 
-    QTQ.Component.onCompleted: {
+    onCountChanged: {
 
       _ImageRepeater.model = count + 1; // +1 =^= shared image
     }
