@@ -1,9 +1,9 @@
 {
     "KPackageStructure": "Plasma/Wallpaper",
     "KPlugin": {
-        "Name": "Vallpaper 6.5.1",
+        "Name": "Vallpaper 6.6.2",
         "Description": "Slideshow wallpaper for virtual desktops",
-        "Version": "6.5.1",
+        "Version": "6.6.2",
         "Id": "at.lehklu.plasma.vallpaper6",
         "Icon": "preferences-desktop-wallpaper",
         "Authors": [
@@ -16,5 +16,5 @@
         "License": "GPL-2.0+"
     },
     "X-KDE-ParentApp": "org.kde.plasmashell",
-    "X-Plasma-API-Minimum-Version": "6.0"
+    "X-Plasma-API-Minimum-Version": "6.6"
 }

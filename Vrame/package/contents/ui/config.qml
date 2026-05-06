@@ -7,8 +7,7 @@ import QtQuick.Controls as QTQ_C
 import QtQuick.Layouts as QTQ_L
 import QtQuick.Dialogs as QTQ_D
 
-/* 6.5 */ import org.kde.plasma.private.pager as KDE_pager /**/
-/* 6.6 * import plasma.applet.org.kde.plasma.pager as KDE_pager /**/
+import org.kde.taskmanager as KDE_taskmanager
 
 import org.kde.plasma.wallpapers.image as KDE_wallpaper
 
@@ -36,13 +35,10 @@ QTQ_L.ColumnLayout { id: _Root
   QTQ.Component.onCompleted: {
 
 /*MOD*/plasmacfgAdapter = new VJS.PlasmacfgAdapter(cfg_vrame601, $newCfg => { cfg_vrame601 = $newCfg; });
-    selectDesktop__init(_Pager.currentPage);
+    selectDesktop__init(_VirtualDesktopInfo.currentDesktop);
   }
 
-	 KDE_pager.PagerModel { id: _Pager
-    enabled: _Root.visible
-    pagerType: KDE_pager.PagerModel.VirtualDesktops
-	}
+  KDE_taskmanager.VirtualDesktopInfo { id: _VirtualDesktopInfo }
 
   QTQ_L.RowLayout { // Container
 
@@ -805,7 +801,7 @@ QTQ_D.FolderDialog { id: _DlgAddFolder
 
 QTQ_C.Dialog { id: _DlgSetUrl
 
-	width: parent.width * 0.6
+	width: _Root.width * 0.6
 
 	title: 'Use Url'
   standardButtons: QTQ_C.Dialog.Ok | QTQ_C.Dialog.Cancel
@@ -951,7 +947,7 @@ QTQ_C.Dialog { id: _DlgAddTimeslot
 
 
 QTQ_C.Dialog { id: _DlgAddConfig
-  width: parent.width * 0.6
+  width: _Root.width * 0.6
 
 	title: 'Add Settings for'
   standardButtons: QTQ_C.Dialog.Ok | QTQ_C.Dialog.Cancel
@@ -979,7 +975,7 @@ QTQ_C.Dialog { id: _DlgAddConfig
 	  }
 
 		const myModel = [];
-		for(let i=0; i<_Pager.count+1; ++i)
+		for(let i=0; i<_VirtualDesktopInfo.numberOfDesktops+1; ++i)
     {
       const deskNo = i;
       if(existingDeskNos.includes(deskNo)) { continue; }
@@ -1104,7 +1100,7 @@ function selectDesktop__removeConfig() {
 
 function selectDesktop__updateButtonsState() {
 
-	_BtnAddTimeslotDesktopConfig.enabled = _SelectDesktop.model.count < _Pager.count+1;
+	_BtnAddTimeslotDesktopConfig.enabled = _SelectDesktop.model.count < _VirtualDesktopInfo.numberOfDesktops+1;
 
 	_BtnRemoveDesktopConfig.enabled = _SelectDesktop.currentIndex > 0;
 }
@@ -1169,7 +1165,7 @@ function selectDesktop__buildElement($deskNo) {
 	const orderText = '#' + ('  '+$deskNo).slice(-3);
 
 	return {
-		'displayText': (VJS.DESKNO_GLOBAL===$deskNo?VJS.DESKNO_GLOBAL_NAME:_Pager.data(_Pager.index($deskNo-1, 0), 0)),
+		'displayText': (VJS.DESKNO_GLOBAL===$deskNo?VJS.DESKNO_GLOBAL_NAME:_VirtualDesktopInfo.desktopNames[$deskNo-1]),
     'deskNo': $deskNo,
     'orderText': orderText
 		}

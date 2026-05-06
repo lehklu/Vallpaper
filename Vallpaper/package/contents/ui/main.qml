@@ -9,8 +9,7 @@ import org.kde.plasma.plasmoid as KDE_plasmoid
 
 import Qt5Compat.GraphicalEffects as QT5_ge
 
-/* 6.5 */ import org.kde.plasma.private.pager as KDE_pager /**/
-/* 6.6 * import plasma.applet.org.kde.plasma.pager as KDE_pager /**/
+import org.kde.taskmanager as KDE_taskmanager
 
 import org.kde.plasma.wallpapers.image as KDE_wallpaper
 
@@ -60,28 +59,37 @@ import "../js/v.js" as VJS
     configAdapter = new VJS.PlasmacfgAdapter(config);
   }
 
-	KDE_pager.PagerModel {
-    id: _Pager
+  KDE_taskmanager.VirtualDesktopInfo { id: _VirtualDesktopInfo
 
-    enabled: _Root.visible
-    pagerType: KDE_pager.PagerModel.VirtualDesktops
+    QTQ.Component.onCompleted: {
 
-    onCountChanged: {
-
-      _ImageRepeater.model = count + 1; // +1 =^= shared image
+      broadcastNumberOfDesktopsChanged()
+      broadcastDesktopChanged();
     }
 
-    onCurrentPageChanged: {
+    onCurrentDesktopChanged: broadcastDesktopChanged();
+
+    onNumberOfDesktopsChanged: {
+
+      broadcastNumberOfDesktopsChanged();
+    }
+
+	  function broadcastDesktopChanged() {
 
       if( ! repeaterReady) { return; }
 	    //<--
 
 
-      const newActiveImage = _ImageRepeater.imageFor(_Pager.currentPage);
+      const newActiveImage = _ImageRepeater.imageFor(_VirtualDesktopInfo.currentDesktop);
       newActiveImage.refresh();
       activeImage = newActiveImage;
-    }
-	}
+	  }
+
+	  function broadcastNumberOfDesktopsChanged() {
+
+      _ImageRepeater.model = _VirtualDesktopInfo.numberOfDesktops + 1; // +1 =^= shared image
+	  }
+  }
 
   QTQ.Timer {
 	  id: _Timer
@@ -118,7 +126,7 @@ import "../js/v.js" as VJS
 
         repeaterReady=true;
 
-        activeImage = _ImageRepeater.imageFor(_Pager.currentPage);
+        activeImage = _ImageRepeater.imageFor(_VirtualDesktopInfo.currentDesktop);
         activeImage.refresh();
       }
 
