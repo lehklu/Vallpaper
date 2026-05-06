@@ -452,8 +452,7 @@ QTQ_L.ColumnLayout { id: _Root
 				    }
             QTQ.Canvas {
               width: _FontMetrics.averageCharacterWidth *1/ 3
-              anchors.top: parent.top
-              anchors.bottom: parent.bottom
+              QTQ_L.Layout.fillHeight: true
               onPaint: {
                 var ctx = getContext("2d");
                 ctx.lineWidth = width;
@@ -484,8 +483,7 @@ QTQ_L.ColumnLayout { id: _Root
 				    }
             QTQ.Canvas {
               width: _FontMetrics.averageCharacterWidth *1/ 3
-              anchors.top: parent.top
-              anchors.bottom: parent.bottom
+              QTQ_L.Layout.fillHeight: true
               onPaint: {
                 var ctx = getContext("2d");
                 ctx.lineWidth = width;
@@ -633,8 +631,7 @@ QTQ_L.ColumnLayout { id: _Root
 
             QTQ.Canvas {
               width: _FontMetrics.averageCharacterWidth *1/ 3
-              anchors.top: parent.top
-              anchors.bottom: parent.bottom
+              QTQ_L.Layout.fillHeight: true
               onPaint: {
                 var ctx = getContext("2d");
                 ctx.lineWidth = width;
