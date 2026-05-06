@@ -1,9 +1,9 @@
 {
     "KPackageStructure": "Plasma/Applet",
     "KPlugin": {
-        "Name": "DesktopIndikator 6.6.0",
+        "Name": "DesktopIndikator 6.6.2",
         "Description": "Visualize current virtual desktop (+ date)",
-        "Version": "6.6.0",
+        "Version": "6.6.2",
         "Id": "at.lehklu.plasma.desktopindikator6",
         "Icon": "preferences-desktop-virtual",
         "Authors": [
