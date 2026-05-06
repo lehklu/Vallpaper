@@ -5,7 +5,8 @@
 import QtQuick
 import QtQuick.Layouts
 import org.kde.plasma.plasmoid
-import org.kde.plasma.private.pager
+
+import plasma.applet.org.kde.plasma.pager as KDE_pager
 
 
 PlasmoidItem {
@@ -15,10 +16,10 @@ PlasmoidItem {
 	property int _currentDateWidth: _fullWidth / 4 * 3
 	property int _deskWidth: _fullWidth / 4 * 1
 	property var _deskColors: [
-		"#a0ffa0", 
-		"#a8a8ff", 
-		"#ff97ff", 
-		"#ffff8f", 
+		"#a0ffa0",
+		"#a8a8ff",
+		"#ff97ff",
+		"#ffff8f",
 		"#ffffff",
 		"#41f2f2"
 	]
@@ -32,7 +33,7 @@ PlasmoidItem {
 	Layout.minimumWidth: _fullWidth
 	Layout.fillHeight: true
 
-	PagerModel {
+	KDE_pager.PagerModel {
     id: _Pager
 
     enabled: _Root.visible
