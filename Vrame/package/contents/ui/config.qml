@@ -471,6 +471,7 @@ QTQ_L.ColumnLayout { id: _Root
             QTQ_C.Label {
 		  			  text: '% blur '
 				    }
+
             CQ.VerticalDivider {
 
             }

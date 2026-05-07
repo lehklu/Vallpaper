@@ -32,16 +32,34 @@ KDE_plasmoid.PlasmoidItem {
   QTQ_L.Layout.minimumWidth: _fullWidth
   QTQ_L.Layout.fillHeight: true
 
-  KDE_taskmanager.VirtualDesktopInfo { id: _VirtualDesktopInfo
+  KDE_taskmanager.VirtualDesktopInfo {
 
     QTQ.Component.onCompleted: broadcastDesktopChanged();
 
     onCurrentDesktopChanged: broadcastDesktopChanged();
 
-	function broadcastDesktopChanged() {
+  	function broadcastDesktopChanged() {
 
-	  _Root.handleOnDesktopChanged(_VirtualDesktopInfo.currentDesktop);
-	}
+	    _Root.handleOnDesktopChanged(getCurrentDeskNo());
+	  }
+
+    function getCurrentDeskNo() {
+
+      const currentId = currentDesktop;
+      const ids = desktopIds;
+
+      let idx = 0;
+
+      for(; idx < ids.length; idx++)
+      {
+        if(ids[idx] == currentId) { break; }
+        //<--
+
+
+      }
+
+      return idx+1;
+    }
   }
 
   function handleOnDesktopChanged($currentDesktopNo) {

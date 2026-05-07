@@ -80,7 +80,7 @@ import "../js/v.js" as VJS
 	    //<--
 
 
-      const newActiveImage = _ImageRepeater.imageFor(_VirtualDesktopInfo.currentDesktop);
+      const newActiveImage = _ImageRepeater.imageFor(VJS.GET_CURRENT_DESKNO(_VirtualDesktopInfo));
       newActiveImage.refresh();
       activeImage = newActiveImage;
 	  }
@@ -126,15 +126,15 @@ import "../js/v.js" as VJS
 
         repeaterReady=true;
 
-        activeImage = _ImageRepeater.imageFor(_VirtualDesktopInfo.currentDesktop);
+        activeImage = _ImageRepeater.imageFor(VJS.GET_CURRENT_DESKNO(_VirtualDesktopInfo));
         activeImage.refresh();
       }
 
-      function imageFor($pageNo) {
+      function imageFor($deskNo) {
 
-        const deskCfg = configAdapter.findAppropiateDeskCfgFor_pageNo($pageNo);
+        const deskCfg = configAdapter.findAppropiateDeskCfgFor_deskNo($deskNo);
 
-        const imageIdx = deskCfg.deskNo==VJS.DESKNO_GLOBAL?count-1:$pageNo;
+        const imageIdx = deskCfg.deskNo;
 
         return itemAt(imageIdx);
       }
@@ -174,7 +174,7 @@ import "../js/v.js" as VJS
 	        //<--
 
 
-          const deskCfg = configAdapter.findAppropiateDeskCfgFor_pageNo(index); // 'index' defined by Repeater
+          const deskCfg = configAdapter.findAppropiateDeskCfgFor_deskNo(index); // 'index' defined by Repeater
           const appropiateSlotCfg = deskCfg.findAppropiateSlotCfgFor_now();
 
           if(appropiateSlotCfg!=slotCfg)
