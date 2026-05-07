@@ -100,14 +100,12 @@ class PlasmacfgAdapter {
 
 	getCfgForDeskNo($deskNo) {
 
-  	return this.deskCfgs[$deskNo];
+  		return this.deskCfgs[$deskNo];
  	}
 
-	findAppropiateDeskCfgFor_pageNo($pageNo) {
+	findAppropiateDeskCfgFor_deskNo($deskNo) {
 
-    const deskNo = $pageNo+1;
-
-  	return this.deskCfgs[deskNo]!==undefined?this.deskCfgs[deskNo]:this.deskCfgs[DESKNO_GLOBAL];
+  		return this.deskCfgs[$deskNo]!==undefined?this.deskCfgs[$deskNo]:this.deskCfgs[DESKNO_GLOBAL];
  	}
 
 	atCfg_newTimeslotForMarker_cloneMarker($deskCfg, $slotmarker, $cloneSlotmarker) {
@@ -232,5 +230,23 @@ const IS_USE_URL = function($imagesources) {
 
 const GET_URL = function($imagesources) {
 
-	return $imagesources[0];
+  return $imagesources[0];
+}
+
+const GET_CURRENT_DESKNO = function($VirtualDesktopInfo) {
+
+  const currentId = $VirtualDesktopInfo.currentDesktop;
+  const ids = $VirtualDesktopInfo.desktopIds;
+
+  let idx = 0;
+
+  for(; idx < ids.length; idx++)
+  {
+    if(ids[idx] == currentId) { break; }
+    //<--
+
+
+  }
+
+  return idx+1;
 }

@@ -35,7 +35,7 @@ QTQ_L.ColumnLayout { id: _Root
   QTQ.Component.onCompleted: {
 
 /*MOD*/plasmacfgAdapter = new VJS.PlasmacfgAdapter(cfg_vrame601, $newCfg => { cfg_vrame601 = $newCfg; });
-    selectDesktop__init(_VirtualDesktopInfo.currentDesktop);
+    selectDesktop__init(VJS.GET_CURRENT_DESKNO(_VirtualDesktopInfo));
   }
 
   KDE_taskmanager.VirtualDesktopInfo { id: _VirtualDesktopInfo }
@@ -452,11 +452,11 @@ QTQ_L.ColumnLayout { id: _Root
 				    }
             QTQ.Canvas {
               width: _FontMetrics.averageCharacterWidth *1/ 3
-              QTQ_L.Layout.fillHeight: true
+              QTQ_L.Layout.preferredHeight: _FontMetrics.height * 1.4
               onPaint: {
                 var ctx = getContext("2d");
                 ctx.lineWidth = width;
-                ctx.setLineDash([1, 1]);
+                //ctx.setLineDash([1, 1]);
                 ctx.strokeStyle = _ActiveSystemPalette.dark
 
                 ctx.moveTo(0, 0)
@@ -483,11 +483,11 @@ QTQ_L.ColumnLayout { id: _Root
 				    }
             QTQ.Canvas {
               width: _FontMetrics.averageCharacterWidth *1/ 3
-              QTQ_L.Layout.fillHeight: true
+              QTQ_L.Layout.preferredHeight: _FontMetrics.height * 1.4
               onPaint: {
                 var ctx = getContext("2d");
                 ctx.lineWidth = width;
-                ctx.setLineDash([1, 1]);
+                //ctx.setLineDash([1, 1]);
                 ctx.strokeStyle = _ActiveSystemPalette.dark
 
                 ctx.moveTo(0, 0)
@@ -631,11 +631,11 @@ QTQ_L.ColumnLayout { id: _Root
 
             QTQ.Canvas {
               width: _FontMetrics.averageCharacterWidth *1/ 3
-              QTQ_L.Layout.fillHeight: true
+              QTQ_L.Layout.preferredHeight: _FontMetrics.height * 1.4
               onPaint: {
                 var ctx = getContext("2d");
                 ctx.lineWidth = width;
-                ctx.setLineDash([1, 1]);
+                //ctx.setLineDash([1, 1]);
                 ctx.strokeStyle = _ActiveSystemPalette.dark
 
                 ctx.moveTo(0, 0)
