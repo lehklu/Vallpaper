@@ -1077,9 +1077,7 @@ function selectDesktop__handleCurrentIndexChanged() {
 	currentDeskCfg = plasmacfgAdapter.getCfgForDeskNo(_SelectDesktop.model.get(_SelectDesktop.currentIndex).deskNo);
 }
 
-function selectDesktop__init($pageNo) {
-
-  const currentConfigDeskNo = $pageNo+1;
+function selectDesktop__init($deskNo) {
 
 	let activateNo = VJS.DESKNO_GLOBAL;
 
@@ -1091,7 +1089,7 @@ function selectDesktop__init($pageNo) {
 	{
 		selectDesktop__insertElement(selectDesktop__buildElement($$cfg.deskNo));
 
-		if($$cfg.deskNo === currentConfigDeskNo)
+		if($$cfg.deskNo === $deskNo)
 		{
 			activateNo = $$cfg.deskNo;
 		}
