@@ -11,6 +11,8 @@ import org.kde.taskmanager as KDE_taskmanager
 
 import org.kde.plasma.wallpapers.image as KDE_wallpaper
 
+import "customqml" as CQ
+
 
 import "../js/v.js" as VJS
 
@@ -450,22 +452,10 @@ QTQ_L.ColumnLayout { id: _Root
             QTQ_C.Label {
 					    text: '% saturate '
 				    }
-            QTQ.Canvas {
-              width: _FontMetrics.averageCharacterWidth *1/ 3
-              QTQ_L.Layout.preferredHeight: _FontMetrics.height * 1.4
-              onPaint: {
-                var ctx = getContext("2d");
-                ctx.lineWidth = width;
-                //ctx.setLineDash([1, 1]);
-                ctx.strokeStyle = _ActiveSystemPalette.dark
 
-                ctx.moveTo(0, 0)
-                ctx.lineTo(0, height)
+            CQ.VerticalDivider {
 
-                ctx.stroke()
-              }
             }
-
 
             QTQ_C.SpinBox {
               stepSize: 1
@@ -481,20 +471,8 @@ QTQ_L.ColumnLayout { id: _Root
             QTQ_C.Label {
 		  			  text: '% blur '
 				    }
-            QTQ.Canvas {
-              width: _FontMetrics.averageCharacterWidth *1/ 3
-              QTQ_L.Layout.preferredHeight: _FontMetrics.height * 1.4
-              onPaint: {
-                var ctx = getContext("2d");
-                ctx.lineWidth = width;
-                //ctx.setLineDash([1, 1]);
-                ctx.strokeStyle = _ActiveSystemPalette.dark
+            CQ.VerticalDivider {
 
-                ctx.moveTo(0, 0)
-                ctx.lineTo(0, height)
-
-                ctx.stroke()
-              }
             }
 
             QTQ_C.SpinBox {
@@ -629,20 +607,8 @@ QTQ_L.ColumnLayout { id: _Root
               }
 			      }
 
-            QTQ.Canvas {
-              width: _FontMetrics.averageCharacterWidth *1/ 3
-              QTQ_L.Layout.preferredHeight: _FontMetrics.height * 1.4
-              onPaint: {
-                var ctx = getContext("2d");
-                ctx.lineWidth = width;
-                //ctx.setLineDash([1, 1]);
-                ctx.strokeStyle = _ActiveSystemPalette.dark
+            CQ.VerticalDivider {
 
-                ctx.moveTo(0, 0)
-                ctx.lineTo(0, height)
-
-                ctx.stroke()
-              }
             }
 
 				    QTQ_C.Button { id: _BtnSetUrl
