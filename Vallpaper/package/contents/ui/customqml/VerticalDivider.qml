@@ -1,18 +1,25 @@
 import QtQuick as QTQ
 import QtQuick.Layouts as QTQ_L
 
+/*
+  Needs _FontMetrics: QTQ.FontMetrics { id: _FontMetrics }
+*/
+
 QTQ.Canvas {
-  width: _FontMetrics.averageCharacterWidth *1/ 3
+  contextType: "2d"
+
+  width: _FontMetrics.averageCharacterWidth * 1/3
   QTQ_L.Layout.preferredHeight: _FontMetrics.height * 1.4
+
   onPaint: {
-    var ctx = getContext("2d");
-    ctx.lineWidth = width;
-    //ctx.setLineDash([1, 1]);
-    ctx.strokeStyle = _ActiveSystemPalette.dark
 
-    ctx.moveTo(0, 0)
-    ctx.lineTo(0, height)
+    context.lineWidth = width;
+    //context.setLineDash([1, 1]);
+    context.strokeStyle = _ActiveSystemPalette.dark
 
-    ctx.stroke()
+    context.moveTo(0, 0)
+    context.lineTo(0, height)
+
+    context.stroke()
   }
 }
