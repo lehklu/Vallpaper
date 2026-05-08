@@ -16,5 +16,5 @@
         "License": "GPL-2.0+"
     },
     "X-KDE-ParentApp": "org.kde.plasmashell",
-    "X-Plasma-API-Minimum-Version": "6.0"
+    "X-Plasma-API-Minimum-Version": "6.5"
 }
