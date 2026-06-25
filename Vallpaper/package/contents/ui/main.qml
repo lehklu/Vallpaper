@@ -28,6 +28,14 @@ import "../js/v.js" as VJS
 
   property var activeImage
   property bool repeaterReady: false
+  property string screenName: {
+    const idx = KDE_plasmoid.Plasmoid.screen;
+    if(idx >= 0 && idx < Qt.application.screens.length)
+    {
+      return Qt.application.screens[idx].name;
+    }
+    return "";
+  }
 
 /*MOD*/contextualActions: [
     KDE_pc.Action {
@@ -69,6 +77,14 @@ import "../js/v.js" as VJS
 
     onCurrentDesktopChanged: broadcastDesktopChanged();
 
+    onCurrentDesktopForScreenChanged: (changedScreenName) => {
+
+      if(screenName === "" || changedScreenName === screenName)
+      {
+        broadcastDesktopChanged();
+      }
+    }
+
     onNumberOfDesktopsChanged: {
 
       broadcastNumberOfDesktopsChanged();
@@ -80,7 +96,7 @@ import "../js/v.js" as VJS
 	    //<--
 
 
-      const newActiveImage = _ImageRepeater.imageFor(VJS.GET_CURRENT_DESKNO(_VirtualDesktopInfo));
+      const newActiveImage = _ImageRepeater.imageFor(VJS.GET_CURRENT_DESKNO_FOR_SCREEN(_VirtualDesktopInfo, screenName));
       newActiveImage.refresh();
       activeImage = newActiveImage;
 	  }
