@@ -21,3 +21,6 @@ Use Color Dialog to select the color.
 7.0.2-------------------------------------------------------------------------------------------------------------------
 font selection is not refelected in the preview
 7.0.3-------------------------------------------------------------------------------------------------------------------
+make the 'Configure appearance for each virtual desktop' text fill the width of the screen
+make the background of the settings area lighter
+7.0.4-------------------------------------------------------------------------------------------------------------------
