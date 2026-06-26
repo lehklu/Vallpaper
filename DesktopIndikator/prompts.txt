@@ -1,0 +1,18 @@
+Build a config screen for this Plasma6 widget.
+The config screen should be a split screen.
+On the left side, I want a list with of all virtual desktops.
+A list item shall show the name of the desktop and a preview of the widget.
+
+On the right side, the settings should be displayed.
+Configurable options:
+font name (for each text)
+font size (for each text)
+text color (for each text)
+background color (for each text)
+
+Display the settings of the selected row in the settings part, on open, the first row shall be selected.
+
+Use a font selector to select font name and font size.
+Use QtQuick Colordialog to select the color.
+Align left labels in the settings area.
+------------------------------------------------------------------------------------------------------------
