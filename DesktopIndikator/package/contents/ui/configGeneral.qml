@@ -4,7 +4,7 @@ import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 import org.kde.taskmanager as TaskManager
 
-Kirigami.ScrollablePage {
+Kirigami.Page {
     id: page
     
     property string cfg_desktopSettings
@@ -54,6 +54,7 @@ Kirigami.ScrollablePage {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     clip: true
+                    ScrollBar.vertical: ScrollBar { }
                     
                     model: desktopInfo.desktopIds.length
                     
@@ -138,6 +139,9 @@ Kirigami.ScrollablePage {
                 Layout.fillHeight: true
                 Layout.preferredWidth: parent.width * 0.4
                 visible: page.selectedIndex !== -1
+                clip: true
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
             
                 background: Rectangle {
                     color: Kirigami.Theme.backgroundColor
@@ -150,6 +154,7 @@ Kirigami.ScrollablePage {
 
                 DesktopSettingsView {
                     id: settingsView
+                    width: settingsScrollView.availableWidth
                     desktopId: page.selectedIndex !== -1 ? desktopInfo.desktopIds[page.selectedIndex] : ""
                     desktopName: page.selectedIndex !== -1 ? (desktopInfo.desktopNames[page.selectedIndex] || i18n("Desktop %1", page.selectedIndex + 1)) : ""
                     settings: page.selectedIndex !== -1 ? (page.desktopSettings[desktopId] || {}) : {}

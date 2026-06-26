@@ -8,6 +8,10 @@ ColumnLayout {
     id: root
     spacing: Kirigami.Units.largeSpacing
     
+    // Ensure height is based on content for ScrollView
+    implicitHeight: mainForm.implicitHeight
+    Layout.fillWidth: true
+
     property string desktopId
     property string desktopName
     property var settings: ({})
@@ -40,6 +44,7 @@ ColumnLayout {
     }
 
     Kirigami.FormLayout {
+        id: mainForm
         Layout.fillWidth: true
         wideMode: true
 

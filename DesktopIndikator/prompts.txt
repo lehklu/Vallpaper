@@ -24,3 +24,6 @@ font selection is not refelected in the preview
 make the 'Configure appearance for each virtual desktop' text fill the width of the screen
 make the background of the settings area lighter
 7.0.4-------------------------------------------------------------------------------------------------------------------
+make the settings area scrollable vertically
+make the settings area scrollable vertically
+settings area does not scroll vertically (independent of the list) and shall not scroll horizontally
