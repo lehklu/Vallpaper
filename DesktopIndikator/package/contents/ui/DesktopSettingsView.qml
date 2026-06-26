@@ -23,8 +23,8 @@ ColumnLayout {
             if (targetFontKey !== "") {
                 let baseKey = targetFontKey.replace("FontName", "");
                 updateSettings({
-                    [baseKey + "FontName"]: selectedFont.family,
-                    [baseKey + "FontSize"]: selectedFont.pointSize
+                    [baseKey + "FontName"]: fontDialog.selectedFont.family,
+                    [baseKey + "FontSize"]: fontDialog.selectedFont.pointSize
                 });
             }
         }
@@ -34,7 +34,7 @@ ColumnLayout {
         id: colorDialog
         onAccepted: {
             if (targetColorKey !== "") {
-                updateSetting(targetColorKey, selectedColor.toString())
+                updateSetting(targetColorKey, colorDialog.selectedColor.toString())
             }
         }
     }
@@ -55,8 +55,10 @@ ColumnLayout {
             font.pointSize: settings.dayFontSize || 12
             onClicked: {
                 root.targetFontKey = "dayFontName";
-                fontDialog.selectedFont.family = settings.dayFontName || "Inconsolata";
-                fontDialog.selectedFont.pointSize = settings.dayFontSize || 12;
+                fontDialog.selectedFont = Qt.font({
+                    family: settings.dayFontName || "Inconsolata",
+                    pointSize: settings.dayFontSize || 12
+                });
                 fontDialog.open();
             }
         }
@@ -135,8 +137,10 @@ ColumnLayout {
             font.pointSize: settings.dateFontSize || 12
             onClicked: {
                 root.targetFontKey = "dateFontName";
-                fontDialog.selectedFont.family = settings.dateFontName || "Cantarell";
-                fontDialog.selectedFont.pointSize = settings.dateFontSize || 12;
+                fontDialog.selectedFont = Qt.font({
+                    family: settings.dateFontName || "Cantarell",
+                    pointSize: settings.dateFontSize || 12
+                });
                 fontDialog.open();
             }
         }
@@ -215,8 +219,10 @@ ColumnLayout {
             font.pointSize: settings.numFontSize || 18
             onClicked: {
                 root.targetFontKey = "numFontName";
-                fontDialog.selectedFont.family = settings.numFontName || "Cantarell";
-                fontDialog.selectedFont.pointSize = settings.numFontSize || 18;
+                fontDialog.selectedFont = Qt.font({
+                    family: settings.numFontName || "Cantarell",
+                    pointSize: settings.numFontSize || 18
+                });
                 fontDialog.open();
             }
         }

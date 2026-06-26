@@ -142,6 +142,7 @@ Kirigami.ScrollablePage {
                 onDesktopSettingsChanged: (id, newSettings) => {
                     let updated = JSON.parse(JSON.stringify(page.desktopSettings));
                     updated[id] = newSettings;
+                    page.desktopSettings = updated;
                     cfg_desktopSettings = JSON.stringify(updated);
                 }
             }

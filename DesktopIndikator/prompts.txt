@@ -19,3 +19,5 @@ Align left labels in the settings area.
 Use Font Dialog to select font name and font size.
 Use Color Dialog to select the color.
 7.0.2-------------------------------------------------------------------------------------------------------------------
+font selection is not refelected in the preview
+7.0.3-------------------------------------------------------------------------------------------------------------------
