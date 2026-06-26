@@ -23,8 +23,8 @@ ColumnLayout {
             if (targetFontKey !== "") {
                 let baseKey = targetFontKey.replace("FontName", "");
                 updateSettings({
-                    [baseKey + "FontName"]: font.family,
-                    [baseKey + "FontSize"]: font.pointSize
+                    [baseKey + "FontName"]: selectedFont.family,
+                    [baseKey + "FontSize"]: selectedFont.pointSize
                 });
             }
         }
@@ -34,7 +34,7 @@ ColumnLayout {
         id: colorDialog
         onAccepted: {
             if (targetColorKey !== "") {
-                updateSetting(targetColorKey, color.toString())
+                updateSetting(targetColorKey, selectedColor.toString())
             }
         }
     }
@@ -55,8 +55,8 @@ ColumnLayout {
             font.pointSize: settings.dayFontSize || 12
             onClicked: {
                 root.targetFontKey = "dayFontName";
-                fontDialog.font.family = settings.dayFontName || "Inconsolata";
-                fontDialog.font.pointSize = settings.dayFontSize || 12;
+                fontDialog.selectedFont.family = settings.dayFontName || "Inconsolata";
+                fontDialog.selectedFont.pointSize = settings.dayFontSize || 12;
                 fontDialog.open();
             }
         }
@@ -78,7 +78,7 @@ ColumnLayout {
 
                 onClicked: {
                     root.targetColorKey = "dayTextColor";
-                    colorDialog.color = settings.dayTextColor || "#000000";
+                    colorDialog.selectedColor = settings.dayTextColor || "#000000";
                     colorDialog.open();
                 }
             }
@@ -109,7 +109,7 @@ ColumnLayout {
 
                 onClicked: {
                     root.targetColorKey = "dayBgColor";
-                    colorDialog.color = settings.dayBgColor || "#a0ffa0";
+                    colorDialog.selectedColor = settings.dayBgColor || "#a0ffa0";
                     colorDialog.open();
                 }
             }
@@ -135,8 +135,8 @@ ColumnLayout {
             font.pointSize: settings.dateFontSize || 12
             onClicked: {
                 root.targetFontKey = "dateFontName";
-                fontDialog.font.family = settings.dateFontName || "Cantarell";
-                fontDialog.font.pointSize = settings.dateFontSize || 12;
+                fontDialog.selectedFont.family = settings.dateFontName || "Cantarell";
+                fontDialog.selectedFont.pointSize = settings.dateFontSize || 12;
                 fontDialog.open();
             }
         }
@@ -158,7 +158,7 @@ ColumnLayout {
 
                 onClicked: {
                     root.targetColorKey = "dateTextColor";
-                    colorDialog.color = settings.dateTextColor || "#000000";
+                    colorDialog.selectedColor = settings.dateTextColor || "#000000";
                     colorDialog.open();
                 }
             }
@@ -189,7 +189,7 @@ ColumnLayout {
 
                 onClicked: {
                     root.targetColorKey = "dateBgColor";
-                    colorDialog.color = settings.dateBgColor || "transparent";
+                    colorDialog.selectedColor = settings.dateBgColor || "transparent";
                     colorDialog.open();
                 }
             }
@@ -215,8 +215,8 @@ ColumnLayout {
             font.pointSize: settings.numFontSize || 18
             onClicked: {
                 root.targetFontKey = "numFontName";
-                fontDialog.font.family = settings.numFontName || "Cantarell";
-                fontDialog.font.pointSize = settings.numFontSize || 18;
+                fontDialog.selectedFont.family = settings.numFontName || "Cantarell";
+                fontDialog.selectedFont.pointSize = settings.numFontSize || 18;
                 fontDialog.open();
             }
         }
@@ -238,7 +238,7 @@ ColumnLayout {
 
                 onClicked: {
                     root.targetColorKey = "numTextColor";
-                    colorDialog.color = settings.numTextColor || "#a0ffa0";
+                    colorDialog.selectedColor = settings.numTextColor || "#a0ffa0";
                     colorDialog.open();
                 }
             }
@@ -269,7 +269,7 @@ ColumnLayout {
 
                 onClicked: {
                     root.targetColorKey = "numBgColor";
-                    colorDialog.color = settings.numBgColor || "#000000";
+                    colorDialog.selectedColor = settings.numBgColor || "#000000";
                     colorDialog.open();
                 }
             }
