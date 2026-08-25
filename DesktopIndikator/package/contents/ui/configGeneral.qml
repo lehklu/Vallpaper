@@ -31,10 +31,39 @@ Kirigami.Page {
         anchors.fill: parent
         spacing: Kirigami.Units.largeSpacing
 
-        Kirigami.InlineMessage {
+        RowLayout {
             Layout.fillWidth: true
-            text: i18n("Configure appearance for each virtual desktop")
-            visible: true
+            Layout.fillHeight: true
+            spacing: Kirigami.Units.largeSpacing
+
+
+            Kirigami.InlineMessage {
+                Layout.fillWidth: true
+                text: i18n("Configure appearance for each virtual desktop")
+                visible: true
+            }
+                        
+            Button { id: _BtnDonate
+
+                text: 'Donate with PayPal'
+                leftPadding: 14
+                rightPadding: 14
+                topPadding: 8
+                bottomPadding: 8
+                contentItem: Label {
+                    text: _BtnDonate.text
+                    font.pointSize: parent.font.pointSize * 0.8
+                    font.bold: true
+                    color: '#ffffff'
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+                background: Rectangle {
+                    radius: 4
+                    color: _BtnDonate.pressed ? '#005a94' : (_BtnDonate.hovered ? '#005ea6' : '#0070ba')
+                }
+                onClicked: Qt.openUrlExternally('https://www.paypal.com/donate/?hosted_button_id=U5UKKNTXNPTLN')
+            }
         }
 
         RowLayout {
