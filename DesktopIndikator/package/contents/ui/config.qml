@@ -1,10 +1,10 @@
-import QtQuick
-import QtQuick.Controls
-import QtQuick.Layouts
-import org.kde.kirigami as Kirigami
-import org.kde.taskmanager as TaskManager
+import QtQuick as QTQ
+import QtQuick.Controls as QTQ_C
+import QtQuick.Layouts as QTQ_L
+import org.kde.kirigami as KDE_kirigami
+import org.kde.taskmanager as KDE_taskmanager
 
-Kirigami.Page {
+KDE_kirigami.Page {
     id: page
     
     property string cfg_desktopindikator601
@@ -19,117 +19,117 @@ Kirigami.Page {
     }
 
     onCfg_desktopindikator601Changed: updateDesktopSettings()
-    Component.onCompleted: updateDesktopSettings()
+    QTQ.Component.onCompleted: updateDesktopSettings()
 
     property int selectedIndex: 0
     
-    TaskManager.VirtualDesktopInfo {
+    KDE_taskmanager.VirtualDesktopInfo {
         id: desktopInfo
     }
     
-    ColumnLayout {
+    QTQ_L.ColumnLayout {
         anchors.fill: parent
-        spacing: Kirigami.Units.largeSpacing
+        spacing: KDE_kirigami.Units.largeSpacing
 
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            spacing: Kirigami.Units.largeSpacing
+        QTQ_L.RowLayout {
+            QTQ_L.Layout.fillWidth: true
+            QTQ_L.Layout.fillHeight: true
+            spacing: KDE_kirigami.Units.largeSpacing
 
 
-            Kirigami.InlineMessage {
-                Layout.fillWidth: true
+            KDE_kirigami.InlineMessage {
+                QTQ_L.Layout.fillWidth: true
                 text: i18n("Configure appearance for each virtual desktop")
                 visible: true
             }
 
-            Button { id: _BtnDonate
+            QTQ_C.Button { id: _BtnDonate
 
                 text: 'Donate with PayPal'
                 leftPadding: 14
                 rightPadding: 14
                 topPadding: 8
                 bottomPadding: 8
-                contentItem: Label {
+                contentItem: QTQ_C.Label {
                     text: _BtnDonate.text
                     font.pointSize: parent.font.pointSize * 0.8
                     font.bold: true
                     color: '#ffffff'
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: QTQ.Text.AlignHCenter
+                    verticalAlignment: QTQ.Text.AlignVCenter
                 }
-                background: Rectangle {
+                background: QTQ.Rectangle {
                     radius: 4
                     color: _BtnDonate.pressed ? '#005a94' : (_BtnDonate.hovered ? '#005ea6' : '#0070ba')
                 }
-                onClicked: Qt.openUrlExternally('https://www.paypal.com/donate/?hosted_button_id=U5UKKNTXNPTLN')
+                onClicked: QTQ.Qt.openUrlExternally('https://www.paypal.com/donate/?hosted_button_id=U5UKKNTXNPTLN')
             }
         }
 
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            spacing: Kirigami.Units.largeSpacing
+        QTQ_L.RowLayout {
+            QTQ_L.Layout.fillWidth: true
+            QTQ_L.Layout.fillHeight: true
+            spacing: KDE_kirigami.Units.largeSpacing
 
             // Left side: List of virtual desktops
-            ColumnLayout {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                Layout.preferredWidth: parent.width * 0.6
-                spacing: Kirigami.Units.largeSpacing
+            QTQ_L.ColumnLayout {
+                QTQ_L.Layout.fillWidth: true
+                QTQ_L.Layout.fillHeight: true
+                QTQ_L.Layout.preferredWidth: parent.width * 0.6
+                spacing: KDE_kirigami.Units.largeSpacing
 
-                ListView {
+                QTQ.ListView {
                     id: listView
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
+                    QTQ_L.Layout.fillWidth: true
+                    QTQ_L.Layout.fillHeight: true
                     clip: true
-                    ScrollBar.vertical: ScrollBar { }
+                    QTQ_C.ScrollBar.vertical: QTQ_C.ScrollBar { }
                     
                     model: desktopInfo.desktopIds.length
                     
-                    delegate: ItemDelegate {
+                    delegate: QTQ_C.ItemDelegate {
                         width: listView.width
                         highlighted: page.selectedIndex === index
                         onClicked: page.selectedIndex = index
 
-                        contentItem: RowLayout {
-                            spacing: Kirigami.Units.largeSpacing
+                        contentItem: QTQ_L.RowLayout {
+                            spacing: KDE_kirigami.Units.largeSpacing
 
-                            Label {
-                                Layout.preferredWidth: Kirigami.Units.gridUnit * 10
+                            QTQ_C.Label {
+                                QTQ_L.Layout.preferredWidth: KDE_kirigami.Units.gridUnit * 10
                                 text: desktopInfo.desktopNames[index] || i18n("Desktop %1", index + 1)
-                                elide: Text.ElideRight
+                                elide: QTQ.Text.ElideRight
                             }
 
                             // Preview of the widget
-                            Rectangle {
+                            QTQ.Rectangle {
                                 id: previewRect
-                                Layout.preferredHeight: Kirigami.Units.gridUnit * 2
-                                Layout.preferredWidth: Layout.preferredHeight * 4
+                                QTQ_L.Layout.preferredHeight: KDE_kirigami.Units.gridUnit * 2
+                                QTQ_L.Layout.preferredWidth: QTQ_L.Layout.preferredHeight * 4
                                 radius: 2
                                 clip: true
 
                                 property var currentSettings: page.desktopSettings[desktopInfo.desktopIds[index]] || {}
 
-                                RowLayout {
+                                QTQ_L.RowLayout {
                                     anchors.fill: parent
                                     spacing: 0
 
-                                    Rectangle {
-                                        Layout.fillHeight: true
-                                        Layout.preferredWidth: parent.width * 0.75
+                                    QTQ.Rectangle {
+                                        QTQ_L.Layout.fillHeight: true
+                                        QTQ_L.Layout.preferredWidth: parent.width * 0.75
                                         color: previewRect.currentSettings.dayBgColor || "#a0ffa0"
 
-                                        ColumnLayout {
+                                        QTQ_L.ColumnLayout {
                                             anchors.centerIn: parent
                                             spacing: 0
-                                            Label {
+                                            QTQ_C.Label {
                                                 text: "Monday"
                                                 font.family: previewRect.currentSettings.dayFontName || "Inconsolata"
                                                 font.pointSize: (previewRect.currentSettings.dayFontSize || 12) / 4
                                                 color: previewRect.currentSettings.dayTextColor || "#000000"
                                             }
-                                            Label {
+                                            QTQ_C.Label {
                                                 text: "01.01"
                                                 font.family: previewRect.currentSettings.dateFontName || "Cantarell"
                                                 font.pointSize: (previewRect.currentSettings.dateFontSize || 12) / 4
@@ -138,12 +138,12 @@ Kirigami.Page {
                                         }
                                     }
 
-                                    Rectangle {
-                                        Layout.fillHeight: true
-                                        Layout.preferredWidth: parent.width * 0.25
+                                    QTQ.Rectangle {
+                                        QTQ_L.Layout.fillHeight: true
+                                        QTQ_L.Layout.preferredWidth: parent.width * 0.25
                                         color: previewRect.currentSettings.numBgColor || "#000000"
 
-                                        Label {
+                                        QTQ_C.Label {
                                             anchors.centerIn: parent
                                             text: index + 1
                                             font.family: previewRect.currentSettings.numFontName || "Cantarell"
@@ -158,25 +158,25 @@ Kirigami.Page {
                 }
             }
 
-            Kirigami.Separator {
-                Layout.fillHeight: true
+            KDE_kirigami.Separator {
+                QTQ_L.Layout.fillHeight: true
             }
 
             // Right side: Settings
-            ScrollView {
+            QTQ_C.ScrollView {
                 id: settingsScrollView
-                Layout.fillHeight: true
-                Layout.preferredWidth: parent.width * 0.4
+                QTQ_L.Layout.fillHeight: true
+                QTQ_L.Layout.preferredWidth: parent.width * 0.4
                 visible: page.selectedIndex !== -1
                 clip: true
-                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
-                ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                QTQ_C.ScrollBar.horizontal.policy: QTQ_C.ScrollBar.AlwaysOff
+                QTQ_C.ScrollBar.vertical.policy: QTQ_C.ScrollBar.AsNeeded
             
-                background: Rectangle {
-                    color: Kirigami.Theme.backgroundColor
-                    Rectangle {
+                background: QTQ.Rectangle {
+                    color: KDE_kirigami.Theme.backgroundColor
+                    QTQ.Rectangle {
                         anchors.fill: parent
-                        color: Kirigami.Theme.highlightColor
+                        color: KDE_kirigami.Theme.highlightColor
                         opacity: 0.1
                     }
                 }
@@ -197,14 +197,14 @@ Kirigami.Page {
                 }
             }
 
-            Label {
-                Layout.fillHeight: true
-                Layout.preferredWidth: parent.width * 0.4
+            QTQ_C.Label {
+                QTQ_L.Layout.fillHeight: true
+                QTQ_L.Layout.preferredWidth: parent.width * 0.4
                 text: i18n("Select a desktop to configure")
-                horizontalAlignment: Text.AlignLeft
-                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: QTQ.Text.AlignLeft
+                verticalAlignment: QTQ.Text.AlignVCenter
                 visible: page.selectedIndex === -1
-                leftPadding: Kirigami.Units.largeSpacing
+                leftPadding: KDE_kirigami.Units.largeSpacing
             }
         }
     }
