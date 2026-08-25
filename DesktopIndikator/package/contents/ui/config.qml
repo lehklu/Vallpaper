@@ -9,36 +9,26 @@ KDE_kirigami.Page { id: _Root
   property string cfg_desktopindikator601
   property var desktopSettings: ({})
 
-  function updateDesktopSettings() {
-    try {
-      desktopSettings = JSON.parse(cfg_desktopindikator601 || "{}")
-    } catch (e) {
-      desktopSettings = {}
-    }
-  }
+  KDE_taskmanager.VirtualDesktopInfo { id: _VirtualDesktopInfo }
+
+  function updateDesktopSettings() { try { desktopSettings = JSON.parse(cfg_desktopindikator601 || "{}") } catch (e) { desktopSettings = {} } }
 
   onCfg_desktopindikator601Changed: updateDesktopSettings()
   QTQ.Component.onCompleted: updateDesktopSettings()
 
   property int selectedIndex: 0
 
-  KDE_taskmanager.VirtualDesktopInfo {
-    id: desktopInfo
-  }
-
   QTQ_L.ColumnLayout {
     anchors.fill: parent
-    spacing: KDE_kirigami.Units.largeSpacing
 
     QTQ_L.RowLayout {
       QTQ_L.Layout.fillWidth: true
       QTQ_L.Layout.fillHeight: true
-      spacing: KDE_kirigami.Units.largeSpacing
 
 
       KDE_kirigami.InlineMessage {
         QTQ_L.Layout.fillWidth: true
-        text: i18n("Configure appearance for each virtual desktop")
+        text: "Configure appearance for each virtual desktop"
         visible: true
       }
 
@@ -68,14 +58,12 @@ KDE_kirigami.Page { id: _Root
     QTQ_L.RowLayout {
       QTQ_L.Layout.fillWidth: true
       QTQ_L.Layout.fillHeight: true
-      spacing: KDE_kirigami.Units.largeSpacing
 
       // Left side: List of virtual desktops
       QTQ_L.ColumnLayout {
         QTQ_L.Layout.fillWidth: true
         QTQ_L.Layout.fillHeight: true
-        QTQ_L.Layout.preferredWidth: parent.width * 0.6
-        spacing: KDE_kirigami.Units.largeSpacing
+        QTQ_L.Layout.preferredWidth: parent.width * 0.5
 
         QTQ.ListView {
           id: listView
@@ -84,7 +72,7 @@ KDE_kirigami.Page { id: _Root
           clip: true
           QTQ_C.ScrollBar.vertical: QTQ_C.ScrollBar { }
 
-          model: desktopInfo.desktopIds.length
+          model: _VirtualDesktopInfo.desktopIds.length
 
           delegate: QTQ_C.ItemDelegate {
             width: listView.width
@@ -92,11 +80,10 @@ KDE_kirigami.Page { id: _Root
             onClicked: _Root.selectedIndex = index
 
             contentItem: QTQ_L.RowLayout {
-              spacing: KDE_kirigami.Units.largeSpacing
 
               QTQ_C.Label {
                 QTQ_L.Layout.preferredWidth: KDE_kirigami.Units.gridUnit * 10
-                text: desktopInfo.desktopNames[index] || i18n("Desktop %1", index + 1)
+                text: _VirtualDesktopInfo.desktopNames[index] || i18n("Desktop %1", index + 1)
                 elide: QTQ.Text.ElideRight
               }
 
@@ -108,7 +95,7 @@ KDE_kirigami.Page { id: _Root
                 radius: 2
                 clip: true
 
-                property var currentSettings: _Root.desktopSettings[desktopInfo.desktopIds[index]] || {}
+                property var currentSettings: _Root.desktopSettings[_VirtualDesktopInfo.desktopIds[index]] || {}
 
                 QTQ_L.RowLayout {
                   anchors.fill: parent
@@ -183,8 +170,8 @@ KDE_kirigami.Page { id: _Root
         DesktopSettingsView {
           id: settingsView
           width: settingsScrollView.availableWidth
-          desktopId: _Root.selectedIndex !== -1 ? desktopInfo.desktopIds[_Root.selectedIndex] : ""
-          desktopName: _Root.selectedIndex !== -1 ? (desktopInfo.desktopNames[_Root.selectedIndex] || i18n("Desktop %1", _Root.selectedIndex + 1)) : ""
+          desktopId: _Root.selectedIndex !== -1 ? _VirtualDesktopInfo.desktopIds[_Root.selectedIndex] : ""
+          desktopName: _Root.selectedIndex !== -1 ? (_VirtualDesktopInfo.desktopNames[_Root.selectedIndex] || i18n("Desktop %1", _Root.selectedIndex + 1)) : ""
           settings: _Root.selectedIndex !== -1 ? (_Root.desktopSettings[desktopId] || {}) : {}
 
           onDesktopSettingsChanged: (id, newSettings) => {
@@ -203,7 +190,6 @@ KDE_kirigami.Page { id: _Root
         horizontalAlignment: QTQ.Text.AlignLeft
         verticalAlignment: QTQ.Text.AlignVCenter
         visible: _Root.selectedIndex === -1
-        leftPadding: KDE_kirigami.Units.largeSpacing
       }
     }
   }
