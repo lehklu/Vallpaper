@@ -18,7 +18,7 @@ KDE_plasmoid.PlasmoidItem {
   
   function _updateAllSettings() {
     try {
-      _allDesktopSettings = JSON.parse(KDE_plasmoid.Plasmoid.configuration.desktopSettings || "{}")
+      _allDesktopSettings = JSON.parse(KDE_plasmoid.Plasmoid.configuration.desktopindikator601 || "{}")
     } catch (e) {
       _allDesktopSettings = {}
     }

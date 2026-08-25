@@ -7,18 +7,18 @@ import org.kde.taskmanager as TaskManager
 Kirigami.Page {
     id: page
     
-    property string cfg_desktopSettings
+    property string cfg_desktopindikator601
     property var desktopSettings: ({})
     
     function updateDesktopSettings() {
         try {
-            desktopSettings = JSON.parse(cfg_desktopSettings || "{}")
+            desktopSettings = JSON.parse(cfg_desktopindikator601 || "{}")
         } catch (e) {
             desktopSettings = {}
         }
     }
 
-    onCfg_desktopSettingsChanged: updateDesktopSettings()
+    onCfg_desktopindikator601Changed: updateDesktopSettings()
     Component.onCompleted: updateDesktopSettings()
 
     property int selectedIndex: 0
@@ -42,7 +42,7 @@ Kirigami.Page {
                 text: i18n("Configure appearance for each virtual desktop")
                 visible: true
             }
-                        
+
             Button { id: _BtnDonate
 
                 text: 'Donate with PayPal'
@@ -192,7 +192,7 @@ Kirigami.Page {
                         let updated = JSON.parse(JSON.stringify(page.desktopSettings));
                         updated[id] = newSettings;
                         page.desktopSettings = updated;
-                        cfg_desktopSettings = JSON.stringify(updated);
+                        cfg_desktopindikator601 = JSON.stringify(updated);
                     }
                 }
             }
