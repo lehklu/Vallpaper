@@ -27,3 +27,4 @@ make the background of the settings area lighter
 make the settings area scrollable vertically
 make the settings area scrollable vertically
 settings area does not scroll vertically (independent of the list) and shall not scroll horizontally
+------------------------------------------------------------------------------------------------------------------------
