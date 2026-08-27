@@ -1,5 +1,5 @@
 Build a config screen for this Plasma6 widget.
-First row: a dropdown list of virtual desktops. when collapsed, show desktop name.when expanded, show desktop name and
+First row: a dropdown list of virtual desktops. When collapsed, show desktop name. When expanded, show desktop name and
 a preview of the widget.
 
 second row: a preview of the widget of the selected desktop with clickable elements:
@@ -7,3 +7,21 @@ second row: a preview of the widget of the selected desktop with clickable eleme
 - day name text: open dialog with font and color selectors
 - day date text: open dialog with font and color selectors
 - desktop number text: open dialog with font and color selectors
+
+How do I open the config screen?
+
+Does not work.
+
+Dropdownbox is not working.
+
+Dropdownbox shows only Arbeitsfläche 6
+
+Problems:
+- controls are disabeld on first open
+- only Arbeitsfläche 6 is shown
+- the desktop numer in the dropdown preview is wrong
+- the dropdown preview is not updated when settings are changed
+
+Problems:
+- only Arbeitsfläche 6 is shown
+- the dropdown preview is gone
