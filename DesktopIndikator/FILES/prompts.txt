@@ -1,0 +1,9 @@
+Build a config screen for this Plasma6 widget.
+First row: a dropdown list of virtual desktops. when collapsed, show desktop name.when expanded, show desktop name and
+a preview of the widget.
+
+second row: a preview of the widget of the selected desktop with clickable elements:
+- background date and background number: open color selector
+- day name text: open dialog with font and color selectors
+- day date text: open dialog with font and color selectors
+- desktop number text: open dialog with font and color selectors
