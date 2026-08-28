@@ -18,9 +18,12 @@ Item {
     property var dayNameColors: ["#000000", "#000000", "#000000", "#000000", "#000000", "#000000"]
     property var dayDateColors: ["#000000", "#000000", "#000000", "#000000", "#000000", "#000000"]
     property var numberTextColors: ["#a0ffa0", "#a8a8ff", "#ff97ff", "#ffff8f", "#ffffff", "#41f2f2"]
+    property var desktopNameColors: ["#000000", "#000000", "#000000", "#000000", "#000000", "#000000"]
+    property var desktopNameBackgroundColors: ["#a0ffa0", "#a8a8ff", "#ff97ff", "#ffff8f", "#ffffff", "#41f2f2"]
     property var dayNameFonts: ["Inconsolata", "Inconsolata", "Inconsolata", "Inconsolata", "Inconsolata", "Inconsolata"]
     property var dayDateFonts: ["Cantarell", "Cantarell", "Cantarell", "Cantarell", "Cantarell", "Cantarell"]
     property var numberFonts: ["Cantarell", "Cantarell", "Cantarell", "Cantarell", "Cantarell", "Cantarell"]
+    property var desktopNameFonts: ["Cantarell", "Cantarell", "Cantarell", "Cantarell", "Cantarell", "Cantarell"]
 
     function save(key, value) {
         plasmoid.configuration[key + selectedDesktop] = value
@@ -31,7 +34,7 @@ Item {
         var desktopCount = Math.max(6, desktopInfo.numberOfDesktops || 0)
         var keys = plasmoid.configuration.keys()
         for (var k = 0; k < keys.length; ++k) {
-            var suffix = keys[k].match(/(?:dateColor|numberColor|dayNameColor|dayDateColor|numberTextColor|dayNameFont|dayDateFont|numberFont)([0-9]+)$/)
+            var suffix = keys[k].match(/(?:dateColor|numberColor|dayNameColor|dayDateColor|numberTextColor|desktopNameColor|desktopNameBackgroundColor|dayNameFont|dayDateFont|numberFont|desktopNameFont)([0-9]+)$/)
             if (suffix)
                 desktopCount = Math.max(desktopCount, Number(suffix[1]))
         }
@@ -42,9 +45,12 @@ Item {
             if (plasmoid.configuration["dayNameColor" + n]) dayNameColors[i] = plasmoid.configuration["dayNameColor" + n]
             if (plasmoid.configuration["dayDateColor" + n]) dayDateColors[i] = plasmoid.configuration["dayDateColor" + n]
             if (plasmoid.configuration["numberTextColor" + n]) numberTextColors[i] = plasmoid.configuration["numberTextColor" + n]
+            if (plasmoid.configuration["desktopNameColor" + n]) desktopNameColors[i] = plasmoid.configuration["desktopNameColor" + n]
+            if (plasmoid.configuration["desktopNameBackgroundColor" + n]) desktopNameBackgroundColors[i] = plasmoid.configuration["desktopNameBackgroundColor" + n]
             if (plasmoid.configuration["dayNameFont" + n]) dayNameFonts[i] = plasmoid.configuration["dayNameFont" + n]
             if (plasmoid.configuration["dayDateFont" + n]) dayDateFonts[i] = plasmoid.configuration["dayDateFont" + n]
             if (plasmoid.configuration["numberFont" + n]) numberFonts[i] = plasmoid.configuration["numberFont" + n]
+            if (plasmoid.configuration["desktopNameFont" + n]) desktopNameFonts[i] = plasmoid.configuration["desktopNameFont" + n]
         }
     }
 
@@ -66,6 +72,7 @@ Item {
         fontDialog.previewText = target === "styleFont"
                 ? styleDialog.target === "dayName" ? Qt.locale().toString(new Date(), "dddd")
                 : styleDialog.target === "dayDate" ? Qt.locale().toString(new Date(), "dd.MM")
+                : styleDialog.target === "desktopName" ? desktopModel.get(selectedDesktop - 1).name
                 : String(selectedDesktop)
                 : String(selectedDesktop)
         fontDialog.open()
@@ -73,7 +80,13 @@ Item {
 
     Component.onCompleted: loadSettings()
 
-    onSelectedDesktopChanged: if (largePreview.item) largePreview.item.desktopNo = selectedDesktop
+    onSelectedDesktopChanged: {
+        if (largePreview.item) {
+            largePreview.item.desktopNo = selectedDesktop
+            largePreview.item.desktopName = desktopModel.count > selectedDesktop - 1
+                    ? desktopModel.get(selectedDesktop - 1).name : qsTr("Desktop %1").arg(selectedDesktop)
+        }
+    }
 
     TaskManager.VirtualDesktopInfo {
         id: desktopInfo
@@ -108,6 +121,10 @@ Item {
             desktopModel.append({ name: desktopName, number: i + 1 })
         }
         desktopBox.currentIndex = Math.min(Math.max(previousIndex, 0), count - 1)
+        if (largePreview.item) {
+            largePreview.item.desktopNo = desktopBox.currentIndex + 1
+            largePreview.item.desktopName = desktopModel.get(desktopBox.currentIndex).name
+        }
     }
 
     ListModel { id: desktopModel }
@@ -160,6 +177,9 @@ Item {
             sourceComponent: widgetPreview
             onLoaded: {
                 item.desktopNo = root.selectedDesktop
+                item.desktopName = desktopModel.count > root.selectedDesktop - 1
+                        ? desktopModel.get(root.selectedDesktop - 1).name
+                        : qsTr("Desktop %1").arg(root.selectedDesktop)
                 item.interactive = true
             }
         }
@@ -192,6 +212,7 @@ Item {
                     sourceComponent: widgetPreview
                     onLoaded: {
                         item.desktopNo = number
+                        item.desktopName = name
                         item.interactive = false
                     }
                 }
@@ -208,11 +229,12 @@ Item {
         Item {
             id: preview
             property int desktopNo: root.selectedDesktop
-            property bool interactive: false
+            property string desktopName: qsTr("Desktop")
+            property bool interactive: true
             property real scaleFactor: Math.min(width / 320, height / 120)
             Rectangle {
                 id: dateBlock
-                width: parent.width * 0.75
+                width: parent.width * 0.6
                 height: parent.height
                 color: root.dateColors[preview.desktopNo - 1] || "#a0ffa0"
                 border.color: dateMouse.containsMouse ? Kirigami.Theme.highlightColor : "transparent"
@@ -240,8 +262,34 @@ Item {
                 MouseArea { anchors.top: parent.top; anchors.left: parent.left; anchors.right: parent.right; height: parent.height / 2; enabled: preview.interactive; onClicked: root.openStyle("dayName") }
             }
             Rectangle {
+                id: nameBlock
+                anchors.left: dateBlock.right
+                width: parent.width * 0.2
+                height: parent.height
+                color: root.desktopNameBackgroundColors[preview.desktopNo - 1] || "#a0ffa0"
+                MouseArea {
+                    anchors.fill: parent
+                    enabled: preview.interactive
+                    onClicked: root.openColor("desktopNameBackground", nameBlock.color)
+                }
+                Controls.Label {
+                    anchors.centerIn: parent
+                    width: parent.width - Kirigami.Units.smallSpacing * 2
+                    text: preview.desktopName
+                    color: root.desktopNameColors[preview.desktopNo - 1] || "#000000"
+                    font.family: root.desktopNameFonts[preview.desktopNo - 1] || "Cantarell"
+                    horizontalAlignment: Text.AlignHCenter
+                    elide: Text.ElideRight
+                    MouseArea {
+                        anchors.fill: parent
+                        enabled: preview.interactive
+                        onClicked: root.openStyle("desktopName")
+                    }
+                }
+            }
+            Rectangle {
                 id: numberBlock
-                anchors.right: parent.right; width: parent.width * 0.25; height: parent.height
+                anchors.right: parent.right; width: parent.width * 0.2; height: parent.height
                 color: root.numberColors[preview.desktopNo - 1] || "#000000"
                 border.color: numberMouse.containsMouse ? Kirigami.Theme.highlightColor : "transparent"; border.width: 2
                 MouseArea { id: numberMouse; anchors.fill: parent; hoverEnabled: true; enabled: preview.interactive; onClicked: root.openColor("number", numberBlock.color) }
@@ -259,17 +307,20 @@ Item {
     function openStyle(target) {
         styleDialog.target = target
         styleDialog.fontName = (target === "dayName" ? dayNameFonts[selectedDesktop - 1]
-                : target === "dayDate" ? dayDateFonts[selectedDesktop - 1] : numberFonts[selectedDesktop - 1])
+                : target === "dayDate" ? dayDateFonts[selectedDesktop - 1]
+                : target === "desktopName" ? desktopNameFonts[selectedDesktop - 1] : numberFonts[selectedDesktop - 1])
                 || (target === "dayName" ? "Inconsolata" : "Cantarell")
         styleDialog.selectedTextColor = (target === "dayName" ? dayNameColors[selectedDesktop - 1]
-                : target === "dayDate" ? dayDateColors[selectedDesktop - 1] : numberTextColors[selectedDesktop - 1])
+                : target === "dayDate" ? dayDateColors[selectedDesktop - 1]
+                : target === "desktopName" ? desktopNameColors[selectedDesktop - 1] : numberTextColors[selectedDesktop - 1])
                 || "#000000"
         styleDialog.open()
     }
 
     Controls.Dialog {
         id: styleDialog
-        title: target === "dayName" ? qsTr("Day name") : target === "dayDate" ? qsTr("Day date") : qsTr("Desktop number")
+        title: target === "dayName" ? qsTr("Day name") : target === "dayDate" ? qsTr("Day date")
+                : target === "desktopName" ? qsTr("Desktop name") : qsTr("Desktop number")
         standardButtons: Controls.DialogButtonBox.Close
         property string target: ""
         property string fontName: "Cantarell"
@@ -298,12 +349,14 @@ Item {
         id: colorDialog
         property string target: ""
         onAccepted: {
-            if (target === "date") { root.dateColors = root.setAt(root.dateColors, root.selectedDesktop - 1, selectedColor); root.save("dateColor", selectedColor) }
+                if (target === "date") { root.dateColors = root.setAt(root.dateColors, root.selectedDesktop - 1, selectedColor); root.save("dateColor", selectedColor) }
             else if (target === "number") { root.numberColors = root.setAt(root.numberColors, root.selectedDesktop - 1, selectedColor); root.save("numberColor", selectedColor) }
+            else if (target === "desktopNameBackground") { root.desktopNameBackgroundColors = root.setAt(root.desktopNameBackgroundColors, root.selectedDesktop - 1, selectedColor); root.save("desktopNameBackgroundColor", selectedColor) }
             else {
                 styleDialog.selectedTextColor = selectedColor
                 if (styleDialog.target === "dayName") { root.dayNameColors = root.setAt(root.dayNameColors, root.selectedDesktop - 1, selectedColor); root.save("dayNameColor", selectedColor) }
                 else if (styleDialog.target === "dayDate") { root.dayDateColors = root.setAt(root.dayDateColors, root.selectedDesktop - 1, selectedColor); root.save("dayDateColor", selectedColor) }
+                else if (styleDialog.target === "desktopName") { root.desktopNameColors = root.setAt(root.desktopNameColors, root.selectedDesktop - 1, selectedColor); root.save("desktopNameColor", selectedColor) }
                 else { root.numberTextColors = root.setAt(root.numberTextColors, root.selectedDesktop - 1, selectedColor); root.save("numberTextColor", selectedColor) }
             }
         }
@@ -316,6 +369,7 @@ Item {
         property string target: ""
         property string selectedFamily: "Cantarell"
         property string previewText: "Aa"
+        onOpened: fontFamilyBox.currentIndex = fontFamilyBox.model.indexOf(selectedFamily)
         contentItem: ColumnLayout {
             spacing: Kirigami.Units.largeSpacing
             Controls.Label {
@@ -331,20 +385,18 @@ Item {
                 model: Qt.fontFamilies()
                 currentIndex: -1
                 Layout.fillWidth: true
-                onVisibleChanged: {
-                    if (visible)
-                        currentIndex = model.indexOf(fontDialog.selectedFamily)
-                }
             }
         }
         onAccepted: {
             var family = fontFamilyBox.currentText
             if (target === "dayName") { root.dayNameFonts = root.setAt(root.dayNameFonts, root.selectedDesktop - 1, family); root.save("dayNameFont", family) }
             else if (target === "dayDate") { root.dayDateFonts = root.setAt(root.dayDateFonts, root.selectedDesktop - 1, family); root.save("dayDateFont", family) }
+            else if (target === "desktopName") { root.desktopNameFonts = root.setAt(root.desktopNameFonts, root.selectedDesktop - 1, family); root.save("desktopNameFont", family) }
             else if (target === "numberText") { root.numberFonts = root.setAt(root.numberFonts, root.selectedDesktop - 1, family); root.save("numberFont", family) }
             else if (target === "styleFont") {
                 if (styleDialog.target === "dayName") { root.dayNameFonts = root.setAt(root.dayNameFonts, root.selectedDesktop - 1, family); root.save("dayNameFont", family) }
                 else if (styleDialog.target === "dayDate") { root.dayDateFonts = root.setAt(root.dayDateFonts, root.selectedDesktop - 1, family); root.save("dayDateFont", family) }
+                else if (styleDialog.target === "desktopName") { root.desktopNameFonts = root.setAt(root.desktopNameFonts, root.selectedDesktop - 1, family); root.save("desktopNameFont", family) }
                 else { root.numberFonts = root.setAt(root.numberFonts, root.selectedDesktop - 1, family); root.save("numberFont", family) }
             }
         }

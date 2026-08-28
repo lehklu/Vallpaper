@@ -5,6 +5,7 @@
 import QtQuick as QTQ
 import QtQml as QTQ_QML
 import QtQuick.Layouts as QTQ_L
+import org.kde.plasma.plasmoid
 import org.kde.plasma.plasmoid as KDE_plasmoid
 
 import org.kde.taskmanager as KDE_taskmanager
@@ -12,9 +13,10 @@ import org.kde.taskmanager as KDE_taskmanager
 KDE_plasmoid.PlasmoidItem {
   id: _Root
 
-  property int _fullWidth: height * 4
-  property int _currentDateWidth: _fullWidth / 4 * 3
-  property int _deskWidth: _fullWidth / 4 * 1
+  property int _fullWidth: height * 5
+  property int _currentDateWidth: _fullWidth / 5 * 3
+  property int _nameWidth: _fullWidth / 5
+  property int _deskWidth: _fullWidth / 5
   property var _defaultDeskColors: [
     "#a0ffa0",
 	  "#a8a8ff",
@@ -25,27 +27,32 @@ KDE_plasmoid.PlasmoidItem {
   ]
   property date _currentDate: new Date()
   property int _currentDesktopNo: 0
+  property string _currentDesktopName: ""
   property int _configurationRevision: 0
   property var _currentDeskColor: configurationValue("dateColor" + _currentDesktopNo,
                                                      _defaultDeskColors[(_currentDesktopNo - 1 + 6) % 6])
   property var _currentNumberColor: configurationValue("numberColor" + _currentDesktopNo, "#000000")
   property var _currentDayNameColor: configurationValue("dayNameColor" + _currentDesktopNo, "#000000")
   property var _currentDayDateColor: configurationValue("dayDateColor" + _currentDesktopNo, "#000000")
+  property var _currentDesktopNameColor: configurationValue("desktopNameColor" + _currentDesktopNo, "#000000")
+  property var _currentDesktopNameBackgroundColor: configurationValue("desktopNameBackgroundColor" + _currentDesktopNo,
+                                                                       _defaultDeskColors[(_currentDesktopNo - 1 + 6) % 6])
   property var _currentNumberTextColor: configurationValue("numberTextColor" + _currentDesktopNo,
                                                             _defaultDeskColors[(_currentDesktopNo - 1 + 6) % 6])
   property string _currentDayNameFont: configurationValue("dayNameFont" + _currentDesktopNo, "Inconsolata")
   property string _currentDayDateFont: configurationValue("dayDateFont" + _currentDesktopNo, "Cantarell")
+  property string _currentDesktopNameFont: configurationValue("desktopNameFont" + _currentDesktopNo, "Cantarell")
   property string _currentNumberFont: configurationValue("numberFont" + _currentDesktopNo, "Cantarell")
 
   function configurationValue(key, fallback) {
     // Keep this dependency so configuration changes refresh every current
     // appearance property, including dynamically named desktop settings.
     var revision = _configurationRevision
-    return KDE_plasmoid.Plasmoid.configuration[key] || fallback
+    return Plasmoid.configuration[key] || fallback
   }
 
   QTQ_QML.Connections {
-    target: KDE_plasmoid.Plasmoid.configuration
+    target: Plasmoid.configuration
     function onValueChanged() {
       _Root._configurationRevision++
     }
@@ -63,6 +70,7 @@ KDE_plasmoid.PlasmoidItem {
     onCurrentDesktopChanged: scheduleDesktopSync();
     onDesktopIdsChanged: scheduleDesktopSync();
     onNumberOfDesktopsChanged: scheduleDesktopSync();
+    onDesktopNamesChanged: scheduleDesktopSync();
 
     function scheduleDesktopSync() {
       desktopSyncTimer.restart();
@@ -107,6 +115,8 @@ KDE_plasmoid.PlasmoidItem {
       return;
     }
 	  _Root._currentDesktopNo=$currentDesktopNo;
+    _Root._currentDesktopName = desktopInfo.desktopNames[$currentDesktopNo - 1]
+            || qsTr("Desktop %1").arg($currentDesktopNo);
   }
 
   QTQ.Timer {
@@ -149,6 +159,23 @@ KDE_plasmoid.PlasmoidItem {
 
 	    text : Qt.locale().toString(_Root._currentDate, "dd.MM")
     }
+  }
+
+  QTQ.Rectangle { id: _RectName
+	  width: _nameWidth
+	  height: parent.height
+	  anchors.right: _RectNo.left
+	  color: _currentDesktopNameBackgroundColor
+
+	  QTQ.Text {
+	    anchors.centerIn: parent
+	    width: parent.width - 8
+	    text: _currentDesktopName
+	    color: _currentDesktopNameColor
+	    font.family: _currentDesktopNameFont
+	    elide: Text.ElideRight
+	    horizontalAlignment: Text.AlignHCenter
+	  }
   }
 
   QTQ.Rectangle { id: _RectNo

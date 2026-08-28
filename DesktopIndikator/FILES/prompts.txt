@@ -59,3 +59,19 @@ The widget does not use the settings.
 main.qml:46:3: Connections is not a type
 
 main.qml:101: ReferenceError: desktopInfo is not defined
+
+Add a new section to the widget: name of desktop.
+
+Desktop name is not shown (also in the dropdown and preview).
+
+Desktop name is not shown anywhere.
+
+Changing fonts and colors in the preview does not work.
+
+Changing fonts and colors in the preview does not work.
+
+Clicking on the preview does nothing.
+
+Add Fonts and colors for desktop name section to settings.
+
+Add background color for desktop name section to settings.
