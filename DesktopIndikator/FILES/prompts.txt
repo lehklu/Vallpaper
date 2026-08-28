@@ -75,3 +75,13 @@ Clicking on the preview does nothing.
 Add Fonts and colors for desktop name section to settings.
 
 Add background color for desktop name section to settings.
+
+In the preview, on hover, display a rectangle around clickable elements.
+
+In the preview, on hover, display a rectangle around clickable elements: day name, day date, desktop number, background colors.
+
+Desktop name section: no hover visible.
+
+I want separate hover effects for day name, day date, desktop number and background colors.
+
+Does not work.

@@ -237,7 +237,8 @@ Item {
                 width: parent.width * 0.6
                 height: parent.height
                 color: root.dateColors[preview.desktopNo - 1] || "#a0ffa0"
-                border.color: dateMouse.containsMouse ? Kirigami.Theme.highlightColor : "transparent"
+                border.color: dateMouse.containsMouse && !dayNameMouse.containsMouse && !dayDateMouse.containsMouse
+                        ? Kirigami.Theme.highlightColor : "transparent"
                 border.width: 2
                 MouseArea {
                     id: dateMouse; anchors.fill: parent; hoverEnabled: true
@@ -245,21 +246,35 @@ Item {
                     onClicked: root.openColor("date", dateBlock.color)
                 }
                 Text {
+                    id: dayNameText
                     anchors.top: parent.top; anchors.horizontalCenter: parent.horizontalCenter
                     text: Qt.locale().toString(new Date(), "dddd")
                     color: root.dayNameColors[preview.desktopNo - 1] || "#000000"
                     font.family: root.dayNameFonts[preview.desktopNo - 1] || "Inconsolata"
                     font.pixelSize: parent.height * 0.42; font.weight: 400
+                    Rectangle {
+                        anchors.fill: parent
+                        color: "transparent"
+                        border.color: dayNameMouse.containsMouse ? Kirigami.Theme.highlightColor : "transparent"
+                        border.width: 2
+                    }
                 }
                 Text {
+                    id: dayDateText
                     anchors.bottom: parent.bottom; anchors.horizontalCenter: parent.horizontalCenter
                     text: Qt.locale().toString(new Date(), "dd.MM")
                     color: root.dayDateColors[preview.desktopNo - 1] || "#000000"
                     font.family: root.dayDateFonts[preview.desktopNo - 1] || "Cantarell"
                     font.pixelSize: parent.height * 0.42; font.weight: 600
-                    MouseArea { anchors.fill: parent; enabled: preview.interactive; onClicked: root.openStyle("dayDate") }
+                    MouseArea { id: dayDateMouse; anchors.fill: parent; hoverEnabled: true; enabled: preview.interactive; onClicked: root.openStyle("dayDate") }
+                    Rectangle {
+                        anchors.fill: parent
+                        color: "transparent"
+                        border.color: dayDateMouse.containsMouse ? Kirigami.Theme.highlightColor : "transparent"
+                        border.width: 2
+                    }
                 }
-                MouseArea { anchors.top: parent.top; anchors.left: parent.left; anchors.right: parent.right; height: parent.height / 2; enabled: preview.interactive; onClicked: root.openStyle("dayName") }
+                MouseArea { id: dayNameMouse; anchors.top: parent.top; anchors.left: parent.left; anchors.right: parent.right; height: parent.height / 2; hoverEnabled: true; enabled: preview.interactive; onClicked: root.openStyle("dayName") }
             }
             Rectangle {
                 id: nameBlock
@@ -267,8 +282,13 @@ Item {
                 width: parent.width * 0.2
                 height: parent.height
                 color: root.desktopNameBackgroundColors[preview.desktopNo - 1] || "#a0ffa0"
+                border.color: nameMouse.containsMouse && !desktopNameTextMouse.containsMouse
+                        ? Kirigami.Theme.highlightColor : "transparent"
+                border.width: 2
                 MouseArea {
+                    id: nameMouse
                     anchors.fill: parent
+                    hoverEnabled: true
                     enabled: preview.interactive
                     onClicked: root.openColor("desktopNameBackground", nameBlock.color)
                 }
@@ -281,9 +301,17 @@ Item {
                     horizontalAlignment: Text.AlignHCenter
                     elide: Text.ElideRight
                     MouseArea {
+                        id: desktopNameTextMouse
                         anchors.fill: parent
+                        hoverEnabled: true
                         enabled: preview.interactive
                         onClicked: root.openStyle("desktopName")
+                    }
+                    Rectangle {
+                        anchors.fill: parent
+                        color: "transparent"
+                        border.color: desktopNameTextMouse.containsMouse ? Kirigami.Theme.highlightColor : "transparent"
+                        border.width: 2
                     }
                 }
             }
@@ -291,14 +319,21 @@ Item {
                 id: numberBlock
                 anchors.right: parent.right; width: parent.width * 0.2; height: parent.height
                 color: root.numberColors[preview.desktopNo - 1] || "#000000"
-                border.color: numberMouse.containsMouse ? Kirigami.Theme.highlightColor : "transparent"; border.width: 2
+                border.color: numberMouse.containsMouse && !numberTextMouse.containsMouse
+                        ? Kirigami.Theme.highlightColor : "transparent"; border.width: 2
                 MouseArea { id: numberMouse; anchors.fill: parent; hoverEnabled: true; enabled: preview.interactive; onClicked: root.openColor("number", numberBlock.color) }
                 Text {
                     anchors.centerIn: parent; text: preview.desktopNo
                     color: root.numberTextColors[preview.desktopNo - 1] || "#a0ffa0"
                     font.family: root.numberFonts[preview.desktopNo - 1] || "Cantarell"
                     font.pixelSize: parent.height * 0.68; font.weight: 700
-                    MouseArea { anchors.fill: parent; enabled: preview.interactive; onClicked: root.openStyle("numberText") }
+                    MouseArea { id: numberTextMouse; anchors.fill: parent; hoverEnabled: true; enabled: preview.interactive; onClicked: root.openStyle("numberText") }
+                    Rectangle {
+                        anchors.fill: parent
+                        color: "transparent"
+                        border.color: numberTextMouse.containsMouse ? Kirigami.Theme.highlightColor : "transparent"
+                        border.width: 2
+                    }
                 }
             }
         }
