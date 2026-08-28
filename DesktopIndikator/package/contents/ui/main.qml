@@ -14,7 +14,7 @@ KDE_plasmoid.PlasmoidItem {
   property int _fullWidth: height * 4
   property int _currentDateWidth: _fullWidth / 4 * 3
   property int _deskWidth: _fullWidth / 4 * 1
-  property var _deskColors: [
+  property var _defaultDeskColors: [
     "#a0ffa0",
 	  "#a8a8ff",
 	  "#ff97ff",
@@ -22,11 +22,22 @@ KDE_plasmoid.PlasmoidItem {
 	  "#ffffff",
 	  "#41f2f2"
   ]
-  property var _contrastColor: "#000000"
-
   property date _currentDate: new Date()
   property int _currentDesktopNo: 0
-  property var _currentDeskColor: _deskColors[_currentDesktopNo]
+  property var _currentDeskColor: configurationValue("dateColor" + _currentDesktopNo,
+                                                     _defaultDeskColors[(_currentDesktopNo - 1 + 6) % 6])
+  property var _currentNumberColor: configurationValue("numberColor" + _currentDesktopNo, "#000000")
+  property var _currentDayNameColor: configurationValue("dayNameColor" + _currentDesktopNo, "#000000")
+  property var _currentDayDateColor: configurationValue("dayDateColor" + _currentDesktopNo, "#000000")
+  property var _currentNumberTextColor: configurationValue("numberTextColor" + _currentDesktopNo,
+                                                            _defaultDeskColors[(_currentDesktopNo - 1 + 6) % 6])
+  property string _currentDayNameFont: configurationValue("dayNameFont" + _currentDesktopNo, "Inconsolata")
+  property string _currentDayDateFont: configurationValue("dayDateFont" + _currentDesktopNo, "Cantarell")
+  property string _currentNumberFont: configurationValue("numberFont" + _currentDesktopNo, "Cantarell")
+
+  function configurationValue(key, fallback) {
+    return plasmoid.configuration[key] || fallback
+  }
 
   width: _fullWidth
   QTQ_L.Layout.minimumWidth: _fullWidth
@@ -64,9 +75,6 @@ KDE_plasmoid.PlasmoidItem {
 
   function handleOnDesktopChanged($currentDesktopNo) {
 
-    const colIdx=($currentDesktopNo-1) % _Root._deskColors.length;
-
-    _currentDeskColor=_Root._deskColors[colIdx];
 	  _Root._currentDesktopNo=$currentDesktopNo;
   }
 
@@ -89,11 +97,11 @@ KDE_plasmoid.PlasmoidItem {
       anchors.top: parent.top
 	    anchors.horizontalCenter: parent.horizontalCenter
 
-	    font.family: "Inconsolata"
+	    font.family: _currentDayNameFont
 	    font.pixelSize: _RectDate.height * 0.5
 	    font.weight: 400
 
-      color: _contrastColor
+      color: _currentDayNameColor
 
 	    text : Qt.locale().toString(_Root._currentDate, "dddd")
 	  }
@@ -102,11 +110,11 @@ KDE_plasmoid.PlasmoidItem {
 	    anchors.bottom: parent.bottom
 	    anchors.horizontalCenter: parent.horizontalCenter
 
-	    font.family: "Cantarell"
+	    font.family: _currentDayDateFont
 	    font.pixelSize: _RectDate.height * 0.5
 	    font.weight: 600
 
-	    color: _contrastColor
+	    color: _currentDayDateColor
 
 	    text : Qt.locale().toString(_Root._currentDate, "dd.MM")
     }
@@ -115,18 +123,18 @@ KDE_plasmoid.PlasmoidItem {
   QTQ.Rectangle { id: _RectNo
 	  width: _deskWidth
 	  height: parent.height
-	  color: _contrastColor
+	  color: _currentNumberColor
 	  anchors.right: parent.right
 
 	  QTQ.Text { id: _TxtNo
 	    anchors.verticalCenter: parent.verticalCenter
 	    anchors.horizontalCenter: parent.horizontalCenter
 
-	    font.family: "Cantarell"
+	    font.family: _currentNumberFont
 	    font.pixelSize: _RectNo.height * 0.8
 	    font.weight: 700
 
-	    color: _currentDeskColor
+	    color: _currentNumberTextColor
 
 	    text : _Root._currentDesktopNo
 	  }

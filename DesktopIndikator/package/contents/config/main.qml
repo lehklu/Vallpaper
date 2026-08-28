@@ -135,11 +135,14 @@ Item {
             Layout.fillWidth: true
             Layout.preferredHeight: Kirigami.Units.gridUnit * 13
             sourceComponent: widgetPreview
-            onLoaded: item.desktopNo = root.selectedDesktop
+            onLoaded: {
+                item.desktopNo = root.selectedDesktop
+                item.interactive = true
+            }
         }
 
         Controls.Label {
-            text: qsTr("Click an area in the preview to customize it.")
+            text: qsTr("Click an element in the preview to customize it.")
             opacity: 0.7
             Layout.fillWidth: true
         }
@@ -164,7 +167,10 @@ Item {
                     Layout.preferredWidth: Kirigami.Units.gridUnit * 9
                     Layout.preferredHeight: Kirigami.Units.gridUnit * 2
                     sourceComponent: widgetPreview
-                    onLoaded: item.desktopNo = number
+                    onLoaded: {
+                        item.desktopNo = number
+                        item.interactive = false
+                    }
                 }
             }
             onClicked: {
@@ -179,6 +185,7 @@ Item {
         Item {
             id: preview
             property int desktopNo: root.selectedDesktop
+            property bool interactive: false
             property real scaleFactor: Math.min(width / 320, height / 120)
             Rectangle {
                 id: dateBlock
@@ -187,10 +194,9 @@ Item {
                 color: root.dateColors[preview.desktopNo - 1] || "#a0ffa0"
                 border.color: dateMouse.containsMouse ? Kirigami.Theme.highlightColor : "transparent"
                 border.width: 2
-                Controls.ToolTip.visible: dateMouse.containsMouse
-                Controls.ToolTip.text: qsTr("Background date · click to change color")
                 MouseArea {
                     id: dateMouse; anchors.fill: parent; hoverEnabled: true
+                    enabled: preview.interactive
                     onClicked: root.openColor("date", dateBlock.color)
                 }
                 Text {
@@ -206,22 +212,22 @@ Item {
                     color: root.dayDateColors[preview.desktopNo - 1] || "#000000"
                     font.family: root.dayDateFonts[preview.desktopNo - 1] || "Cantarell"
                     font.pixelSize: parent.height * 0.42; font.weight: 600
-                    MouseArea { anchors.fill: parent; onClicked: root.openStyle("dayDate") }
+                    MouseArea { anchors.fill: parent; enabled: preview.interactive; onClicked: root.openStyle("dayDate") }
                 }
-                MouseArea { anchors.top: parent.top; anchors.left: parent.left; anchors.right: parent.right; height: parent.height / 2; onClicked: root.openStyle("dayName") }
+                MouseArea { anchors.top: parent.top; anchors.left: parent.left; anchors.right: parent.right; height: parent.height / 2; enabled: preview.interactive; onClicked: root.openStyle("dayName") }
             }
             Rectangle {
                 id: numberBlock
                 anchors.right: parent.right; width: parent.width * 0.25; height: parent.height
                 color: root.numberColors[preview.desktopNo - 1] || "#000000"
                 border.color: numberMouse.containsMouse ? Kirigami.Theme.highlightColor : "transparent"; border.width: 2
-                MouseArea { id: numberMouse; anchors.fill: parent; hoverEnabled: true; onClicked: root.openColor("number", numberBlock.color) }
+                MouseArea { id: numberMouse; anchors.fill: parent; hoverEnabled: true; enabled: preview.interactive; onClicked: root.openColor("number", numberBlock.color) }
                 Text {
                     anchors.centerIn: parent; text: preview.desktopNo
                     color: root.numberTextColors[preview.desktopNo - 1] || "#a0ffa0"
                     font.family: root.numberFonts[preview.desktopNo - 1] || "Cantarell"
                     font.pixelSize: parent.height * 0.68; font.weight: 700
-                    MouseArea { anchors.fill: parent; onClicked: root.openStyle("numberText") }
+                    MouseArea { anchors.fill: parent; enabled: preview.interactive; onClicked: root.openStyle("numberText") }
                 }
             }
         }

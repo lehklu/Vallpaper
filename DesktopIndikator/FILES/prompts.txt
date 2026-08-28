@@ -25,3 +25,11 @@ Problems:
 Problems:
 - only Arbeitsfläche 6 is shown
 - the dropdown preview is gone
+
+The preview in the dropdown shall not open any dialogs.
+
+The widget does not use the settings.
+
+main.qml:27:3: color is not a type
+
+Remove hover help.
