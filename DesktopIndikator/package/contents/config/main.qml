@@ -13,6 +13,15 @@ Item {
     implicitHeight: Kirigami.Units.gridUnit * 32
 
     property int selectedDesktop: desktopBox.currentIndex + 1
+    property int dateSectionWidth: 3
+    property int desktopNameSectionWidth: 1
+    property int numberSectionWidth: 1
+    property bool dateSectionVisible: true
+    property bool desktopNameSectionVisible: true
+    property bool numberSectionVisible: true
+    property int dateSectionOrder: 0
+    property int desktopNameSectionOrder: 1
+    property int numberSectionOrder: 2
     property var dateColors: ["#a0ffa0", "#a8a8ff", "#ff97ff", "#ffff8f", "#ffffff", "#41f2f2"]
     property var numberColors: ["#000000", "#000000", "#000000", "#000000", "#000000", "#000000"]
     property var dayNameColors: ["#000000", "#000000", "#000000", "#000000", "#000000", "#000000"]
@@ -30,7 +39,163 @@ Item {
         plasmoid.configuration.writeConfig()
     }
 
+    function saveLayout(key, value) {
+        plasmoid.configuration[key] = value
+        plasmoid.configuration.writeConfig()
+    }
+
+    function sectionTotalWidth() {
+        return (dateSectionVisible ? dateSectionWidth : 0)
+                + (desktopNameSectionVisible ? desktopNameSectionWidth : 0)
+                + (numberSectionVisible ? numberSectionWidth : 0)
+    }
+
+    function sectionWidth(weight, visible, totalWidth) {
+        var total = sectionTotalWidth()
+        return visible && total > 0 ? totalWidth * weight / total : 0
+    }
+
+    function sectionOffset(order, totalWidth) {
+        var total = sectionTotalWidth()
+        if (total <= 0)
+            return 0
+        var offset = 0
+        if (dateSectionVisible && dateSectionOrder < order)
+            offset += totalWidth * dateSectionWidth / total
+        if (desktopNameSectionVisible && desktopNameSectionOrder < order)
+            offset += totalWidth * desktopNameSectionWidth / total
+        if (numberSectionVisible && numberSectionOrder < order)
+            offset += totalWidth * numberSectionWidth / total
+        return offset
+    }
+
+    component SectionSettingsRow: RowLayout {
+        property string label
+        property string sectionKey
+        property int widthValue: 1
+        property bool visibleValue: true
+        property bool canMoveUp: false
+        property bool canMoveDown: false
+        signal widthSettingChanged(int value)
+        signal visibleSettingChanged(bool value)
+        signal moveUpRequested
+        signal moveDownRequested
+
+        Controls.Button {
+            icon.source: Qt.resolvedUrl("../icons/rounded-triangle-up.svg")
+            display: Controls.AbstractButton.IconOnly
+            enabled: parent.canMoveUp
+            opacity: parent.canMoveUp ? 1 : 0
+            horizontalPadding: 0
+            Layout.preferredWidth: Kirigami.Units.gridUnit * 1.5
+            onClicked: parent.moveUpRequested()
+        }
+        Controls.Button {
+            icon.source: Qt.resolvedUrl("../icons/rounded-triangle-down.svg")
+            display: Controls.AbstractButton.IconOnly
+            enabled: parent.canMoveDown
+            opacity: parent.canMoveDown ? 1 : 0
+            horizontalPadding: 0
+            Layout.preferredWidth: Kirigami.Units.gridUnit * 1.5
+            onClicked: parent.moveDownRequested()
+        }
+        Controls.Label { text: parent.label; Layout.fillWidth: true }
+        Controls.Label { text: qsTr("Width") }
+        Controls.SpinBox {
+            from: 1
+            to: 10
+            value: parent.widthValue
+            onValueModified: {
+                parent.widthValue = value
+                parent.widthSettingChanged(value)
+            }
+            Layout.preferredWidth: Kirigami.Units.gridUnit * 5
+        }
+        Controls.CheckBox {
+            checked: parent.visibleValue
+            text: qsTr("Visible")
+            onClicked: {
+                parent.visibleValue = checked
+                parent.visibleSettingChanged(checked)
+            }
+        }
+    }
+
+    ListModel {
+        id: sectionModel
+        ListElement { key: "date"; label: qsTr("Date") }
+        ListElement { key: "desktopName"; label: qsTr("Desktop name") }
+        ListElement { key: "number"; label: qsTr("Desktop number") }
+    }
+
+    function sectionWidthValue(key) {
+        return key === "date" ? dateSectionWidth : key === "desktopName" ? desktopNameSectionWidth : numberSectionWidth
+    }
+
+    function sectionVisibleValue(key) {
+        return key === "date" ? dateSectionVisible : key === "desktopName" ? desktopNameSectionVisible : numberSectionVisible
+    }
+
+    function setSectionWidth(key, value) {
+        if (key === "date") dateSectionWidth = value
+        else if (key === "desktopName") desktopNameSectionWidth = value
+        else numberSectionWidth = value
+        saveLayout(key + "SectionWidth", value)
+    }
+
+    function setSectionVisible(key, value) {
+        if (key === "date") dateSectionVisible = value
+        else if (key === "desktopName") desktopNameSectionVisible = value
+        else numberSectionVisible = value
+        saveLayout(key + "SectionVisible", value)
+    }
+
+    function saveSectionOrder() {
+        var order = []
+        for (var i = 0; i < sectionModel.count; ++i)
+            order.push(sectionModel.get(i).key)
+        saveLayout("sectionOrder", order.join(","))
+        dateSectionOrder = order.indexOf("date")
+        desktopNameSectionOrder = order.indexOf("desktopName")
+        numberSectionOrder = order.indexOf("number")
+    }
+
+    function loadSectionOrder() {
+        var savedOrder = String(plasmoid.configuration.sectionOrder || "date,desktopName,number").split(",")
+        var valid = ["date", "desktopName", "number"]
+        var ordered = []
+        for (var i = 0; i < savedOrder.length; ++i)
+            if (valid.indexOf(savedOrder[i]) >= 0 && ordered.indexOf(savedOrder[i]) < 0)
+                ordered.push(savedOrder[i])
+        for (var j = 0; j < valid.length; ++j)
+            if (ordered.indexOf(valid[j]) < 0)
+                ordered.push(valid[j])
+        for (var k = 0; k < ordered.length; ++k) {
+            var row = sectionModel.get(k)
+            var currentIndex = -1
+            for (var n = 0; n < sectionModel.count; ++n)
+                if (sectionModel.get(n).key === ordered[k]) currentIndex = n
+            if (currentIndex >= 0 && currentIndex !== k) sectionModel.move(currentIndex, k, 1)
+        }
+        saveSectionOrderProperties()
+    }
+
+    function saveSectionOrderProperties() {
+        dateSectionOrder = sectionModel.get(0).key === "date" ? 0 : sectionModel.get(1).key === "date" ? 1 : 2
+        desktopNameSectionOrder = sectionModel.get(0).key === "desktopName" ? 0 : sectionModel.get(1).key === "desktopName" ? 1 : 2
+        numberSectionOrder = sectionModel.get(0).key === "number" ? 0 : sectionModel.get(1).key === "number" ? 1 : 2
+    }
+
     function loadSettings() {
+        dateSectionWidth = Number(plasmoid.configuration.dateSectionWidth || 3)
+        desktopNameSectionWidth = Number(plasmoid.configuration.desktopNameSectionWidth || 1)
+        numberSectionWidth = Number(plasmoid.configuration.numberSectionWidth || 1)
+        dateSectionVisible = plasmoid.configuration.dateSectionVisible !== false && plasmoid.configuration.dateSectionVisible !== "false"
+        desktopNameSectionVisible = plasmoid.configuration.desktopNameSectionVisible !== false && plasmoid.configuration.desktopNameSectionVisible !== "false"
+        numberSectionVisible = plasmoid.configuration.numberSectionVisible !== false && plasmoid.configuration.numberSectionVisible !== "false"
+        dateSectionOrder = Number(plasmoid.configuration.dateSectionOrder || 0)
+        desktopNameSectionOrder = Number(plasmoid.configuration.desktopNameSectionOrder || 1)
+        numberSectionOrder = Number(plasmoid.configuration.numberSectionOrder || 2)
         var desktopCount = Math.max(6, desktopInfo.numberOfDesktops || 0)
         var keys = plasmoid.configuration.keys()
         for (var k = 0; k < keys.length; ++k) {
@@ -78,7 +243,10 @@ Item {
         fontDialog.open()
     }
 
-    Component.onCompleted: loadSettings()
+    Component.onCompleted: {
+        loadSettings()
+        loadSectionOrder()
+    }
 
     onSelectedDesktopChanged: {
         if (largePreview.item) {
@@ -164,6 +332,46 @@ Item {
             }
         }
 
+        Controls.GroupBox {
+            title: qsTr("Widget sections")
+            Layout.fillWidth: true
+            contentItem: ColumnLayout {
+                ListView {
+                    id: sectionList
+                    Layout.fillWidth: true
+                    implicitHeight: contentHeight
+                    interactive: false
+                    model: sectionModel
+                    delegate: Item {
+                        id: sectionDelegate
+                        width: sectionList.width
+                        height: sectionRow.implicitHeight + Kirigami.Units.smallSpacing
+
+                        SectionSettingsRow {
+                            id: sectionRow
+                            width: parent.width
+                            label: model.label
+                            sectionKey: model.key
+                            widthValue: root.sectionWidthValue(model.key)
+                            visibleValue: root.sectionVisibleValue(model.key)
+                            canMoveUp: index > 0
+                            canMoveDown: index < sectionModel.count - 1
+                            onWidthSettingChanged: root.setSectionWidth(sectionKey, value)
+                            onVisibleSettingChanged: root.setSectionVisible(sectionKey, value)
+                            onMoveUpRequested: {
+                                sectionModel.move(index, index - 1, 1)
+                                root.saveSectionOrder()
+                            }
+                            onMoveDownRequested: {
+                                sectionModel.move(index, index + 1, 1)
+                                root.saveSectionOrder()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         Controls.Label {
             text: qsTr("Widget appearance")
             font.bold: true
@@ -234,8 +442,10 @@ Item {
             property real scaleFactor: Math.min(width / 320, height / 120)
             Rectangle {
                 id: dateBlock
-                width: parent.width * 0.6
+                x: root.sectionOffset(root.dateSectionOrder, parent.width)
+                width: root.sectionWidth(root.dateSectionWidth, root.dateSectionVisible, parent.width)
                 height: parent.height
+                visible: root.dateSectionVisible
                 color: root.dateColors[preview.desktopNo - 1] || "#a0ffa0"
                 border.color: dateMouse.containsMouse && !dayNameMouse.containsMouse && !dayDateMouse.containsMouse
                         ? Kirigami.Theme.highlightColor : "transparent"
@@ -278,9 +488,10 @@ Item {
             }
             Rectangle {
                 id: nameBlock
-                anchors.left: dateBlock.right
-                width: parent.width * 0.2
+                x: root.sectionOffset(root.desktopNameSectionOrder, parent.width)
+                width: root.sectionWidth(root.desktopNameSectionWidth, root.desktopNameSectionVisible, parent.width)
                 height: parent.height
+                visible: root.desktopNameSectionVisible
                 color: root.desktopNameBackgroundColors[preview.desktopNo - 1] || "#a0ffa0"
                 border.color: nameMouse.containsMouse && !desktopNameTextMouse.containsMouse
                         ? Kirigami.Theme.highlightColor : "transparent"
@@ -317,7 +528,10 @@ Item {
             }
             Rectangle {
                 id: numberBlock
-                anchors.right: parent.right; width: parent.width * 0.2; height: parent.height
+                x: root.sectionOffset(root.numberSectionOrder, parent.width)
+                width: root.sectionWidth(root.numberSectionWidth, root.numberSectionVisible, parent.width)
+                height: parent.height
+                visible: root.numberSectionVisible
                 color: root.numberColors[preview.desktopNo - 1] || "#000000"
                 border.color: numberMouse.containsMouse && !numberTextMouse.containsMouse
                         ? Kirigami.Theme.highlightColor : "transparent"; border.width: 2

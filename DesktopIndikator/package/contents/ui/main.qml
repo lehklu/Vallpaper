@@ -14,9 +14,15 @@ KDE_plasmoid.PlasmoidItem {
   id: _Root
 
   property int _fullWidth: height * 5
-  property int _currentDateWidth: _fullWidth / 5 * 3
-  property int _nameWidth: _fullWidth / 5
-  property int _deskWidth: _fullWidth / 5
+  property real _dateSectionWidth: Number(configurationValue("dateSectionWidth", 3))
+  property real _nameSectionWidth: Number(configurationValue("nameSectionWidth", 1))
+  property real _numberSectionWidth: Number(configurationValue("numberSectionWidth", 1))
+  property bool _dateSectionVisible: configurationValue("dateSectionVisible", true) === true || configurationValue("dateSectionVisible", true) === "true"
+  property bool _nameSectionVisible: configurationValue("nameSectionVisible", true) === true || configurationValue("nameSectionVisible", true) === "true"
+  property bool _numberSectionVisible: configurationValue("numberSectionVisible", true) === true || configurationValue("numberSectionVisible", true) === "true"
+  property int _dateSectionOrder: sectionOrderIndex("date", 0)
+  property int _nameSectionOrder: sectionOrderIndex("desktopName", 1)
+  property int _numberSectionOrder: sectionOrderIndex("number", 2)
   property var _defaultDeskColors: [
     "#a0ffa0",
 	  "#a8a8ff",
@@ -49,6 +55,34 @@ KDE_plasmoid.PlasmoidItem {
     // appearance property, including dynamically named desktop settings.
     var revision = _configurationRevision
     return Plasmoid.configuration[key] || fallback
+  }
+
+  function sectionOrderIndex(section, fallback) {
+    var order = String(configurationValue("sectionOrder", "date,desktopName,number")).split(",")
+    var index = order.indexOf(section)
+    return index >= 0 ? index : fallback
+  }
+
+  function sectionTotalWidth() {
+    return (_dateSectionVisible ? _dateSectionWidth : 0)
+            + (_nameSectionVisible ? _nameSectionWidth : 0)
+            + (_numberSectionVisible ? _numberSectionWidth : 0)
+  }
+
+  function sectionWidth(weight, visible) {
+    var total = sectionTotalWidth()
+    return visible && total > 0 ? _fullWidth * weight / total : 0
+  }
+
+  function sectionOffset(order) {
+    var offset = 0
+    if (_dateSectionVisible && _dateSectionOrder < order)
+      offset += sectionWidth(_dateSectionWidth, true)
+    if (_nameSectionVisible && _nameSectionOrder < order)
+      offset += sectionWidth(_nameSectionWidth, true)
+    if (_numberSectionVisible && _numberSectionOrder < order)
+      offset += sectionWidth(_numberSectionWidth, true)
+    return offset
   }
 
   QTQ_QML.Connections {
@@ -129,9 +163,10 @@ KDE_plasmoid.PlasmoidItem {
   }
 
   QTQ.Rectangle { id: _RectDate
-	  width: _currentDateWidth
+	  x: sectionOffset(_dateSectionOrder)
+	  width: sectionWidth(_dateSectionWidth, _dateSectionVisible)
 	  height: parent.height
-	  anchors.left: parent.left
+	  visible: _dateSectionVisible
 	  color: _currentDeskColor
 
 	  QTQ.Text { id: _TxtDay
@@ -162,9 +197,10 @@ KDE_plasmoid.PlasmoidItem {
   }
 
   QTQ.Rectangle { id: _RectName
-	  width: _nameWidth
+	  x: sectionOffset(_nameSectionOrder)
+	  width: sectionWidth(_nameSectionWidth, _nameSectionVisible)
 	  height: parent.height
-	  anchors.right: _RectNo.left
+	  visible: _nameSectionVisible
 	  color: _currentDesktopNameBackgroundColor
 
 	  QTQ.Text {
@@ -179,10 +215,11 @@ KDE_plasmoid.PlasmoidItem {
   }
 
   QTQ.Rectangle { id: _RectNo
-	  width: _deskWidth
+	  x: sectionOffset(_numberSectionOrder)
+	  width: sectionWidth(_numberSectionWidth, _numberSectionVisible)
 	  height: parent.height
 	  color: _currentNumberColor
-	  anchors.right: parent.right
+	  visible: _numberSectionVisible
 
 	  QTQ.Text { id: _TxtNo
 	    anchors.verticalCenter: parent.verticalCenter
