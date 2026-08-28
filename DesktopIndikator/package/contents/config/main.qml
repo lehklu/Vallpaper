@@ -24,10 +24,18 @@ Item {
 
     function save(key, value) {
         plasmoid.configuration[key + selectedDesktop] = value
+        plasmoid.configuration.writeConfig()
     }
 
     function loadSettings() {
-        for (var i = 0; i < 6; ++i) {
+        var desktopCount = Math.max(6, desktopInfo.numberOfDesktops || 0)
+        var keys = plasmoid.configuration.keys()
+        for (var k = 0; k < keys.length; ++k) {
+            var suffix = keys[k].match(/(?:dateColor|numberColor|dayNameColor|dayDateColor|numberTextColor|dayNameFont|dayDateFont|numberFont)([0-9]+)$/)
+            if (suffix)
+                desktopCount = Math.max(desktopCount, Number(suffix[1]))
+        }
+        for (var i = 0; i < desktopCount; ++i) {
             var n = i + 1
             if (plasmoid.configuration["dateColor" + n]) dateColors[i] = plasmoid.configuration["dateColor" + n]
             if (plasmoid.configuration["numberColor" + n]) numberColors[i] = plasmoid.configuration["numberColor" + n]
@@ -54,7 +62,12 @@ Item {
 
     function openFont(target, current) {
         fontDialog.target = target
-        fontDialog.selectedFont = Qt.font({ family: current, pixelSize: 18 })
+        fontDialog.selectedFamily = current
+        fontDialog.previewText = target === "styleFont"
+                ? styleDialog.target === "dayName" ? Qt.locale().toString(new Date(), "dddd")
+                : styleDialog.target === "dayDate" ? Qt.locale().toString(new Date(), "dd.MM")
+                : String(selectedDesktop)
+                : String(selectedDesktop)
         fontDialog.open()
     }
 
@@ -64,13 +77,24 @@ Item {
 
     TaskManager.VirtualDesktopInfo {
         id: desktopInfo
-        onNumberOfDesktopsChanged: rebuildDesktops()
-        onDesktopIdsChanged: rebuildDesktops()
-        onDesktopNamesChanged: rebuildDesktops()
-        Component.onCompleted: rebuildDesktops()
+        onNumberOfDesktopsChanged: scheduleDesktopRebuild()
+        onDesktopIdsChanged: scheduleDesktopRebuild()
+        onDesktopNamesChanged: scheduleDesktopRebuild()
+        Component.onCompleted: scheduleDesktopRebuild()
+    }
+
+    Timer {
+        id: desktopRebuildTimer
+        interval: 0
+        onTriggered: rebuildDesktops()
+    }
+
+    function scheduleDesktopRebuild() {
+        desktopRebuildTimer.restart()
     }
 
     function rebuildDesktops() {
+        var previousIndex = desktopBox.currentIndex
         desktopModel.clear()
         // Use every available source: Plasma versions differ in when these
         // properties become populated while the configuration page starts.
@@ -83,8 +107,7 @@ Item {
                     ? desktopInfo.desktopNames[i] : qsTr("Desktop %1").arg(i + 1)
             desktopModel.append({ name: desktopName, number: i + 1 })
         }
-        if (desktopBox.currentIndex < 0)
-            desktopBox.currentIndex = 0
+        desktopBox.currentIndex = Math.min(Math.max(previousIndex, 0), count - 1)
     }
 
     ListModel { id: desktopModel }
@@ -235,10 +258,12 @@ Item {
 
     function openStyle(target) {
         styleDialog.target = target
-        styleDialog.fontName = target === "dayName" ? dayNameFonts[selectedDesktop - 1]
-                : target === "dayDate" ? dayDateFonts[selectedDesktop - 1] : numberFonts[selectedDesktop - 1]
-        styleDialog.selectedTextColor = target === "dayName" ? dayNameColors[selectedDesktop - 1]
-                : target === "dayDate" ? dayDateColors[selectedDesktop - 1] : numberTextColors[selectedDesktop - 1]
+        styleDialog.fontName = (target === "dayName" ? dayNameFonts[selectedDesktop - 1]
+                : target === "dayDate" ? dayDateFonts[selectedDesktop - 1] : numberFonts[selectedDesktop - 1])
+                || (target === "dayName" ? "Inconsolata" : "Cantarell")
+        styleDialog.selectedTextColor = (target === "dayName" ? dayNameColors[selectedDesktop - 1]
+                : target === "dayDate" ? dayDateColors[selectedDesktop - 1] : numberTextColors[selectedDesktop - 1])
+                || "#000000"
         styleDialog.open()
     }
 
@@ -284,11 +309,36 @@ Item {
         }
     }
 
-    FontDialog {
+    Controls.Dialog {
         id: fontDialog
+        title: qsTr("Choose font")
+        standardButtons: Controls.DialogButtonBox.Ok | Controls.DialogButtonBox.Cancel
         property string target: ""
+        property string selectedFamily: "Cantarell"
+        property string previewText: "Aa"
+        contentItem: ColumnLayout {
+            spacing: Kirigami.Units.largeSpacing
+            Controls.Label {
+                text: fontDialog.previewText
+                font.family: fontFamilyBox.currentText || fontDialog.selectedFamily
+                font.pixelSize: Kirigami.Units.gridUnit * 1.5
+                horizontalAlignment: Text.AlignHCenter
+                Layout.fillWidth: true
+                wrapMode: Text.WordWrap
+            }
+            Controls.ComboBox {
+                id: fontFamilyBox
+                model: Qt.fontFamilies()
+                currentIndex: -1
+                Layout.fillWidth: true
+                onVisibleChanged: {
+                    if (visible)
+                        currentIndex = model.indexOf(fontDialog.selectedFamily)
+                }
+            }
+        }
         onAccepted: {
-            var family = selectedFont.family
+            var family = fontFamilyBox.currentText
             if (target === "dayName") { root.dayNameFonts = root.setAt(root.dayNameFonts, root.selectedDesktop - 1, family); root.save("dayNameFont", family) }
             else if (target === "dayDate") { root.dayDateFonts = root.setAt(root.dayDateFonts, root.selectedDesktop - 1, family); root.save("dayDateFont", family) }
             else if (target === "numberText") { root.numberFonts = root.setAt(root.numberFonts, root.selectedDesktop - 1, family); root.save("numberFont", family) }

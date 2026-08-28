@@ -3,6 +3,7 @@
  */
 
 import QtQuick as QTQ
+import QtQml as QTQ_QML
 import QtQuick.Layouts as QTQ_L
 import org.kde.plasma.plasmoid as KDE_plasmoid
 
@@ -24,6 +25,7 @@ KDE_plasmoid.PlasmoidItem {
   ]
   property date _currentDate: new Date()
   property int _currentDesktopNo: 0
+  property int _configurationRevision: 0
   property var _currentDeskColor: configurationValue("dateColor" + _currentDesktopNo,
                                                      _defaultDeskColors[(_currentDesktopNo - 1 + 6) % 6])
   property var _currentNumberColor: configurationValue("numberColor" + _currentDesktopNo, "#000000")
@@ -36,7 +38,17 @@ KDE_plasmoid.PlasmoidItem {
   property string _currentNumberFont: configurationValue("numberFont" + _currentDesktopNo, "Cantarell")
 
   function configurationValue(key, fallback) {
-    return plasmoid.configuration[key] || fallback
+    // Keep this dependency so configuration changes refresh every current
+    // appearance property, including dynamically named desktop settings.
+    var revision = _configurationRevision
+    return KDE_plasmoid.Plasmoid.configuration[key] || fallback
+  }
+
+  QTQ_QML.Connections {
+    target: KDE_plasmoid.Plasmoid.configuration
+    function onValueChanged() {
+      _Root._configurationRevision++
+    }
   }
 
   width: _fullWidth
@@ -44,10 +56,17 @@ KDE_plasmoid.PlasmoidItem {
   QTQ_L.Layout.fillHeight: true
 
   KDE_taskmanager.VirtualDesktopInfo {
+    id: desktopInfo
 
-    QTQ.Component.onCompleted: broadcastDesktopChanged();
+    QTQ.Component.onCompleted: scheduleDesktopSync();
 
-    onCurrentDesktopChanged: broadcastDesktopChanged();
+    onCurrentDesktopChanged: scheduleDesktopSync();
+    onDesktopIdsChanged: scheduleDesktopSync();
+    onNumberOfDesktopsChanged: scheduleDesktopSync();
+
+    function scheduleDesktopSync() {
+      desktopSyncTimer.restart();
+    }
 
   	function broadcastDesktopChanged() {
 
@@ -59,6 +78,10 @@ KDE_plasmoid.PlasmoidItem {
       const currentId = currentDesktop;
       const ids = desktopIds;
 
+      if (!ids.length || currentId === undefined || currentId === null) {
+        return 0;
+      }
+
       let idx = 0;
 
       for(; idx < ids.length; idx++)
@@ -69,12 +92,20 @@ KDE_plasmoid.PlasmoidItem {
 
       }
 
-      return idx+1;
+      return idx < ids.length ? idx + 1 : 0;
     }
   }
 
-  function handleOnDesktopChanged($currentDesktopNo) {
+  QTQ.Timer {
+    id: desktopSyncTimer
+    interval: 0
+    onTriggered: desktopInfo.broadcastDesktopChanged()
+  }
 
+  function handleOnDesktopChanged($currentDesktopNo) {
+	  if ($currentDesktopNo < 1) {
+      return;
+    }
 	  _Root._currentDesktopNo=$currentDesktopNo;
   }
 

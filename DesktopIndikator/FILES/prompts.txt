@@ -33,3 +33,29 @@ The widget does not use the settings.
 main.qml:27:3: color is not a type
 
 Remove hover help.
+
+In the font dialog, don't show the size.
+
+In the font dialog, add a preview of the font.
+
+In the font dialog, use the text of the target element as preview text.
+
+In the font dialog, center the preview text.
+
+In the font dialog, display preview above the font selector.
+
+If a new virtual desktop is created, this happens: main.qml:243: Error: Cannot assign [undefined] to QString
+
+If a new virtual desktop is created, widget, dropdown and preview do not match.
+
+If a new virtual desktop is created, widget, dropdown and preview do not match.
+
+main.qml:54:5: Cannot assign to non-existent default property
+
+The widget does not work anymore. Settings for new virtual desktops are not saved.
+
+The widget does not use the settings.
+
+main.qml:46:3: Connections is not a type
+
+main.qml:101: ReferenceError: desktopInfo is not defined
