@@ -303,37 +303,12 @@ Item {
         spacing: Kirigami.Units.largeSpacing
 
         Controls.Label {
-            text: qsTr("Virtual desktop")
-            Layout.fillWidth: true
+            text: qsTr("Widget sections")
             font.bold: true
-        }
-
-        Controls.ComboBox {
-            id: desktopBox
-            model: desktopModel
-            textRole: "name"
-            Layout.fillWidth: true
-            implicitHeight: Kirigami.Units.gridUnit * 3
-            delegate: desktopDelegate
-            popup: Controls.Popup {
-                id: desktopPopup
-                y: desktopBox.height
-                width: desktopBox.width
-                padding: 0
-                height: Math.min(desktopModel.count * Kirigami.Units.gridUnit * 3,
-                        Kirigami.Units.gridUnit * 20)
-                contentItem: ListView {
-                    anchors.fill: parent
-                    clip: true
-                    model: desktopModel
-                    currentIndex: desktopBox.highlightedIndex
-                    delegate: desktopDelegate
-                }
-            }
+            Layout.topMargin: Kirigami.Units.smallSpacing
         }
 
         Controls.GroupBox {
-            title: qsTr("Widget sections")
             Layout.fillWidth: true
             contentItem: ColumnLayout {
                 ListView {
@@ -373,9 +348,33 @@ Item {
         }
 
         Controls.Label {
-            text: qsTr("Widget appearance")
+            text: qsTr("Appearance")
+            Layout.fillWidth: true
             font.bold: true
-            Layout.topMargin: Kirigami.Units.smallSpacing
+        }
+
+        Controls.ComboBox {
+            id: desktopBox
+            model: desktopModel
+            textRole: "name"
+            Layout.fillWidth: true
+            implicitHeight: Kirigami.Units.gridUnit * 3
+            delegate: desktopDelegate
+            popup: Controls.Popup {
+                id: desktopPopup
+                y: desktopBox.height
+                width: desktopBox.width
+                padding: 0
+                height: Math.min(desktopModel.count * Kirigami.Units.gridUnit * 3,
+                    Kirigami.Units.gridUnit * 20)
+                contentItem: ListView {
+                    anchors.fill: parent
+                    clip: true
+                    model: desktopModel
+                    currentIndex: desktopBox.highlightedIndex
+                    delegate: desktopDelegate
+                }
+            }
         }
 
         Loader {
