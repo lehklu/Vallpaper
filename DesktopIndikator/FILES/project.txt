@@ -6,3 +6,6 @@ V2
 *konfigurierbare Sections: 1..n lines, Formatstring für jede Line (%desktopName, %desktopNumber, %%dd.mmm, u.ä.)
 *1-n Anzahl an Sections
 *Widget sections pro desktop
+
+V3
+*alte config übernehmen bei versionswechsel
