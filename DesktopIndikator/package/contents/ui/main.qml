@@ -15,7 +15,7 @@ KDE_plasmoid.PlasmoidItem {
 
   property int _fullWidth: height * 5
   property real _dateSectionWidth: Number(configurationValue("dateSectionWidth", 3))
-  property real _nameSectionWidth: Number(configurationValue("nameSectionWidth", 1))
+  property real _nameSectionWidth: Number(configurationValue("desktopNameSectionWidth", 1))
   property real _numberSectionWidth: Number(configurationValue("numberSectionWidth", 1))
   property bool _dateSectionVisible: configurationValue("dateSectionVisible", true) === true || configurationValue("dateSectionVisible", true) === "true"
   property bool _nameSectionVisible: configurationValue("nameSectionVisible", true) === true || configurationValue("nameSectionVisible", true) === "true"
@@ -54,6 +54,17 @@ KDE_plasmoid.PlasmoidItem {
     // Keep this dependency so configuration changes refresh every current
     // appearance property, including dynamically named desktop settings.
     var revision = _configurationRevision
+    var match = key.match(/^(.*?)([0-9]+)$/)
+    if (match) {
+      var stored = Plasmoid.configuration[match[1] + "s"]
+      if (stored) {
+        try {
+          var values = JSON.parse(stored)
+          return values[Number(match[2]) - 1] || fallback
+        } catch (e) {}
+      }
+      return fallback
+    }
     return Plasmoid.configuration[key] || fallback
   }
 

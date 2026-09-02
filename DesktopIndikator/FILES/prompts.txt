@@ -112,3 +112,22 @@ Hide disabled up/down buttons.Arrows should look like filled, rounded triangles.
 Space of hidden up/down buttons shall be preserved. Icons should look like filled, rounded triangles.
 
 Add label 'width' to weight spinners.
+
+move config/main.qml to ui/ and rename it to config.qml
+
+why is there no config/main.xml
+
+they have not the same meaning
+
+is it not neccessary for plasmoids which save state
+
+where are they declared in this project
+
+declare them formally, for a unknown number of desktops
+
+do it
+
+remove the fallback
+
+
+

@@ -35,7 +35,10 @@ Item {
     property var desktopNameFonts: ["Cantarell", "Cantarell", "Cantarell", "Cantarell", "Cantarell", "Cantarell"]
 
     function save(key, value) {
-        plasmoid.configuration[key + selectedDesktop] = value
+        var listKey = key + "s"
+        var values = root[listKey].slice()
+        values[selectedDesktop - 1] = value
+        plasmoid.configuration[listKey] = JSON.stringify(values)
         plasmoid.configuration.writeConfig()
     }
 
@@ -196,26 +199,12 @@ Item {
         dateSectionOrder = Number(plasmoid.configuration.dateSectionOrder || 0)
         desktopNameSectionOrder = Number(plasmoid.configuration.desktopNameSectionOrder || 1)
         numberSectionOrder = Number(plasmoid.configuration.numberSectionOrder || 2)
-        var desktopCount = Math.max(6, desktopInfo.numberOfDesktops || 0)
-        var keys = plasmoid.configuration.keys()
-        for (var k = 0; k < keys.length; ++k) {
-            var suffix = keys[k].match(/(?:dateColor|numberColor|dayNameColor|dayDateColor|numberTextColor|desktopNameColor|desktopNameBackgroundColor|dayNameFont|dayDateFont|numberFont|desktopNameFont)([0-9]+)$/)
-            if (suffix)
-                desktopCount = Math.max(desktopCount, Number(suffix[1]))
-        }
-        for (var i = 0; i < desktopCount; ++i) {
-            var n = i + 1
-            if (plasmoid.configuration["dateColor" + n]) dateColors[i] = plasmoid.configuration["dateColor" + n]
-            if (plasmoid.configuration["numberColor" + n]) numberColors[i] = plasmoid.configuration["numberColor" + n]
-            if (plasmoid.configuration["dayNameColor" + n]) dayNameColors[i] = plasmoid.configuration["dayNameColor" + n]
-            if (plasmoid.configuration["dayDateColor" + n]) dayDateColors[i] = plasmoid.configuration["dayDateColor" + n]
-            if (plasmoid.configuration["numberTextColor" + n]) numberTextColors[i] = plasmoid.configuration["numberTextColor" + n]
-            if (plasmoid.configuration["desktopNameColor" + n]) desktopNameColors[i] = plasmoid.configuration["desktopNameColor" + n]
-            if (plasmoid.configuration["desktopNameBackgroundColor" + n]) desktopNameBackgroundColors[i] = plasmoid.configuration["desktopNameBackgroundColor" + n]
-            if (plasmoid.configuration["dayNameFont" + n]) dayNameFonts[i] = plasmoid.configuration["dayNameFont" + n]
-            if (plasmoid.configuration["dayDateFont" + n]) dayDateFonts[i] = plasmoid.configuration["dayDateFont" + n]
-            if (plasmoid.configuration["numberFont" + n]) numberFonts[i] = plasmoid.configuration["numberFont" + n]
-            if (plasmoid.configuration["desktopNameFont" + n]) desktopNameFonts[i] = plasmoid.configuration["desktopNameFont" + n]
+        var listNames = ["dateColors", "numberColors", "dayNameColors", "dayDateColors", "numberTextColors", "desktopNameColors", "desktopNameBackgroundColors", "dayNameFonts", "dayDateFonts", "numberFonts", "desktopNameFonts"]
+        for (var l = 0; l < listNames.length; ++l) {
+            var stored = plasmoid.configuration[listNames[l]]
+            if (stored) {
+                try { root[listNames[l]] = JSON.parse(stored) } catch (e) {}
+            }
         }
     }
 

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+                          https://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
+    <group name="General">
+        <entry name="dateSectionWidth" type="Int"><default>3</default></entry>
+        <entry name="desktopNameSectionWidth" type="Int"><default>1</default></entry>
+        <entry name="numberSectionWidth" type="Int"><default>1</default></entry>
+        <entry name="dateSectionVisible" type="Bool"><default>true</default></entry>
+        <entry name="desktopNameSectionVisible" type="Bool"><default>true</default></entry>
+        <entry name="numberSectionVisible" type="Bool"><default>true</default></entry>
+        <entry name="sectionOrder" type="String"><default>date,desktopName,number</default></entry>
+        <entry name="dateColors" type="String"><default>[]</default></entry>
+        <entry name="numberColors" type="String"><default>[]</default></entry>
+        <entry name="dayNameColors" type="String"><default>[]</default></entry>
+        <entry name="dayDateColors" type="String"><default>[]</default></entry>
+        <entry name="numberTextColors" type="String"><default>[]</default></entry>
+        <entry name="desktopNameColors" type="String"><default>[]</default></entry>
+        <entry name="desktopNameBackgroundColors" type="String"><default>[]</default></entry>
+        <entry name="dayNameFonts" type="String"><default>[]</default></entry>
+        <entry name="dayDateFonts" type="String"><default>[]</default></entry>
+        <entry name="numberFonts" type="String"><default>[]</default></entry>
+        <entry name="desktopNameFonts" type="String"><default>[]</default></entry>
+    </group>
+</kcfg>
