@@ -9,24 +9,26 @@ import org.kde.taskmanager as TaskManager
 Item {
     id: root
 
+  property var title // for KDE Settings page
+
     implicitWidth: Kirigami.Units.gridUnit * 34
     implicitHeight: Kirigami.Units.gridUnit * 32
 
     property int selectedDesktop: desktopBox.currentIndex + 1
-    property int dateSectionWidth: 3
-    property int desktopNameSectionWidth: 1
-    property int numberSectionWidth: 1
-    property bool dateSectionVisible: true
-    property bool desktopNameSectionVisible: true
-    property bool numberSectionVisible: true
+    property int sectionDateWidth: 3
+    property int sectionDesktopNameWidth: 1
+    property int sectionDesktopNumberWidth: 1
+    property bool sectionDateVisible: true
+    property bool sectionDesktopNameVisible: true
+    property bool sectionDesktopNumberVisible: true
     property int dateSectionOrder: 0
-    property int desktopNameSectionOrder: 1
-    property int numberSectionOrder: 2
-    property var dateColors: ["#a0ffa0", "#a8a8ff", "#ff97ff", "#ffff8f", "#ffffff", "#41f2f2"]
-    property var numberColors: ["#000000", "#000000", "#000000", "#000000", "#000000", "#000000"]
+    property int sectionDesktopNameOrder: 1
+    property int sectionDesktopNumberOrder: 2
+    property var dateBackgroundColors: ["#a0ffa0", "#a8a8ff", "#ff97ff", "#ffff8f", "#ffffff", "#41f2f2"]
+    property var numberBackgroundColors: ["#000000", "#000000", "#000000", "#000000", "#000000", "#000000"]
     property var dayNameColors: ["#000000", "#000000", "#000000", "#000000", "#000000", "#000000"]
-    property var dayDateColors: ["#000000", "#000000", "#000000", "#000000", "#000000", "#000000"]
-    property var numberTextColors: ["#a0ffa0", "#a8a8ff", "#ff97ff", "#ffff8f", "#ffffff", "#41f2f2"]
+    property var daydateBackgroundColors: ["#000000", "#000000", "#000000", "#000000", "#000000", "#000000"]
+    property var numberColors: ["#a0ffa0", "#a8a8ff", "#ff97ff", "#ffff8f", "#ffffff", "#41f2f2"]
     property var desktopNameColors: ["#000000", "#000000", "#000000", "#000000", "#000000", "#000000"]
     property var desktopNameBackgroundColors: ["#a0ffa0", "#a8a8ff", "#ff97ff", "#ffff8f", "#ffffff", "#41f2f2"]
     property var dayNameFonts: ["Inconsolata", "Inconsolata", "Inconsolata", "Inconsolata", "Inconsolata", "Inconsolata"]
@@ -48,9 +50,9 @@ Item {
     }
 
     function sectionTotalWidth() {
-        return (dateSectionVisible ? dateSectionWidth : 0)
-                + (desktopNameSectionVisible ? desktopNameSectionWidth : 0)
-                + (numberSectionVisible ? numberSectionWidth : 0)
+        return (sectionDateVisible ? sectionDateWidth : 0)
+                + (sectionDesktopNameVisible ? sectionDesktopNameWidth : 0)
+                + (sectionDesktopNumberVisible ? sectionDesktopNumberWidth : 0)
     }
 
     function sectionWidth(weight, visible, totalWidth) {
@@ -63,12 +65,12 @@ Item {
         if (total <= 0)
             return 0
         var offset = 0
-        if (dateSectionVisible && dateSectionOrder < order)
-            offset += totalWidth * dateSectionWidth / total
-        if (desktopNameSectionVisible && desktopNameSectionOrder < order)
-            offset += totalWidth * desktopNameSectionWidth / total
-        if (numberSectionVisible && numberSectionOrder < order)
-            offset += totalWidth * numberSectionWidth / total
+        if (sectionDateVisible && dateSectionOrder < order)
+            offset += totalWidth * sectionDateWidth / total
+        if (sectionDesktopNameVisible && sectionDesktopNameOrder < order)
+            offset += totalWidth * sectionDesktopNameWidth / total
+        if (sectionDesktopNumberVisible && sectionDesktopNumberOrder < order)
+            offset += totalWidth * sectionDesktopNumberWidth / total
         return offset
     }
 
@@ -132,24 +134,24 @@ Item {
     }
 
     function sectionWidthValue(key) {
-        return key === "date" ? dateSectionWidth : key === "desktopName" ? desktopNameSectionWidth : numberSectionWidth
+        return key === "date" ? sectionDateWidth : key === "desktopName" ? sectionDesktopNameWidth : sectionDesktopNumberWidth
     }
 
     function sectionVisibleValue(key) {
-        return key === "date" ? dateSectionVisible : key === "desktopName" ? desktopNameSectionVisible : numberSectionVisible
+        return key === "date" ? sectionDateVisible : key === "desktopName" ? sectionDesktopNameVisible : sectionDesktopNumberVisible
     }
 
     function setSectionWidth(key, value) {
-        if (key === "date") dateSectionWidth = value
-        else if (key === "desktopName") desktopNameSectionWidth = value
-        else numberSectionWidth = value
+        if (key === "date") sectionDateWidth = value
+        else if (key === "desktopName") sectionDesktopNameWidth = value
+        else sectionDesktopNumberWidth = value
         saveLayout(key + "SectionWidth", value)
     }
 
     function setSectionVisible(key, value) {
-        if (key === "date") dateSectionVisible = value
-        else if (key === "desktopName") desktopNameSectionVisible = value
-        else numberSectionVisible = value
+        if (key === "date") sectionDateVisible = value
+        else if (key === "desktopName") sectionDesktopNameVisible = value
+        else sectionDesktopNumberVisible = value
         saveLayout(key + "SectionVisible", value)
     }
 
@@ -159,8 +161,8 @@ Item {
             order.push(sectionModel.get(i).key)
         saveLayout("sectionOrder", order.join(","))
         dateSectionOrder = order.indexOf("date")
-        desktopNameSectionOrder = order.indexOf("desktopName")
-        numberSectionOrder = order.indexOf("number")
+        sectionDesktopNameOrder = order.indexOf("desktopName")
+        sectionDesktopNumberOrder = order.indexOf("number")
     }
 
     function loadSectionOrder() {
@@ -185,21 +187,21 @@ Item {
 
     function saveSectionOrderProperties() {
         dateSectionOrder = sectionModel.get(0).key === "date" ? 0 : sectionModel.get(1).key === "date" ? 1 : 2
-        desktopNameSectionOrder = sectionModel.get(0).key === "desktopName" ? 0 : sectionModel.get(1).key === "desktopName" ? 1 : 2
-        numberSectionOrder = sectionModel.get(0).key === "number" ? 0 : sectionModel.get(1).key === "number" ? 1 : 2
+        sectionDesktopNameOrder = sectionModel.get(0).key === "desktopName" ? 0 : sectionModel.get(1).key === "desktopName" ? 1 : 2
+        sectionDesktopNumberOrder = sectionModel.get(0).key === "number" ? 0 : sectionModel.get(1).key === "number" ? 1 : 2
     }
 
     function loadSettings() {
-        dateSectionWidth = Number(plasmoid.configuration.dateSectionWidth || 3)
-        desktopNameSectionWidth = Number(plasmoid.configuration.desktopNameSectionWidth || 1)
-        numberSectionWidth = Number(plasmoid.configuration.numberSectionWidth || 1)
-        dateSectionVisible = plasmoid.configuration.dateSectionVisible !== false && plasmoid.configuration.dateSectionVisible !== "false"
-        desktopNameSectionVisible = plasmoid.configuration.desktopNameSectionVisible !== false && plasmoid.configuration.desktopNameSectionVisible !== "false"
-        numberSectionVisible = plasmoid.configuration.numberSectionVisible !== false && plasmoid.configuration.numberSectionVisible !== "false"
+        sectionDateWidth = Number(plasmoid.configuration.sectionDateWidth || 3)
+        sectionDesktopNameWidth = Number(plasmoid.configuration.sectionDesktopNameWidth || 1)
+        sectionDesktopNumberWidth = Number(plasmoid.configuration.sectionDesktopNumberWidth || 1)
+        sectionDateVisible = plasmoid.configuration.sectionDateVisible !== false && plasmoid.configuration.sectionDateVisible !== "false"
+        sectionDesktopNameVisible = plasmoid.configuration.sectionDesktopNameVisible !== false && plasmoid.configuration.sectionDesktopNameVisible !== "false"
+        sectionDesktopNumberVisible = plasmoid.configuration.sectionDesktopNumberVisible !== false && plasmoid.configuration.sectionDesktopNumberVisible !== "false"
         dateSectionOrder = Number(plasmoid.configuration.dateSectionOrder || 0)
-        desktopNameSectionOrder = Number(plasmoid.configuration.desktopNameSectionOrder || 1)
-        numberSectionOrder = Number(plasmoid.configuration.numberSectionOrder || 2)
-        var listNames = ["dateColors", "numberColors", "dayNameColors", "dayDateColors", "numberTextColors", "desktopNameColors", "desktopNameBackgroundColors", "dayNameFonts", "dayDateFonts", "numberFonts", "desktopNameFonts"]
+        sectionDesktopNameOrder = Number(plasmoid.configuration.sectionDesktopNameOrder || 1)
+        sectionDesktopNumberOrder = Number(plasmoid.configuration.sectionDesktopNumberOrder || 2)
+        var listNames = ["dateBackgroundColors", "numberBackgroundColors", "dayNameColors", "daydateBackgroundColors", "numberColors", "desktopNameColors", "desktopNameBackgroundColors", "dayNameFonts", "dayDateFonts", "numberFonts", "desktopNameFonts"]
         for (var l = 0; l < listNames.length; ++l) {
             var stored = plasmoid.configuration[listNames[l]]
             if (stored) {
@@ -431,10 +433,10 @@ Item {
             Rectangle {
                 id: dateBlock
                 x: root.sectionOffset(root.dateSectionOrder, parent.width)
-                width: root.sectionWidth(root.dateSectionWidth, root.dateSectionVisible, parent.width)
+                width: root.sectionWidth(root.sectionDateWidth, root.sectionDateVisible, parent.width)
                 height: parent.height
-                visible: root.dateSectionVisible
-                color: root.dateColors[preview.desktopNo - 1] || "#a0ffa0"
+                visible: root.sectionDateVisible
+                color: root.dateBackgroundColors[preview.desktopNo - 1] || "#a0ffa0"
                 border.color: dateMouse.containsMouse && !dayNameMouse.containsMouse && !dayDateMouse.containsMouse
                         ? Kirigami.Theme.highlightColor : "transparent"
                 border.width: 2
@@ -461,7 +463,7 @@ Item {
                     id: dayDateText
                     anchors.bottom: parent.bottom; anchors.horizontalCenter: parent.horizontalCenter
                     text: Qt.locale().toString(new Date(), "dd.MM")
-                    color: root.dayDateColors[preview.desktopNo - 1] || "#000000"
+                    color: root.daydateBackgroundColors[preview.desktopNo - 1] || "#000000"
                     font.family: root.dayDateFonts[preview.desktopNo - 1] || "Cantarell"
                     font.pixelSize: parent.height * 0.42; font.weight: 600
                     MouseArea { id: dayDateMouse; anchors.fill: parent; hoverEnabled: true; enabled: preview.interactive; onClicked: root.openStyle("dayDate") }
@@ -476,10 +478,10 @@ Item {
             }
             Rectangle {
                 id: nameBlock
-                x: root.sectionOffset(root.desktopNameSectionOrder, parent.width)
-                width: root.sectionWidth(root.desktopNameSectionWidth, root.desktopNameSectionVisible, parent.width)
+                x: root.sectionOffset(root.sectionDesktopNameOrder, parent.width)
+                width: root.sectionWidth(root.sectionDesktopNameWidth, root.sectionDesktopNameVisible, parent.width)
                 height: parent.height
-                visible: root.desktopNameSectionVisible
+                visible: root.sectionDesktopNameVisible
                 color: root.desktopNameBackgroundColors[preview.desktopNo - 1] || "#a0ffa0"
                 border.color: nameMouse.containsMouse && !desktopNameTextMouse.containsMouse
                         ? Kirigami.Theme.highlightColor : "transparent"
@@ -516,17 +518,17 @@ Item {
             }
             Rectangle {
                 id: numberBlock
-                x: root.sectionOffset(root.numberSectionOrder, parent.width)
-                width: root.sectionWidth(root.numberSectionWidth, root.numberSectionVisible, parent.width)
+                x: root.sectionOffset(root.sectionDesktopNumberOrder, parent.width)
+                width: root.sectionWidth(root.sectionDesktopNumberWidth, root.sectionDesktopNumberVisible, parent.width)
                 height: parent.height
-                visible: root.numberSectionVisible
-                color: root.numberColors[preview.desktopNo - 1] || "#000000"
+                visible: root.sectionDesktopNumberVisible
+                color: root.numberBackgroundColors[preview.desktopNo - 1] || "#000000"
                 border.color: numberMouse.containsMouse && !numberTextMouse.containsMouse
                         ? Kirigami.Theme.highlightColor : "transparent"; border.width: 2
                 MouseArea { id: numberMouse; anchors.fill: parent; hoverEnabled: true; enabled: preview.interactive; onClicked: root.openColor("number", numberBlock.color) }
                 Text {
                     anchors.centerIn: parent; text: preview.desktopNo
-                    color: root.numberTextColors[preview.desktopNo - 1] || "#a0ffa0"
+                    color: root.numberColors[preview.desktopNo - 1] || "#a0ffa0"
                     font.family: root.numberFonts[preview.desktopNo - 1] || "Cantarell"
                     font.pixelSize: parent.height * 0.68; font.weight: 700
                     MouseArea { id: numberTextMouse; anchors.fill: parent; hoverEnabled: true; enabled: preview.interactive; onClicked: root.openStyle("numberText") }
@@ -548,8 +550,8 @@ Item {
                 : target === "desktopName" ? desktopNameFonts[selectedDesktop - 1] : numberFonts[selectedDesktop - 1])
                 || (target === "dayName" ? "Inconsolata" : "Cantarell")
         styleDialog.selectedTextColor = (target === "dayName" ? dayNameColors[selectedDesktop - 1]
-                : target === "dayDate" ? dayDateColors[selectedDesktop - 1]
-                : target === "desktopName" ? desktopNameColors[selectedDesktop - 1] : numberTextColors[selectedDesktop - 1])
+                : target === "dayDate" ? daydateBackgroundColors[selectedDesktop - 1]
+                : target === "desktopName" ? desktopNameColors[selectedDesktop - 1] : numberColors[selectedDesktop - 1])
                 || "#000000"
         styleDialog.open()
     }
@@ -586,15 +588,15 @@ Item {
         id: colorDialog
         property string target: ""
         onAccepted: {
-                if (target === "date") { root.dateColors = root.setAt(root.dateColors, root.selectedDesktop - 1, selectedColor); root.save("dateColor", selectedColor) }
-            else if (target === "number") { root.numberColors = root.setAt(root.numberColors, root.selectedDesktop - 1, selectedColor); root.save("numberColor", selectedColor) }
+                if (target === "date") { root.dateBackgroundColors = root.setAt(root.dateBackgroundColors, root.selectedDesktop - 1, selectedColor); root.save("dateColor", selectedColor) }
+            else if (target === "number") { root.numberBackgroundColors = root.setAt(root.numberBackgroundColors, root.selectedDesktop - 1, selectedColor); root.save("numberColor", selectedColor) }
             else if (target === "desktopNameBackground") { root.desktopNameBackgroundColors = root.setAt(root.desktopNameBackgroundColors, root.selectedDesktop - 1, selectedColor); root.save("desktopNameBackgroundColor", selectedColor) }
             else {
                 styleDialog.selectedTextColor = selectedColor
                 if (styleDialog.target === "dayName") { root.dayNameColors = root.setAt(root.dayNameColors, root.selectedDesktop - 1, selectedColor); root.save("dayNameColor", selectedColor) }
-                else if (styleDialog.target === "dayDate") { root.dayDateColors = root.setAt(root.dayDateColors, root.selectedDesktop - 1, selectedColor); root.save("dayDateColor", selectedColor) }
+                else if (styleDialog.target === "dayDate") { root.daydateBackgroundColors = root.setAt(root.daydateBackgroundColors, root.selectedDesktop - 1, selectedColor); root.save("dayDateColor", selectedColor) }
                 else if (styleDialog.target === "desktopName") { root.desktopNameColors = root.setAt(root.desktopNameColors, root.selectedDesktop - 1, selectedColor); root.save("desktopNameColor", selectedColor) }
-                else { root.numberTextColors = root.setAt(root.numberTextColors, root.selectedDesktop - 1, selectedColor); root.save("numberTextColor", selectedColor) }
+                else { root.numberColors = root.setAt(root.numberColors, root.selectedDesktop - 1, selectedColor); root.save("numberTextColor", selectedColor) }
             }
         }
     }
