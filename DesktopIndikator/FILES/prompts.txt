@@ -129,5 +129,6 @@ do it
 
 remove the fallback
 
+-- manual refactoring --
 
-
+use rounded-triangle-down.svg, rotated by 180°, instead of rounded-triangle-up.svg.remove rounded-triangle-up.svg

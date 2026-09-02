@@ -87,7 +87,8 @@ Item {
         signal moveDownRequested
 
         Controls.Button {
-            icon.source: Qt.resolvedUrl("../icons/rounded-triangle-up.svg")
+            icon.source: Qt.resolvedUrl("../icons/rounded-triangle-down.svg")
+            rotation: 180
             display: Controls.AbstractButton.IconOnly
             enabled: parent.canMoveUp
             opacity: parent.canMoveUp ? 1 : 0
