@@ -55,7 +55,7 @@ KDE_plasmoid.PlasmoidItem {
     var revision = _configurationRevision
     var match = key.match(/^(.*?)([0-9]+)$/)
     if (match) {
-      var stored = Plasmoid.configuration[match[1] + "s"]
+      var stored = KDE_plasmoid.Plasmoid.configuration[match[1] + "s"]
       if (stored) {
         try {
           var values = JSON.parse(stored)
@@ -64,7 +64,7 @@ KDE_plasmoid.PlasmoidItem {
       }
       return fallback
     }
-    return Plasmoid.configuration[key] || fallback
+    return KDE_plasmoid.Plasmoid.configuration[key] || fallback
   }
 
   function sectionOrderIndex(section, fallback) {
@@ -96,7 +96,7 @@ KDE_plasmoid.PlasmoidItem {
   }
 
   QML.Connections {
-    target: Plasmoid.configuration
+    target: KDE_plasmoid.Plasmoid.configuration
     function onValueChanged() {
       _Root._configurationRevision++
     }
@@ -219,8 +219,8 @@ KDE_plasmoid.PlasmoidItem {
 	    text: _currentDesktopName
 	    color: _currentDesktopNameColor
 	    font.family: _currentDesktopNameFont
-	    elide: Text.ElideRight
-	    horizontalAlignment: Text.AlignHCenter
+	    elide: QTQ.Text.ElideRight
+	    horizontalAlignment: QTQ.Text.AlignHCenter
 	  }
   }
 

@@ -303,13 +303,13 @@ QTQ.Item {
         QTQ_C.GroupBox {
             QTQ_L.Layout.fillWidth: true
             contentItem: QTQ_L.ColumnLayout {
-                ListView {
+                QTQ.ListView {
                     id: sectionList
                     QTQ_L.Layout.fillWidth: true
                     implicitHeight: contentHeight
                     interactive: false
                     model: sectionModel
-                    delegate: Item {
+                    delegate: QTQ.Item {
                         id: sectionDelegate
                         width: sectionList.width
                         height: sectionRow.implicitHeight + Kirigami.Units.smallSpacing
@@ -359,7 +359,7 @@ QTQ.Item {
                 padding: 0
                 height: Math.min(desktopModel.count * Kirigami.Units.gridUnit * 3,
                     Kirigami.Units.gridUnit * 20)
-                contentItem: ListView {
+                contentItem: QTQ.ListView {
                     anchors.fill: parent
                     clip: true
                     model: desktopModel
@@ -403,7 +403,7 @@ QTQ.Item {
                     text: name
                     QTQ_L.Layout.fillWidth: true
                     QTQ_L.Layout.alignment: Qt.AlignVCenter
-                    elide: Text.ElideRight
+                    elide: QTQ.Text.ElideRight
                 }
                 QTQ.Loader {
                     QTQ_L.Layout.preferredWidth: Kirigami.Units.gridUnit * 9
@@ -500,8 +500,8 @@ QTQ.Item {
                     text: preview.desktopName
                     color: root.desktopNameColors[preview.desktopNo - 1] || "#000000"
                     font.family: root.desktopNameFonts[preview.desktopNo - 1] || "Cantarell"
-                    horizontalAlignment: Text.AlignHCenter
-                    elide: Text.ElideRight
+                    horizontalAlignment: QTQ.Text.AlignHCenter
+                    elide: QTQ.Text.ElideRight
                     QTQ.MouseArea {
                         id: desktopNameTextMouse
                         anchors.fill: parent
@@ -564,7 +564,7 @@ QTQ.Item {
         standardButtons: QTQ_C.DialogButtonBox.Close
         property string target: ""
         property string fontName: "Cantarell"
-        property color selectedTextColor: "#000000"
+        property QTQ.color selectedTextColor: "#000000"
         contentItem: QTQ_L.ColumnLayout {
             spacing: Kirigami.Units.largeSpacing
             QTQ_C.Label { text: qsTr("Text appearance"); QTQ_L.Layout.fillWidth: true }
@@ -616,9 +616,9 @@ QTQ.Item {
                 text: fontDialog.previewText
                 font.family: fontFamilyBox.currentText || fontDialog.selectedFamily
                 font.pixelSize: Kirigami.Units.gridUnit * 1.5
-                horizontalAlignment: Text.AlignHCenter
+                horizontalAlignment: QTQ.Text.AlignHCenter
                 QTQ_L.Layout.fillWidth: true
-                wrapMode: Text.WordWrap
+                wrapMode: QTQ.Text.WordWrap
             }
             QTQ_C.ComboBox {
                 id: fontFamilyBox
