@@ -3,9 +3,8 @@
  */
 
 import QtQuick as QTQ
-import QtQml as QTQ_QML
+import QtQml as QML
 import QtQuick.Layouts as QTQ_L
-import org.kde.plasma.plasmoid
 import org.kde.plasma.plasmoid as KDE_plasmoid
 
 import org.kde.taskmanager as KDE_taskmanager
@@ -96,7 +95,7 @@ KDE_plasmoid.PlasmoidItem {
     return offset
   }
 
-  QTQ_QML.Connections {
+  QML.Connections {
     target: Plasmoid.configuration
     function onValueChanged() {
       _Root._configurationRevision++

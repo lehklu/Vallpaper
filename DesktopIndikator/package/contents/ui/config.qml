@@ -1,12 +1,12 @@
-import QtQuick
-import QtQuick.Controls as Controls
-import QtQuick.Dialogs
-import QtQuick.Layouts
+import QtQuick as QTQ
+import QtQuick.Controls as QTQ_C
+import QtQuick.Dialogs as QTQ_D
+import QtQuick.Layouts as QTQ_L
 import org.kde.kirigami as Kirigami
-import org.kde.plasma.plasmoid
-import org.kde.taskmanager as TaskManager
+import org.kde.plasma.plasmoid as KDE_plasmoid
+import org.kde.taskmanager as KDE_taskmanager
 
-Item {
+QTQ.Item {
     id: root
 
   property var title // for KDE Settings page
@@ -40,13 +40,13 @@ Item {
         var listKey = key + "s"
         var values = root[listKey].slice()
         values[selectedDesktop - 1] = value
-        plasmoid.configuration[listKey] = JSON.stringify(values)
-        plasmoid.configuration.writeConfig()
+        KDE_plasmoid.Plasmoid.configuration[listKey] = JSON.stringify(values)
+        KDE_plasmoid.Plasmoid.configuration.writeConfig()
     }
 
     function saveLayout(key, value) {
-        plasmoid.configuration[key] = value
-        plasmoid.configuration.writeConfig()
+        KDE_plasmoid.Plasmoid.configuration[key] = value
+        KDE_plasmoid.Plasmoid.configuration.writeConfig()
     }
 
     function sectionTotalWidth() {
@@ -74,7 +74,7 @@ Item {
         return offset
     }
 
-    component SectionSettingsRow: RowLayout {
+    component SectionSettingsRow: QTQ_L.RowLayout {
         property string label
         property string sectionKey
         property int widthValue: 1
@@ -86,28 +86,28 @@ Item {
         signal moveUpRequested
         signal moveDownRequested
 
-        Controls.Button {
+        QTQ_C.Button {
             icon.source: Qt.resolvedUrl("../icons/rounded-triangle-down.svg")
             rotation: 180
-            display: Controls.AbstractButton.IconOnly
+            display: QTQ_C.AbstractButton.IconOnly
             enabled: parent.canMoveUp
             opacity: parent.canMoveUp ? 1 : 0
             horizontalPadding: 0
-            Layout.preferredWidth: Kirigami.Units.gridUnit * 1.5
+            QTQ_L.Layout.preferredWidth: Kirigami.Units.gridUnit * 1.5
             onClicked: parent.moveUpRequested()
         }
-        Controls.Button {
+        QTQ_C.Button {
             icon.source: Qt.resolvedUrl("../icons/rounded-triangle-down.svg")
-            display: Controls.AbstractButton.IconOnly
+            display: QTQ_C.AbstractButton.IconOnly
             enabled: parent.canMoveDown
             opacity: parent.canMoveDown ? 1 : 0
             horizontalPadding: 0
-            Layout.preferredWidth: Kirigami.Units.gridUnit * 1.5
+            QTQ_L.Layout.preferredWidth: Kirigami.Units.gridUnit * 1.5
             onClicked: parent.moveDownRequested()
         }
-        Controls.Label { text: parent.label; Layout.fillWidth: true }
-        Controls.Label { text: qsTr("Width") }
-        Controls.SpinBox {
+        QTQ_C.Label { text: parent.label; QTQ_L.Layout.fillWidth: true }
+        QTQ_C.Label { text: qsTr("Width") }
+        QTQ_C.SpinBox {
             from: 1
             to: 10
             value: parent.widthValue
@@ -115,9 +115,9 @@ Item {
                 parent.widthValue = value
                 parent.widthSettingChanged(value)
             }
-            Layout.preferredWidth: Kirigami.Units.gridUnit * 5
+            QTQ_L.Layout.preferredWidth: Kirigami.Units.gridUnit * 5
         }
-        Controls.CheckBox {
+        QTQ_C.CheckBox {
             checked: parent.visibleValue
             text: qsTr("Visible")
             onClicked: {
@@ -127,11 +127,11 @@ Item {
         }
     }
 
-    ListModel {
+    QTQ.ListModel {
         id: sectionModel
-        ListElement { key: "date"; label: qsTr("Date") }
-        ListElement { key: "desktopName"; label: qsTr("Desktop name") }
-        ListElement { key: "number"; label: qsTr("Desktop number") }
+        QTQ.ListElement { key: "date"; label: qsTr("Date") }
+        QTQ.ListElement { key: "desktopName"; label: qsTr("Desktop name") }
+        QTQ.ListElement { key: "number"; label: qsTr("Desktop number") }
     }
 
     function sectionWidthValue(key) {
@@ -167,7 +167,7 @@ Item {
     }
 
     function loadSectionOrder() {
-        var savedOrder = String(plasmoid.configuration.sectionOrder || "date,desktopName,number").split(",")
+        var savedOrder = String(KDE_plasmoid.Plasmoid.configuration.sectionOrder || "date,desktopName,number").split(",")
         var valid = ["date", "desktopName", "number"]
         var ordered = []
         for (var i = 0; i < savedOrder.length; ++i)
@@ -193,18 +193,18 @@ Item {
     }
 
     function loadSettings() {
-        sectionDateWidth = Number(plasmoid.configuration.sectionDateWidth || 3)
-        sectionDesktopNameWidth = Number(plasmoid.configuration.sectionDesktopNameWidth || 1)
-        sectionDesktopNumberWidth = Number(plasmoid.configuration.sectionDesktopNumberWidth || 1)
-        sectionDateVisible = plasmoid.configuration.sectionDateVisible !== false && plasmoid.configuration.sectionDateVisible !== "false"
-        sectionDesktopNameVisible = plasmoid.configuration.sectionDesktopNameVisible !== false && plasmoid.configuration.sectionDesktopNameVisible !== "false"
-        sectionDesktopNumberVisible = plasmoid.configuration.sectionDesktopNumberVisible !== false && plasmoid.configuration.sectionDesktopNumberVisible !== "false"
-        dateSectionOrder = Number(plasmoid.configuration.dateSectionOrder || 0)
-        sectionDesktopNameOrder = Number(plasmoid.configuration.sectionDesktopNameOrder || 1)
-        sectionDesktopNumberOrder = Number(plasmoid.configuration.sectionDesktopNumberOrder || 2)
+        sectionDateWidth = Number(KDE_plasmoid.Plasmoid.configuration.sectionDateWidth || 3)
+        sectionDesktopNameWidth = Number(KDE_plasmoid.Plasmoid.configuration.sectionDesktopNameWidth || 1)
+        sectionDesktopNumberWidth = Number(KDE_plasmoid.Plasmoid.configuration.sectionDesktopNumberWidth || 1)
+        sectionDateVisible = KDE_plasmoid.Plasmoid.configuration.sectionDateVisible !== false && KDE_plasmoid.Plasmoid.configuration.sectionDateVisible !== "false"
+        sectionDesktopNameVisible = KDE_plasmoid.Plasmoid.configuration.sectionDesktopNameVisible !== false && KDE_plasmoid.Plasmoid.configuration.sectionDesktopNameVisible !== "false"
+        sectionDesktopNumberVisible = KDE_plasmoid.Plasmoid.configuration.sectionDesktopNumberVisible !== false && KDE_plasmoid.Plasmoid.configuration.sectionDesktopNumberVisible !== "false"
+        dateSectionOrder = Number(KDE_plasmoid.Plasmoid.configuration.dateSectionOrder || 0)
+        sectionDesktopNameOrder = Number(KDE_plasmoid.Plasmoid.configuration.sectionDesktopNameOrder || 1)
+        sectionDesktopNumberOrder = Number(KDE_plasmoid.Plasmoid.configuration.sectionDesktopNumberOrder || 2)
         var listNames = ["dateBackgroundColors", "numberBackgroundColors", "dayNameColors", "daydateBackgroundColors", "numberColors", "desktopNameColors", "desktopNameBackgroundColors", "dayNameFonts", "dayDateFonts", "numberFonts", "desktopNameFonts"]
         for (var l = 0; l < listNames.length; ++l) {
-            var stored = plasmoid.configuration[listNames[l]]
+            var stored = KDE_plasmoid.Plasmoid.configuration[listNames[l]]
             if (stored) {
                 try { root[listNames[l]] = JSON.parse(stored) } catch (e) {}
             }
@@ -235,7 +235,7 @@ Item {
         fontDialog.open()
     }
 
-    Component.onCompleted: {
+    QTQ.Component.onCompleted: {
         loadSettings()
         loadSectionOrder()
     }
@@ -248,15 +248,15 @@ Item {
         }
     }
 
-    TaskManager.VirtualDesktopInfo {
+    KDE_taskmanager.VirtualDesktopInfo {
         id: desktopInfo
         onNumberOfDesktopsChanged: scheduleDesktopRebuild()
         onDesktopIdsChanged: scheduleDesktopRebuild()
         onDesktopNamesChanged: scheduleDesktopRebuild()
-        Component.onCompleted: scheduleDesktopRebuild()
+        QTQ.Component.onCompleted: scheduleDesktopRebuild()
     }
 
-    Timer {
+    QTQ.Timer {
         id: desktopRebuildTimer
         interval: 0
         onTriggered: rebuildDesktops()
@@ -287,25 +287,25 @@ Item {
         }
     }
 
-    ListModel { id: desktopModel }
+    QTQ.ListModel { id: desktopModel }
 
-    ColumnLayout {
+    QTQ_L.ColumnLayout {
         anchors.fill: parent
         anchors.margins: Kirigami.Units.largeSpacing
         spacing: Kirigami.Units.largeSpacing
 
-        Controls.Label {
+        QTQ_C.Label {
             text: qsTr("Widget sections")
             font.bold: true
-            Layout.topMargin: Kirigami.Units.smallSpacing
+            QTQ_L.Layout.topMargin: Kirigami.Units.smallSpacing
         }
 
-        Controls.GroupBox {
-            Layout.fillWidth: true
-            contentItem: ColumnLayout {
+        QTQ_C.GroupBox {
+            QTQ_L.Layout.fillWidth: true
+            contentItem: QTQ_L.ColumnLayout {
                 ListView {
                     id: sectionList
-                    Layout.fillWidth: true
+                    QTQ_L.Layout.fillWidth: true
                     implicitHeight: contentHeight
                     interactive: false
                     model: sectionModel
@@ -339,20 +339,20 @@ Item {
             }
         }
 
-        Controls.Label {
+        QTQ_C.Label {
             text: qsTr("Appearance")
-            Layout.fillWidth: true
+            QTQ_L.Layout.fillWidth: true
             font.bold: true
         }
 
-        Controls.ComboBox {
+        QTQ_C.ComboBox {
             id: desktopBox
             model: desktopModel
             textRole: "name"
-            Layout.fillWidth: true
+            QTQ_L.Layout.fillWidth: true
             implicitHeight: Kirigami.Units.gridUnit * 3
             delegate: desktopDelegate
-            popup: Controls.Popup {
+            popup: QTQ_C.Popup {
                 id: desktopPopup
                 y: desktopBox.height
                 width: desktopBox.width
@@ -369,10 +369,10 @@ Item {
             }
         }
 
-        Loader {
+        QTQ.Loader {
             id: largePreview
-            Layout.fillWidth: true
-            Layout.preferredHeight: Kirigami.Units.gridUnit * 13
+            QTQ_L.Layout.fillWidth: true
+            QTQ_L.Layout.preferredHeight: Kirigami.Units.gridUnit * 13
             sourceComponent: widgetPreview
             onLoaded: {
                 item.desktopNo = root.selectedDesktop
@@ -383,31 +383,31 @@ Item {
             }
         }
 
-        Controls.Label {
+        QTQ_C.Label {
             text: qsTr("Click an element in the preview to customize it.")
             opacity: 0.7
-            Layout.fillWidth: true
+            QTQ_L.Layout.fillWidth: true
         }
-        Item { Layout.fillHeight: true }
+        QTQ.Item { QTQ_L.Layout.fillHeight: true }
     }
 
-    Component {
+    QTQ.Component {
         id: desktopDelegate
-        Controls.ItemDelegate {
+        QTQ_C.ItemDelegate {
             width: desktopBox.width
             implicitHeight: Kirigami.Units.gridUnit * 3
             highlighted: desktopBox.highlightedIndex === index
-            contentItem: RowLayout {
+            contentItem: QTQ_L.RowLayout {
                 spacing: Kirigami.Units.largeSpacing
-                Controls.Label {
+                QTQ_C.Label {
                     text: name
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignVCenter
+                    QTQ_L.Layout.fillWidth: true
+                    QTQ_L.Layout.alignment: Qt.AlignVCenter
                     elide: Text.ElideRight
                 }
-                Loader {
-                    Layout.preferredWidth: Kirigami.Units.gridUnit * 9
-                    Layout.preferredHeight: Kirigami.Units.gridUnit * 2
+                QTQ.Loader {
+                    QTQ_L.Layout.preferredWidth: Kirigami.Units.gridUnit * 9
+                    QTQ_L.Layout.preferredHeight: Kirigami.Units.gridUnit * 2
                     sourceComponent: widgetPreview
                     onLoaded: {
                         item.desktopNo = number
@@ -423,15 +423,15 @@ Item {
         }
     }
 
-    Component {
+    QTQ.Component {
         id: widgetPreview
-        Item {
+        QTQ.Item {
             id: preview
             property int desktopNo: root.selectedDesktop
             property string desktopName: qsTr("Desktop")
             property bool interactive: true
             property real scaleFactor: Math.min(width / 320, height / 120)
-            Rectangle {
+            QTQ.Rectangle {
                 id: dateBlock
                 x: root.sectionOffset(root.dateSectionOrder, parent.width)
                 width: root.sectionWidth(root.sectionDateWidth, root.sectionDateVisible, parent.width)
@@ -441,43 +441,43 @@ Item {
                 border.color: dateMouse.containsMouse && !dayNameMouse.containsMouse && !dayDateMouse.containsMouse
                         ? Kirigami.Theme.highlightColor : "transparent"
                 border.width: 2
-                MouseArea {
+                QTQ.MouseArea {
                     id: dateMouse; anchors.fill: parent; hoverEnabled: true
                     enabled: preview.interactive
                     onClicked: root.openColor("date", dateBlock.color)
                 }
-                Text {
+                QTQ.Text {
                     id: dayNameText
                     anchors.top: parent.top; anchors.horizontalCenter: parent.horizontalCenter
                     text: Qt.locale().toString(new Date(), "dddd")
                     color: root.dayNameColors[preview.desktopNo - 1] || "#000000"
                     font.family: root.dayNameFonts[preview.desktopNo - 1] || "Inconsolata"
                     font.pixelSize: parent.height * 0.42; font.weight: 400
-                    Rectangle {
+                    QTQ.Rectangle {
                         anchors.fill: parent
                         color: "transparent"
                         border.color: dayNameMouse.containsMouse ? Kirigami.Theme.highlightColor : "transparent"
                         border.width: 2
                     }
                 }
-                Text {
+                QTQ.Text {
                     id: dayDateText
                     anchors.bottom: parent.bottom; anchors.horizontalCenter: parent.horizontalCenter
                     text: Qt.locale().toString(new Date(), "dd.MM")
                     color: root.daydateBackgroundColors[preview.desktopNo - 1] || "#000000"
                     font.family: root.dayDateFonts[preview.desktopNo - 1] || "Cantarell"
                     font.pixelSize: parent.height * 0.42; font.weight: 600
-                    MouseArea { id: dayDateMouse; anchors.fill: parent; hoverEnabled: true; enabled: preview.interactive; onClicked: root.openStyle("dayDate") }
-                    Rectangle {
+                    QTQ.MouseArea { id: dayDateMouse; anchors.fill: parent; hoverEnabled: true; enabled: preview.interactive; onClicked: root.openStyle("dayDate") }
+                    QTQ.Rectangle {
                         anchors.fill: parent
                         color: "transparent"
                         border.color: dayDateMouse.containsMouse ? Kirigami.Theme.highlightColor : "transparent"
                         border.width: 2
                     }
                 }
-                MouseArea { id: dayNameMouse; anchors.top: parent.top; anchors.left: parent.left; anchors.right: parent.right; height: parent.height / 2; hoverEnabled: true; enabled: preview.interactive; onClicked: root.openStyle("dayName") }
+                QTQ.MouseArea { id: dayNameMouse; anchors.top: parent.top; anchors.left: parent.left; anchors.right: parent.right; height: parent.height / 2; hoverEnabled: true; enabled: preview.interactive; onClicked: root.openStyle("dayName") }
             }
-            Rectangle {
+            QTQ.Rectangle {
                 id: nameBlock
                 x: root.sectionOffset(root.sectionDesktopNameOrder, parent.width)
                 width: root.sectionWidth(root.sectionDesktopNameWidth, root.sectionDesktopNameVisible, parent.width)
@@ -487,14 +487,14 @@ Item {
                 border.color: nameMouse.containsMouse && !desktopNameTextMouse.containsMouse
                         ? Kirigami.Theme.highlightColor : "transparent"
                 border.width: 2
-                MouseArea {
+                QTQ.MouseArea {
                     id: nameMouse
                     anchors.fill: parent
                     hoverEnabled: true
                     enabled: preview.interactive
                     onClicked: root.openColor("desktopNameBackground", nameBlock.color)
                 }
-                Controls.Label {
+                QTQ_C.Label {
                     anchors.centerIn: parent
                     width: parent.width - Kirigami.Units.smallSpacing * 2
                     text: preview.desktopName
@@ -502,14 +502,14 @@ Item {
                     font.family: root.desktopNameFonts[preview.desktopNo - 1] || "Cantarell"
                     horizontalAlignment: Text.AlignHCenter
                     elide: Text.ElideRight
-                    MouseArea {
+                    QTQ.MouseArea {
                         id: desktopNameTextMouse
                         anchors.fill: parent
                         hoverEnabled: true
                         enabled: preview.interactive
                         onClicked: root.openStyle("desktopName")
                     }
-                    Rectangle {
+                    QTQ.Rectangle {
                         anchors.fill: parent
                         color: "transparent"
                         border.color: desktopNameTextMouse.containsMouse ? Kirigami.Theme.highlightColor : "transparent"
@@ -517,7 +517,7 @@ Item {
                     }
                 }
             }
-            Rectangle {
+            QTQ.Rectangle {
                 id: numberBlock
                 x: root.sectionOffset(root.sectionDesktopNumberOrder, parent.width)
                 width: root.sectionWidth(root.sectionDesktopNumberWidth, root.sectionDesktopNumberVisible, parent.width)
@@ -526,14 +526,14 @@ Item {
                 color: root.numberBackgroundColors[preview.desktopNo - 1] || "#000000"
                 border.color: numberMouse.containsMouse && !numberTextMouse.containsMouse
                         ? Kirigami.Theme.highlightColor : "transparent"; border.width: 2
-                MouseArea { id: numberMouse; anchors.fill: parent; hoverEnabled: true; enabled: preview.interactive; onClicked: root.openColor("number", numberBlock.color) }
-                Text {
+                QTQ.MouseArea { id: numberMouse; anchors.fill: parent; hoverEnabled: true; enabled: preview.interactive; onClicked: root.openColor("number", numberBlock.color) }
+                QTQ.Text {
                     anchors.centerIn: parent; text: preview.desktopNo
                     color: root.numberColors[preview.desktopNo - 1] || "#a0ffa0"
                     font.family: root.numberFonts[preview.desktopNo - 1] || "Cantarell"
                     font.pixelSize: parent.height * 0.68; font.weight: 700
-                    MouseArea { id: numberTextMouse; anchors.fill: parent; hoverEnabled: true; enabled: preview.interactive; onClicked: root.openStyle("numberText") }
-                    Rectangle {
+                    QTQ.MouseArea { id: numberTextMouse; anchors.fill: parent; hoverEnabled: true; enabled: preview.interactive; onClicked: root.openStyle("numberText") }
+                    QTQ.Rectangle {
                         anchors.fill: parent
                         color: "transparent"
                         border.color: numberTextMouse.containsMouse ? Kirigami.Theme.highlightColor : "transparent"
@@ -557,25 +557,25 @@ Item {
         styleDialog.open()
     }
 
-    Controls.Dialog {
+    QTQ_C.Dialog {
         id: styleDialog
         title: target === "dayName" ? qsTr("Day name") : target === "dayDate" ? qsTr("Day date")
                 : target === "desktopName" ? qsTr("Desktop name") : qsTr("Desktop number")
-        standardButtons: Controls.DialogButtonBox.Close
+        standardButtons: QTQ_C.DialogButtonBox.Close
         property string target: ""
         property string fontName: "Cantarell"
         property color selectedTextColor: "#000000"
-        contentItem: ColumnLayout {
+        contentItem: QTQ_L.ColumnLayout {
             spacing: Kirigami.Units.largeSpacing
-            Controls.Label { text: qsTr("Text appearance"); Layout.fillWidth: true }
-            Controls.Button {
+            QTQ_C.Label { text: qsTr("Text appearance"); QTQ_L.Layout.fillWidth: true }
+            QTQ_C.Button {
                 text: qsTr("Choose font…")
-                Layout.fillWidth: true
+                QTQ_L.Layout.fillWidth: true
                 onClicked: root.openFont("styleFont", styleDialog.fontName)
             }
-            Controls.Button {
+            QTQ_C.Button {
                 text: qsTr("Choose text color…")
-                Layout.fillWidth: true
+                QTQ_L.Layout.fillWidth: true
                 onClicked: {
                     colorDialog.target = "text"
                     colorDialog.selectedColor = styleDialog.selectedTextColor
@@ -585,7 +585,7 @@ Item {
         }
     }
 
-    ColorDialog {
+    QTQ_D.ColorDialog {
         id: colorDialog
         property string target: ""
         onAccepted: {
@@ -602,29 +602,29 @@ Item {
         }
     }
 
-    Controls.Dialog {
+    QTQ_C.Dialog {
         id: fontDialog
         title: qsTr("Choose font")
-        standardButtons: Controls.DialogButtonBox.Ok | Controls.DialogButtonBox.Cancel
+        standardButtons: QTQ_C.DialogButtonBox.Ok | QTQ_C.DialogButtonBox.Cancel
         property string target: ""
         property string selectedFamily: "Cantarell"
         property string previewText: "Aa"
         onOpened: fontFamilyBox.currentIndex = fontFamilyBox.model.indexOf(selectedFamily)
-        contentItem: ColumnLayout {
+        contentItem: QTQ_L.ColumnLayout {
             spacing: Kirigami.Units.largeSpacing
-            Controls.Label {
+            QTQ_C.Label {
                 text: fontDialog.previewText
                 font.family: fontFamilyBox.currentText || fontDialog.selectedFamily
                 font.pixelSize: Kirigami.Units.gridUnit * 1.5
                 horizontalAlignment: Text.AlignHCenter
-                Layout.fillWidth: true
+                QTQ_L.Layout.fillWidth: true
                 wrapMode: Text.WordWrap
             }
-            Controls.ComboBox {
+            QTQ_C.ComboBox {
                 id: fontFamilyBox
                 model: Qt.fontFamilies()
                 currentIndex: -1
-                Layout.fillWidth: true
+                QTQ_L.Layout.fillWidth: true
             }
         }
         onAccepted: {

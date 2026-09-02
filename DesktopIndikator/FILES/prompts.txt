@@ -132,3 +132,17 @@ remove the fallback
 -- manual refactoring --
 
 use rounded-triangle-down.svg, rotated by 180°, instead of rounded-triangle-up.svg.remove rounded-triangle-up.svg
+
+replace import QtQuick with import QtQuick as QTQ
+
+replace import QtQuick.Controls as Controls with import QtQuick.Controls as QTQ_C
+
+replace import QtQuick.Dialogs with import QtQuick.Dialogs as QTQ_D
+
+replace import QtQuick.Layouts with import QtQuick.Layouts as QTQ_L
+
+replace import org.kde.plasma.plasmoid with import org.kde.plasma.plasmoid as KDE_plasmoid
+
+replace import org.kde.taskmanager as TaskManager with import org.kde.taskmanager as KDE_taskmanager
+
+replace import QtQml as QTQ_QML with import QtQml as QML
