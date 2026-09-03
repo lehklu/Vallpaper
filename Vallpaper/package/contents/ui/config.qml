@@ -37,7 +37,7 @@ QTQ_L.ColumnLayout { id: _Root
   QTQ.Component.onCompleted: {
 
 /*MOD*/plasmacfgAdapter = new VJS.PlasmacfgAdapter(cfg_vallpaper601, $newCfg => { cfg_vallpaper601 = $newCfg; });
-    selectDesktop__init(VJS.GET_CURRENT_DESKNO(_VirtualDesktopInfo));
+    selectDesktop__init(VJS.GET_CURRENT_DESKNO_FOR_SCREEN(_VirtualDesktopInfo, QTQ.Screen.name));
   }
 
   KDE_taskmanager.VirtualDesktopInfo { id: _VirtualDesktopInfo }
