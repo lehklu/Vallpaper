@@ -9,8 +9,7 @@ import org.kde.plasma.plasmoid as KDE_plasmoid
 
 import org.kde.taskmanager as KDE_taskmanager
 
-KDE_plasmoid.PlasmoidItem {
-  id: _Root
+KDE_plasmoid.PlasmoidItem { id: _Root
 
   property int _fullWidth: height * 5
   property real _sectionDateWidth: Number(configurationValue("sectionDateWidth", 3))

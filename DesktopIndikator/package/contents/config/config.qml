@@ -1,4 +1,4 @@
-import QtQuick as QTQ
+import QtQuick
 import org.kde.plasma.configuration
 
 ConfigModel {
