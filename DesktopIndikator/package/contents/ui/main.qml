@@ -23,26 +23,26 @@ KDE_plasmoid.PlasmoidItem { id: _Root
   property int _sectionDesktopNumberOrder: sectionOrderIndex("number", 2)
   property var _defaultDeskColors: [
     "#a0ffa0",
-	  "#a8a8ff",
-	  "#ff97ff",
-	  "#ffff8f",
-	  "#ffffff",
-	  "#41f2f2"
+    "#a8a8ff",
+    "#ff97ff",
+    "#ffff8f",
+    "#ffffff",
+    "#41f2f2"
   ]
   property date _currentDate: new Date()
   property int _currentDesktopNo: 0
   property string _currentDesktopName: ""
   property int _configurationRevision: 0
   property var _currentDeskColor: configurationValue("dateColor" + _currentDesktopNo,
-                                                     _defaultDeskColors[(_currentDesktopNo - 1 + 6) % 6])
+      _defaultDeskColors[(_currentDesktopNo - 1 + 6) % 6])
   property var _currentNumberColor: configurationValue("numberColor" + _currentDesktopNo, "#000000")
   property var _currentDayNameColor: configurationValue("dayNameColor" + _currentDesktopNo, "#000000")
   property var _currentDayDateColor: configurationValue("dayDateColor" + _currentDesktopNo, "#000000")
   property var _currentDesktopNameColor: configurationValue("desktopNameColor" + _currentDesktopNo, "#000000")
   property var _currentDesktopNameBackgroundColor: configurationValue("desktopNameBackgroundColor" + _currentDesktopNo,
-                                                                       _defaultDeskColors[(_currentDesktopNo - 1 + 6) % 6])
+      _defaultDeskColors[(_currentDesktopNo - 1 + 6) % 6])
   property var _currentNumberTextColor: configurationValue("numberTextColor" + _currentDesktopNo,
-                                                            _defaultDeskColors[(_currentDesktopNo - 1 + 6) % 6])
+      _defaultDeskColors[(_currentDesktopNo - 1 + 6) % 6])
   property string _currentDayNameFont: configurationValue("dayNameFont" + _currentDesktopNo, "Inconsolata")
   property string _currentDayDateFont: configurationValue("dayDateFont" + _currentDesktopNo, "Cantarell")
   property string _currentDesktopNameFont: configurationValue("desktopNameFont" + _currentDesktopNo, "Cantarell")
@@ -53,13 +53,18 @@ KDE_plasmoid.PlasmoidItem { id: _Root
     // appearance property, including dynamically named desktop settings.
     var revision = _configurationRevision
     var match = key.match(/^(.*?)([0-9]+)$/)
-    if (match) {
+    if (match)
+    {
       var stored = KDE_plasmoid.Plasmoid.configuration[match[1] + "s"]
-      if (stored) {
-        try {
+      if (stored)
+      {
+        try
+        {
           var values = JSON.parse(stored)
           return values[Number(match[2]) - 1] || fallback
-        } catch (e) {}
+        }
+        catch (e)
+        {}
       }
       return fallback
     }
@@ -74,8 +79,8 @@ KDE_plasmoid.PlasmoidItem { id: _Root
 
   function sectionTotalWidth() {
     return (_sectionDateVisible ? _sectionDateWidth : 0)
-            + (_nameSectionVisible ? _nameSectionWidth : 0)
-            + (_sectionDesktopNumberVisible ? _sectionDesktopNumberWidth : 0)
+        + (_nameSectionVisible ? _nameSectionWidth : 0)
+        + (_sectionDesktopNumberVisible ? _sectionDesktopNumberWidth : 0)
   }
 
   function sectionWidth(weight, visible) {
@@ -86,16 +91,23 @@ KDE_plasmoid.PlasmoidItem { id: _Root
   function sectionOffset(order) {
     var offset = 0
     if (_sectionDateVisible && _dateSectionOrder < order)
+    {
       offset += sectionWidth(_sectionDateWidth, true)
+    }
     if (_nameSectionVisible && _nameSectionOrder < order)
+    {
       offset += sectionWidth(_nameSectionWidth, true)
+    }
     if (_sectionDesktopNumberVisible && _sectionDesktopNumberOrder < order)
+    {
       offset += sectionWidth(_sectionDesktopNumberWidth, true)
+    }
     return offset
   }
 
   QML.Connections {
     target: KDE_plasmoid.Plasmoid.configuration
+
     function onValueChanged() {
       _Root._configurationRevision++
     }
@@ -119,25 +131,27 @@ KDE_plasmoid.PlasmoidItem { id: _Root
       desktopSyncTimer.restart();
     }
 
-  	function broadcastDesktopChanged() {
+    function broadcastDesktopChanged() {
 
-	    _Root.handleOnDesktopChanged(getCurrentDeskNo());
-	  }
+      _Root.handleOnDesktopChanged(getCurrentDeskNo());
+    }
 
     function getCurrentDeskNo() {
 
       const currentId = currentDesktop;
       const ids = desktopIds;
 
-      if (!ids.length || currentId === undefined || currentId === null) {
+      if (!ids.length || currentId === undefined || currentId === null)
+      {
         return 0;
       }
 
       let idx = 0;
 
-      for(; idx < ids.length; idx++)
+      for (; idx < ids.length; idx++)
       {
-        if(ids[idx] == currentId) { break; }
+        if (ids[idx] == currentId)
+        { break; }
         //<--
 
 
@@ -154,93 +168,100 @@ KDE_plasmoid.PlasmoidItem { id: _Root
   }
 
   function handleOnDesktopChanged($currentDesktopNo) {
-	  if ($currentDesktopNo < 1) {
+    if ($currentDesktopNo < 1)
+    {
       return;
     }
-	  _Root._currentDesktopNo=$currentDesktopNo;
+    _Root._currentDesktopNo = $currentDesktopNo;
     _Root._currentDesktopName = desktopInfo.desktopNames[$currentDesktopNo - 1]
-            || qsTr("Desktop %1").arg($currentDesktopNo);
+        || qsTr("Desktop %1").arg($currentDesktopNo);
   }
 
   QTQ.Timer {
     interval: 1000 * 10 // sec
-	  running: true
-	  repeat: true
-	  triggeredOnStart: true
+    running: true
+    repeat: true
+    triggeredOnStart: true
 
-	  onTriggered: { _currentDate = new Date(); }
+    onTriggered: { _currentDate = new Date(); }
   }
 
-  QTQ.Rectangle { id: _RectDate
-	  x: sectionOffset(_dateSectionOrder)
-	  width: sectionWidth(_sectionDateWidth, _sectionDateVisible)
-	  height: parent.height
-	  visible: _sectionDateVisible
-	  color: _currentDeskColor
+  QTQ.Rectangle {
+    id: _RectDate
+    x: sectionOffset(_dateSectionOrder)
+    width: sectionWidth(_sectionDateWidth, _sectionDateVisible)
+    height: parent.height
+    visible: _sectionDateVisible
+    color: _currentDeskColor
 
-	  QTQ.Text { id: _TxtDay
+    QTQ.Text {
+      id: _TxtDay
       anchors.top: parent.top
-	    anchors.horizontalCenter: parent.horizontalCenter
+      anchors.horizontalCenter: parent.horizontalCenter
 
-	    font.family: _currentDayNameFont
-	    font.pixelSize: _RectDate.height * 0.5
-	    font.weight: 400
+      font.family: _currentDayNameFont
+      font.pixelSize: _RectDate.height * 0.5
+      font.weight: 400
 
       color: _currentDayNameColor
 
-	    text : Qt.locale().toString(_Root._currentDate, "dddd")
-	  }
+      text: Qt.locale().toString(_Root._currentDate, "dddd")
+    }
 
-    QTQ.Text { id: _TxtDate
-	    anchors.bottom: parent.bottom
-	    anchors.horizontalCenter: parent.horizontalCenter
+    QTQ.Text {
+      id: _TxtDate
+      anchors.bottom: parent.bottom
+      anchors.horizontalCenter: parent.horizontalCenter
 
-	    font.family: _currentDayDateFont
-	    font.pixelSize: _RectDate.height * 0.5
-	    font.weight: 600
+      font.family: _currentDayDateFont
+      font.pixelSize: _RectDate.height * 0.5
+      font.weight: 600
 
-	    color: _currentDayDateColor
+      color: _currentDayDateColor
 
-	    text : Qt.locale().toString(_Root._currentDate, "dd.MM")
+      text: Qt.locale().toString(_Root._currentDate, "dd.MM")
     }
   }
 
-  QTQ.Rectangle { id: _RectName
-	  x: sectionOffset(_nameSectionOrder)
-	  width: sectionWidth(_nameSectionWidth, _nameSectionVisible)
-	  height: parent.height
-	  visible: _nameSectionVisible
-	  color: _currentDesktopNameBackgroundColor
+  QTQ.Rectangle {
+    id: _RectName
+    x: sectionOffset(_nameSectionOrder)
+    width: sectionWidth(_nameSectionWidth, _nameSectionVisible)
+    height: parent.height
+    visible: _nameSectionVisible
+    color: _currentDesktopNameBackgroundColor
 
-	  QTQ.Text {
-	    anchors.centerIn: parent
-	    width: parent.width - 8
-	    text: _currentDesktopName
-	    color: _currentDesktopNameColor
-	    font.family: _currentDesktopNameFont
-	    elide: QTQ.Text.ElideRight
-	    horizontalAlignment: QTQ.Text.AlignHCenter
-	  }
+    QTQ.Text {
+      anchors.centerIn: parent
+      width: parent.width - 8
+      text: _currentDesktopName
+      color: _currentDesktopNameColor
+      font.family: _currentDesktopNameFont
+      elide: QTQ.Text.ElideRight
+      horizontalAlignment: QTQ.Text.AlignHCenter
+    }
   }
 
-  QTQ.Rectangle { id: _RectNo
-	  x: sectionOffset(_sectionDesktopNumberOrder)
-	  width: sectionWidth(_sectionDesktopNumberWidth, _sectionDesktopNumberVisible)
-	  height: parent.height
-	  color: _currentNumberColor
-	  visible: _sectionDesktopNumberVisible
+  QTQ.Rectangle {
+    id: _RectNo
+    x: sectionOffset(_sectionDesktopNumberOrder)
+    width: sectionWidth(_sectionDesktopNumberWidth, _sectionDesktopNumberVisible)
+    height: parent.height
+    color: _currentNumberColor
+    visible: _sectionDesktopNumberVisible
 
-	  QTQ.Text { id: _TxtNo
-	    anchors.verticalCenter: parent.verticalCenter
-	    anchors.horizontalCenter: parent.horizontalCenter
+    QTQ.Text {
+      id: _TxtNo
+      anchors.verticalCenter: parent.verticalCenter
+      anchors.horizontalCenter: parent.horizontalCenter
 
-	    font.family: _currentNumberFont
-	    font.pixelSize: _RectNo.height * 0.8
-	    font.weight: 700
+      font.family: _currentNumberFont
+      font.pixelSize: _RectNo.height * 0.8
+      font.weight: 700
 
-	    color: _currentNumberTextColor
+      color: _currentNumberTextColor
 
-	    text : _Root._currentDesktopNo
-	  }
+      text: _Root._currentDesktopNo
+    }
   }
 }
