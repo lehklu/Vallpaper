@@ -8,32 +8,41 @@ import org.kde.taskmanager as KDE_taskmanager
 
 QTQ.Item { id: _Root
 
+  readonly property var _DEFAULT_COLORS_BLACK: ["#000000", "#000000", "#000000", "#000000", "#000000", "#000000"]
+  readonly property var _DEFAULT_COLORS_COLORFUL: ["#a0ffa0", "#a8a8ff", "#ff97ff", "#ffff8f", "#ffffff", "#41f2f2"]
+
   property var title // for KDE Settings page
 
-  implicitWidth: Kirigami.Units.gridUnit * 34
-  implicitHeight: Kirigami.Units.gridUnit * 32
-
   property int selectedDesktop: desktopBox.currentIndex + 1
+
+  property int sectionDateOrderIdx: 0
   property int sectionDateWidth: 3
-  property int sectionDesktopNameWidth: 1
-  property int sectionDesktopNumberWidth: 1
   property bool sectionDateVisible: true
-  property bool sectionDesktopNameVisible: true
+
+  property int sectionDesktopNumberOrderIdx: 1
+  property int sectionDesktopNumberWidth: 1
   property bool sectionDesktopNumberVisible: true
-  property int dateSectionOrder: 0
-  property int sectionDesktopNameOrder: 1
-  property int sectionDesktopNumberOrder: 2
-  property var dateBackgroundColors: ["#a0ffa0", "#a8a8ff", "#ff97ff", "#ffff8f", "#ffffff", "#41f2f2"]
-  property var numberBackgroundColors: ["#000000", "#000000", "#000000", "#000000", "#000000", "#000000"]
-  property var dayNameColors: ["#000000", "#000000", "#000000", "#000000", "#000000", "#000000"]
-  property var daydateBackgroundColors: ["#000000", "#000000", "#000000", "#000000", "#000000", "#000000"]
-  property var numberColors: ["#a0ffa0", "#a8a8ff", "#ff97ff", "#ffff8f", "#ffffff", "#41f2f2"]
-  property var desktopNameColors: ["#000000", "#000000", "#000000", "#000000", "#000000", "#000000"]
-  property var desktopNameBackgroundColors: ["#a0ffa0", "#a8a8ff", "#ff97ff", "#ffff8f", "#ffffff", "#41f2f2"]
-  property var dayNameFonts: ["Inconsolata", "Inconsolata", "Inconsolata", "Inconsolata", "Inconsolata", "Inconsolata"]
-  property var dayDateFonts: ["Cantarell", "Cantarell", "Cantarell", "Cantarell", "Cantarell", "Cantarell"]
-  property var numberFonts: ["Cantarell", "Cantarell", "Cantarell", "Cantarell", "Cantarell", "Cantarell"]
-  property var desktopNameFonts: ["Cantarell", "Cantarell", "Cantarell", "Cantarell", "Cantarell", "Cantarell"]
+
+  property int sectionDesktopNameOrderIdx: 2
+  property int sectionDesktopNameWidth: 1
+  property bool sectionDesktopNameVisible: true
+
+  property var dateBackgroundColors: _DEFAULT_COLORS_COLORFUL
+  property var dayNameColors: _DEFAULT_COLORS_BLACK
+  property var dayDateColors: _DEFAULT_COLORS_BLACK
+
+  property var desktopNumberBackgroundColors: _DEFAULT_COLORS_BLACK
+  property var desktopNumberColors: _DEFAULT_COLORS_COLORFUL
+
+  property var desktopNameBackgroundColors: _DEFAULT_COLORS_COLORFUL
+  property var desktopNameColors: _DEFAULT_COLORS_BLACK
+
+  property var dayNameFonts: ["SansSerif"]
+  property var dayDateFonts: ["Serif"]
+
+  property var desktopNumberFonts: ["Serif"]
+
+  property var desktopNameFonts: ["SansSerif"]
 
   function save(key, value) {
     var listKey = key + "s"
@@ -66,15 +75,15 @@ QTQ.Item { id: _Root
       return 0
     }
     var offset = 0
-    if (sectionDateVisible && dateSectionOrder < order)
+    if (sectionDateVisible && sectionDateOrderIdx < order)
     {
       offset += totalWidth * sectionDateWidth / total
     }
-    if (sectionDesktopNameVisible && sectionDesktopNameOrder < order)
+    if (sectionDesktopNameVisible && sectionDesktopNameOrderIdx < order)
     {
       offset += totalWidth * sectionDesktopNameWidth / total
     }
-    if (sectionDesktopNumberVisible && sectionDesktopNumberOrder < order)
+    if (sectionDesktopNumberVisible && sectionDesktopNumberOrderIdx < order)
     {
       offset += totalWidth * sectionDesktopNumberWidth / total
     }
@@ -145,7 +154,7 @@ QTQ.Item { id: _Root
     id: sectionModel
     QTQ.ListElement { key: "date"; label: qsTr("Date") }
     QTQ.ListElement { key: "desktopName"; label: qsTr("Desktop name") }
-    QTQ.ListElement { key: "number"; label: qsTr("Desktop number") }
+    QTQ.ListElement { key: "desktopNumber"; label: qsTr("Desktop number") }
   }
 
   function sectionWidthValue(key) {
@@ -195,14 +204,14 @@ QTQ.Item { id: _Root
       order.push(sectionModel.get(i).key)
     }
     saveLayout("sectionOrder", order.join(","))
-    dateSectionOrder = order.indexOf("date")
-    sectionDesktopNameOrder = order.indexOf("desktopName")
-    sectionDesktopNumberOrder = order.indexOf("number")
+    sectionDateOrderIdx = order.indexOf("date")
+    sectionDesktopNameOrderIdx = order.indexOf("desktopName")
+    sectionDesktopNumberOrderIdx = order.indexOf("desktopNumber")
   }
 
   function loadSectionOrder() {
-    var savedOrder = String(KDE_plasmoid.Plasmoid.configuration.sectionOrder || "date,desktopName,number").split(",")
-    var valid = ["date", "desktopName", "number"]
+    var savedOrder = String(KDE_plasmoid.Plasmoid.configuration.sectionOrder || "date,desktopNumber,desktopName").split(",")
+    var valid = ["date", "desktopNumber", "desktopName"]
     var ordered = []
     for (var i = 0; i < savedOrder.length; ++i)
     {
@@ -238,9 +247,9 @@ QTQ.Item { id: _Root
   }
 
   function saveSectionOrderProperties() {
-    dateSectionOrder = sectionModel.get(0).key === "date" ? 0 : sectionModel.get(1).key === "date" ? 1 : 2
-    sectionDesktopNameOrder = sectionModel.get(0).key === "desktopName" ? 0 : sectionModel.get(1).key === "desktopName" ? 1 : 2
-    sectionDesktopNumberOrder = sectionModel.get(0).key === "number" ? 0 : sectionModel.get(1).key === "number" ? 1 : 2
+    sectionDateOrderIdx = sectionModel.get(0).key === "date" ? 0 : sectionModel.get(1).key === "date" ? 1 : 2
+    sectionDesktopNameOrderIdx = sectionModel.get(0).key === "desktopName" ? 0 : sectionModel.get(1).key === "desktopName" ? 1 : 2
+    sectionDesktopNumberOrderIdx = sectionModel.get(0).key === "desktopNumber" ? 0 : sectionModel.get(1).key === "desktopNumber" ? 1 : 2
   }
 
   function loadSettings() {
@@ -250,10 +259,10 @@ QTQ.Item { id: _Root
     sectionDateVisible = KDE_plasmoid.Plasmoid.configuration.sectionDateVisible !== false && KDE_plasmoid.Plasmoid.configuration.sectionDateVisible !== "false"
     sectionDesktopNameVisible = KDE_plasmoid.Plasmoid.configuration.sectionDesktopNameVisible !== false && KDE_plasmoid.Plasmoid.configuration.sectionDesktopNameVisible !== "false"
     sectionDesktopNumberVisible = KDE_plasmoid.Plasmoid.configuration.sectionDesktopNumberVisible !== false && KDE_plasmoid.Plasmoid.configuration.sectionDesktopNumberVisible !== "false"
-    dateSectionOrder = Number(KDE_plasmoid.Plasmoid.configuration.dateSectionOrder || 0)
-    sectionDesktopNameOrder = Number(KDE_plasmoid.Plasmoid.configuration.sectionDesktopNameOrder || 1)
-    sectionDesktopNumberOrder = Number(KDE_plasmoid.Plasmoid.configuration.sectionDesktopNumberOrder || 2)
-    var listNames = ["dateBackgroundColors", "numberBackgroundColors", "dayNameColors", "daydateBackgroundColors", "numberColors", "desktopNameColors", "desktopNameBackgroundColors", "dayNameFonts", "dayDateFonts", "numberFonts", "desktopNameFonts"]
+    sectionDateOrderIdx = Number(KDE_plasmoid.Plasmoid.configuration.dateSectionOrder || 0)
+    sectionDesktopNameOrderIdx = Number(KDE_plasmoid.Plasmoid.configuration.sectionDesktopNameOrder || 1)
+    sectionDesktopNumberOrderIdx = Number(KDE_plasmoid.Plasmoid.configuration.sectionDesktopNumberOrder || 2)
+    var listNames = ["dateBackgroundColors", "desktopNumberBackgroundColors", "dayNameColors", "dayDateColors", "desktopNumberColors", "desktopNameColors", "desktopNameBackgroundColors", "dayNameFonts", "dayDateFonts", "desktopNumberFonts", "desktopNameFonts"]
     for (var l = 0; l < listNames.length; ++l)
     {
       var stored = KDE_plasmoid.Plasmoid.configuration[listNames[l]]
@@ -497,11 +506,11 @@ QTQ.Item { id: _Root
       property real scaleFactor: Math.min(width / 320, height / 120)
       QTQ.Rectangle {
         id: dateBlock
-        x: _Root.sectionOffset(_Root.dateSectionOrder, parent.width)
+        x: _Root.sectionOffset(_Root.sectionDateOrderIdx, parent.width)
         width: _Root.sectionWidth(_Root.sectionDateWidth, _Root.sectionDateVisible, parent.width)
         height: parent.height
         visible: _Root.sectionDateVisible
-        color: _Root.dateBackgroundColors[preview.desktopNo - 1] || "#a0ffa0"
+        color: _Root.dateBackgroundColors[preview.desktopNo - 1] || _DEFAULT_COLORS_COLORFUL[0]
         border.color: dateMouse.containsMouse && !dayNameMouse.containsMouse && !dayDateMouse.containsMouse
             ? Kirigami.Theme.highlightColor : "transparent"
         border.width: 2
@@ -514,8 +523,8 @@ QTQ.Item { id: _Root
           id: dayNameText
           anchors.top: parent.top; anchors.horizontalCenter: parent.horizontalCenter
           text: Qt.locale().toString(new Date(), "dddd")
-          color: _Root.dayNameColors[preview.desktopNo - 1] || "#000000"
-          font.family: _Root.dayNameFonts[preview.desktopNo - 1] || "Inconsolata"
+          color: _Root.dayNameColors[preview.desktopNo - 1] || _DEFAULT_COLORS_BLACK[0]
+          font.family: _Root.dayNameFonts[preview.desktopNo - 1] || "SansSerif"
           font.pixelSize: parent.height * 0.42; font.weight: 400
           QTQ.Rectangle {
             anchors.fill: parent
@@ -528,8 +537,8 @@ QTQ.Item { id: _Root
           id: dayDateText
           anchors.bottom: parent.bottom; anchors.horizontalCenter: parent.horizontalCenter
           text: Qt.locale().toString(new Date(), "dd.MM")
-          color: _Root.daydateBackgroundColors[preview.desktopNo - 1] || "#000000"
-          font.family: _Root.dayDateFonts[preview.desktopNo - 1] || "Cantarell"
+          color: _Root.dayDateColors[preview.desktopNo - 1] || _DEFAULT_COLORS_BLACK[0]
+          font.family: _Root.dayDateFonts[preview.desktopNo - 1] || "Serif"
           font.pixelSize: parent.height * 0.42; font.weight: 600
           QTQ.MouseArea {
             id:
@@ -549,11 +558,11 @@ QTQ.Item { id: _Root
       }
       QTQ.Rectangle {
         id: nameBlock
-        x: _Root.sectionOffset(_Root.sectionDesktopNameOrder, parent.width)
+        x: _Root.sectionOffset(_Root.sectionDesktopNameOrderIdx, parent.width)
         width: _Root.sectionWidth(_Root.sectionDesktopNameWidth, _Root.sectionDesktopNameVisible, parent.width)
         height: parent.height
         visible: _Root.sectionDesktopNameVisible
-        color: _Root.desktopNameBackgroundColors[preview.desktopNo - 1] || "#a0ffa0"
+        color: _Root.desktopNameBackgroundColors[preview.desktopNo - 1] || _DEFAULT_COLORS_COLORFUL[0]
         border.color: nameMouse.containsMouse && !desktopNameTextMouse.containsMouse
             ? Kirigami.Theme.highlightColor : "transparent"
         border.width: 2
@@ -568,8 +577,8 @@ QTQ.Item { id: _Root
           anchors.centerIn: parent
           width: parent.width - Kirigami.Units.smallSpacing * 2
           text: preview.desktopName
-          color: _Root.desktopNameColors[preview.desktopNo - 1] || "#000000"
-          font.family: _Root.desktopNameFonts[preview.desktopNo - 1] || "Cantarell"
+          color: _Root.desktopNameColors[preview.desktopNo - 1] || _DEFAULT_COLORS_BLACK[0]
+          font.family: _Root.desktopNameFonts[preview.desktopNo - 1] || "SansSerif"
           horizontalAlignment: QTQ.Text.AlignHCenter
           elide: QTQ.Text.ElideRight
           QTQ.MouseArea {
@@ -589,11 +598,11 @@ QTQ.Item { id: _Root
       }
       QTQ.Rectangle {
         id: numberBlock
-        x: _Root.sectionOffset(_Root.sectionDesktopNumberOrder, parent.width)
+        x: _Root.sectionOffset(_Root.sectionDesktopNumberOrderIdx, parent.width)
         width: _Root.sectionWidth(_Root.sectionDesktopNumberWidth, _Root.sectionDesktopNumberVisible, parent.width)
         height: parent.height
         visible: _Root.sectionDesktopNumberVisible
-        color: _Root.numberBackgroundColors[preview.desktopNo - 1] || "#000000"
+        color: _Root.desktopNumberBackgroundColors[preview.desktopNo - 1] || _DEFAULT_COLORS_BLACK[0]
         border.color: numberMouse.containsMouse && !numberTextMouse.containsMouse
             ? Kirigami.Theme.highlightColor : "transparent"; border.width: 2
         QTQ.MouseArea {
@@ -602,8 +611,8 @@ QTQ.Item { id: _Root
         }
         QTQ.Text {
           anchors.centerIn: parent; text: preview.desktopNo
-          color: _Root.numberColors[preview.desktopNo - 1] || "#a0ffa0"
-          font.family: _Root.numberFonts[preview.desktopNo - 1] || "Cantarell"
+          color: _Root.desktopNumberColors[preview.desktopNo - 1] || _DEFAULT_COLORS_COLORFUL[0]
+          font.family: _Root.desktopNumberFonts[preview.desktopNo - 1] || "Serif"
           font.pixelSize: parent.height * 0.68; font.weight: 700
           QTQ.MouseArea {
             id:
@@ -624,12 +633,12 @@ QTQ.Item { id: _Root
     styleDialog.target = target
     styleDialog.fontName = (target === "dayName" ? dayNameFonts[selectedDesktop - 1]
             : target === "dayDate" ? dayDateFonts[selectedDesktop - 1]
-                : target === "desktopName" ? desktopNameFonts[selectedDesktop - 1] : numberFonts[selectedDesktop - 1])
-        || (target === "dayName" ? "Inconsolata" : "Cantarell")
+                : target === "desktopName" ? desktopNameFonts[selectedDesktop - 1] : desktopNumberFonts[selectedDesktop - 1])
+        || (target === "dayName" ? "SansSerif" : "Serif")
     styleDialog.selectedTextColor = (target === "dayName" ? dayNameColors[selectedDesktop - 1]
-            : target === "dayDate" ? daydateBackgroundColors[selectedDesktop - 1]
-                : target === "desktopName" ? desktopNameColors[selectedDesktop - 1] : numberColors[selectedDesktop - 1])
-        || "#000000"
+            : target === "dayDate" ? dayDateColors[selectedDesktop - 1]
+                : target === "desktopName" ? desktopNameColors[selectedDesktop - 1] : desktopNumberColors[selectedDesktop - 1])
+        || _DEFAULT_COLORS_BLACK[0]
     styleDialog.open()
   }
 
@@ -639,10 +648,10 @@ QTQ.Item { id: _Root
         : target === "desktopName" ? qsTr("Desktop name") : qsTr("Desktop number")
     standardButtons: QTQ_C.DialogButtonBox.Close
     property string target: ""
-    property string fontName: "Cantarell"
+    property string fontName: "Serif"
     property
     QTQ.color
-    selectedTextColor: "#000000"
+    selectedTextColor: _DEFAULT_COLORS_BLACK[0]
     contentItem: QTQ_L.ColumnLayout
     {
       spacing: Kirigami.Units.largeSpacing
@@ -673,9 +682,9 @@ QTQ.Item { id: _Root
         _Root.dateBackgroundColors = _Root.setAt(_Root.dateBackgroundColors, _Root.selectedDesktop - 1, selectedColor);
         _Root.save("dateColor", selectedColor)
       }
-      else if (target === "number")
+      else if (target === "desktopNumber")
       {
-        _Root.numberBackgroundColors = _Root.setAt(_Root.numberBackgroundColors, _Root.selectedDesktop - 1, selectedColor);
+        _Root.desktopNumberBackgroundColors = _Root.setAt(_Root.desktopNumberBackgroundColors, _Root.selectedDesktop - 1, selectedColor);
         _Root.save("numberColor", selectedColor)
       }
       else if (target === "desktopNameBackground")
@@ -693,7 +702,7 @@ QTQ.Item { id: _Root
         }
         else if (styleDialog.target === "dayDate")
         {
-          _Root.daydateBackgroundColors = _Root.setAt(_Root.daydateBackgroundColors, _Root.selectedDesktop - 1, selectedColor);
+          _Root.dayDateColors = _Root.setAt(_Root.dayDateColors, _Root.selectedDesktop - 1, selectedColor);
           _Root.save("dayDateColor", selectedColor)
         }
         else if (styleDialog.target === "desktopName")
@@ -703,7 +712,7 @@ QTQ.Item { id: _Root
         }
         else
         {
-          _Root.numberColors = _Root.setAt(_Root.numberColors, _Root.selectedDesktop - 1, selectedColor);
+          _Root.desktopNumberColors = _Root.setAt(_Root.desktopNumberColors, _Root.selectedDesktop - 1, selectedColor);
           _Root.save("numberTextColor", selectedColor)
         }
       }
@@ -715,7 +724,7 @@ QTQ.Item { id: _Root
     title: qsTr("Choose font")
     standardButtons: QTQ_C.DialogButtonBox.Ok | QTQ_C.DialogButtonBox.Cancel
     property string target: ""
-    property string selectedFamily: "Cantarell"
+    property string selectedFamily: "Serif"
     property string previewText: "Aa"
     onOpened: fontFamilyBox.currentIndex = fontFamilyBox.model.indexOf(selectedFamily)
     contentItem: QTQ_L.ColumnLayout
@@ -755,7 +764,7 @@ QTQ.Item { id: _Root
       }
       else if (target === "numberText")
       {
-        _Root.numberFonts = _Root.setAt(_Root.numberFonts, _Root.selectedDesktop - 1, family);
+        _Root.desktopNumberFonts = _Root.setAt(_Root.desktopNumberFonts, _Root.selectedDesktop - 1, family);
         _Root.save("numberFont", family)
       }
       else if (target === "styleFont")
@@ -777,7 +786,7 @@ QTQ.Item { id: _Root
         }
         else
         {
-          _Root.numberFonts = _Root.setAt(_Root.numberFonts, _Root.selectedDesktop - 1, family);
+          _Root.desktopNumberFonts = _Root.setAt(_Root.desktopNumberFonts, _Root.selectedDesktop - 1, family);
           _Root.save("numberFont", family)
         }
       }

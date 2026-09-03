@@ -19,8 +19,9 @@ KDE_plasmoid.PlasmoidItem { id: _Root
   property bool _nameSectionVisible: configurationValue("nameSectionVisible", true) === true || configurationValue("nameSectionVisible", true) === "true"
   property bool _sectionDesktopNumberVisible: configurationValue("sectionDesktopNumberVisible", true) === true || configurationValue("sectionDesktopNumberVisible", true) === "true"
   property int _dateSectionOrder: sectionOrderIndex("date", 0)
-  property int _nameSectionOrder: sectionOrderIndex("desktopName", 1)
-  property int _sectionDesktopNumberOrder: sectionOrderIndex("number", 2)
+  property int _sectionDesktopNumberOrder: sectionOrderIndex("desktopNumber", 1)
+  property int _nameSectionOrder: sectionOrderIndex("desktopName", 2)
+
   property var _defaultDeskColors: [
     "#a0ffa0",
     "#a8a8ff",

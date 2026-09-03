@@ -7,26 +7,28 @@
     <group name="Settings">
       <entry name="sectionDateWidth" type="Int"><default>2</default></entry>
       <entry name="sectionDateVisible" type="Bool"><default>true</default></entry>
+
       <entry name="sectionDesktopNameWidth" type="Int"><default>3</default></entry>
       <entry name="sectionDesktopNameVisible" type="Bool"><default>true</default></entry>
+
       <entry name="sectionDesktopNumberWidth" type="Int"><default>1</default></entry>
       <entry name="sectionDesktopNumberVisible" type="Bool"><default>true</default></entry>
-      <entry name="sectionOrder" type="String"><default>date,desktopName,number</default></entry>
 
+      <entry name="sectionOrder" type="String"><default>date,desktopNumber,desktopName</default></entry>
+
+      <entry name="dateBackgroundColors" type="String"><default>[]</default></entry>
       <entry name="dayNameFonts" type="String"><default>[]</default></entry>
       <entry name="dayNameColors" type="String"><default>[]</default></entry>
       <entry name="dayDateFonts" type="String"><default>[]</default></entry>
       <entry name="dayDateColors" type="String"><default>[]</default></entry>
-      <entry name="dateBackgroundColors" type="String"><default>[]</default></entry>
 
-        
-      <entry name="numberFonts" type="String"><default>[]</default></entry>
-      <entry name="numberColors" type="String"><default>[]</default></entry>
-      <entry name="numberBackgroundColors" type="String"><default>[]</default></entry>
+      <entry name="desktopNumberBackgroundColors" type="String"><default>[]</default></entry>
+      <entry name="desktopNumberFonts" type="String"><default>[]</default></entry>
+      <entry name="desktopNumberColors" type="String"><default>[]</default></entry>
 
+      <entry name="desktopNameBackgroundColors" type="String"><default>[]</default></entry>
       <entry name="desktopNameFonts" type="String"><default>[]</default></entry>        
       <entry name="desktopNameColors" type="String"><default>[]</default></entry>
-      <entry name="desktopNameBackgroundColors" type="String"><default>[]</default></entry>
 
 
     </group>
