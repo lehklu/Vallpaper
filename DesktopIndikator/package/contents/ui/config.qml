@@ -8,51 +8,42 @@ import org.kde.taskmanager as KDE_taskmanager
 
 QTQ.Item { id: _Root
 
-  readonly property var _DEFAULT_COLORS_BLACK: ["#000000", "#000000", "#000000", "#000000", "#000000", "#000000"]
-  readonly property var _DEFAULT_COLORS_COLORFUL: ["#a0ffa0", "#a8a8ff", "#ff97ff", "#ffff8f", "#ffffff", "#41f2f2"]
+  readonly property var _DEFAULT_COLORS_DARK: ["#071169"]
+  readonly property var _DEFAULT_COLORS_LIGHT: ["#ffffff"]
 
   property var title // for KDE Settings page
 
   property int selectedDesktop: desktopBox.currentIndex + 1
 
   property int sectionDateOrderIdx: 0
-  property int sectionDateWidth: 3
+  property int sectionDateWidth: 2
   property bool sectionDateVisible: true
 
-  property int sectionDesktopNumberOrderIdx: 1
+  property int sectionDesktopNameOrderIdx: 1
+  property int sectionDesktopNameWidth: 2
+  property bool sectionDesktopNameVisible: true
+
+  property int sectionDesktopNumberOrderIdx: 2
   property int sectionDesktopNumberWidth: 1
   property bool sectionDesktopNumberVisible: true
 
-  property int sectionDesktopNameOrderIdx: 2
-  property int sectionDesktopNameWidth: 1
-  property bool sectionDesktopNameVisible: true
-
-  property var dateBackgroundColors: _DEFAULT_COLORS_COLORFUL
-  property var dayNameColors: _DEFAULT_COLORS_BLACK
-  property var dayDateColors: _DEFAULT_COLORS_BLACK
-
-  property var desktopNumberBackgroundColors: _DEFAULT_COLORS_BLACK
-  property var desktopNumberColors: _DEFAULT_COLORS_COLORFUL
-
-  property var desktopNameBackgroundColors: _DEFAULT_COLORS_COLORFUL
-  property var desktopNameColors: _DEFAULT_COLORS_BLACK
-
+  property var dateBackgroundColors: _DEFAULT_COLORS_LIGHT
+  property var dayNameColors: _DEFAULT_COLORS_DARK
+  property var dayDateColors: _DEFAULT_COLORS_DARK
   property var dayNameFonts: ["SansSerif"]
   property var dayDateFonts: ["Serif"]
 
-  property var desktopNumberFonts: ["Serif"]
-
+  property var desktopNameBackgroundColors: _DEFAULT_COLORS_LIGHT
+  property var desktopNameColors: _DEFAULT_COLORS_DARK
   property var desktopNameFonts: ["SansSerif"]
 
-  function save(key, value) {
-    var listKey = key + "s"
-    var values = _Root[listKey].slice()
-    values[selectedDesktop - 1] = value
-    KDE_plasmoid.Plasmoid.configuration[listKey] = JSON.stringify(values)
-    KDE_plasmoid.Plasmoid.configuration.writeConfig()
-  }
+  property var desktopNumberBackgroundColors: _DEFAULT_COLORS_DARK
+  property var desktopNumberColors: _DEFAULT_COLORS_LIGHT
+  property var desktopNumberFonts: ["Serif"]
+
 
   function saveLayout(key, value) {
+
     KDE_plasmoid.Plasmoid.configuration[key] = value
     KDE_plasmoid.Plasmoid.configuration.writeConfig()
   }
@@ -510,7 +501,7 @@ QTQ.Item { id: _Root
         width: _Root.sectionWidth(_Root.sectionDateWidth, _Root.sectionDateVisible, parent.width)
         height: parent.height
         visible: _Root.sectionDateVisible
-        color: _Root.dateBackgroundColors[preview.desktopNo - 1] || _DEFAULT_COLORS_COLORFUL[0]
+        color: _Root.dateBackgroundColors[preview.desktopNo - 1] || _DEFAULT_COLORS_LIGHT[0]
         border.color: dateMouse.containsMouse && !dayNameMouse.containsMouse && !dayDateMouse.containsMouse
             ? Kirigami.Theme.highlightColor : "transparent"
         border.width: 2
@@ -523,7 +514,7 @@ QTQ.Item { id: _Root
           id: dayNameText
           anchors.top: parent.top; anchors.horizontalCenter: parent.horizontalCenter
           text: Qt.locale().toString(new Date(), "dddd")
-          color: _Root.dayNameColors[preview.desktopNo - 1] || _DEFAULT_COLORS_BLACK[0]
+          color: _Root.dayNameColors[preview.desktopNo - 1] || _DEFAULT_COLORS_DARK[0]
           font.family: _Root.dayNameFonts[preview.desktopNo - 1] || "SansSerif"
           font.pixelSize: parent.height * 0.42; font.weight: 400
           QTQ.Rectangle {
@@ -537,7 +528,7 @@ QTQ.Item { id: _Root
           id: dayDateText
           anchors.bottom: parent.bottom; anchors.horizontalCenter: parent.horizontalCenter
           text: Qt.locale().toString(new Date(), "dd.MM")
-          color: _Root.dayDateColors[preview.desktopNo - 1] || _DEFAULT_COLORS_BLACK[0]
+          color: _Root.dayDateColors[preview.desktopNo - 1] || _DEFAULT_COLORS_DARK[0]
           font.family: _Root.dayDateFonts[preview.desktopNo - 1] || "Serif"
           font.pixelSize: parent.height * 0.42; font.weight: 600
           QTQ.MouseArea {
@@ -562,7 +553,7 @@ QTQ.Item { id: _Root
         width: _Root.sectionWidth(_Root.sectionDesktopNameWidth, _Root.sectionDesktopNameVisible, parent.width)
         height: parent.height
         visible: _Root.sectionDesktopNameVisible
-        color: _Root.desktopNameBackgroundColors[preview.desktopNo - 1] || _DEFAULT_COLORS_COLORFUL[0]
+        color: _Root.desktopNameBackgroundColors[preview.desktopNo - 1] || _DEFAULT_COLORS_LIGHT[0]
         border.color: nameMouse.containsMouse && !desktopNameTextMouse.containsMouse
             ? Kirigami.Theme.highlightColor : "transparent"
         border.width: 2
@@ -577,7 +568,7 @@ QTQ.Item { id: _Root
           anchors.centerIn: parent
           width: parent.width - Kirigami.Units.smallSpacing * 2
           text: preview.desktopName
-          color: _Root.desktopNameColors[preview.desktopNo - 1] || _DEFAULT_COLORS_BLACK[0]
+          color: _Root.desktopNameColors[preview.desktopNo - 1] || _DEFAULT_COLORS_DARK[0]
           font.family: _Root.desktopNameFonts[preview.desktopNo - 1] || "SansSerif"
           horizontalAlignment: QTQ.Text.AlignHCenter
           elide: QTQ.Text.ElideRight
@@ -602,7 +593,7 @@ QTQ.Item { id: _Root
         width: _Root.sectionWidth(_Root.sectionDesktopNumberWidth, _Root.sectionDesktopNumberVisible, parent.width)
         height: parent.height
         visible: _Root.sectionDesktopNumberVisible
-        color: _Root.desktopNumberBackgroundColors[preview.desktopNo - 1] || _DEFAULT_COLORS_BLACK[0]
+        color: _Root.desktopNumberBackgroundColors[preview.desktopNo - 1] || _DEFAULT_COLORS_DARK[0]
         border.color: numberMouse.containsMouse && !numberTextMouse.containsMouse
             ? Kirigami.Theme.highlightColor : "transparent"; border.width: 2
         QTQ.MouseArea {
@@ -611,7 +602,7 @@ QTQ.Item { id: _Root
         }
         QTQ.Text {
           anchors.centerIn: parent; text: preview.desktopNo
-          color: _Root.desktopNumberColors[preview.desktopNo - 1] || _DEFAULT_COLORS_COLORFUL[0]
+          color: _Root.desktopNumberColors[preview.desktopNo - 1] || _DEFAULT_COLORS_LIGHT[0]
           font.family: _Root.desktopNumberFonts[preview.desktopNo - 1] || "Serif"
           font.pixelSize: parent.height * 0.68; font.weight: 700
           QTQ.MouseArea {
@@ -638,7 +629,7 @@ QTQ.Item { id: _Root
     styleDialog.selectedTextColor = (target === "dayName" ? dayNameColors[selectedDesktop - 1]
             : target === "dayDate" ? dayDateColors[selectedDesktop - 1]
                 : target === "desktopName" ? desktopNameColors[selectedDesktop - 1] : desktopNumberColors[selectedDesktop - 1])
-        || _DEFAULT_COLORS_BLACK[0]
+        || _DEFAULT_COLORS_DARK[0]
     styleDialog.open()
   }
 
@@ -651,7 +642,7 @@ QTQ.Item { id: _Root
     property string fontName: "Serif"
     property
     QTQ.color
-    selectedTextColor: _DEFAULT_COLORS_BLACK[0]
+    selectedTextColor: _DEFAULT_COLORS_DARK[0]
     contentItem: QTQ_L.ColumnLayout
     {
       spacing: Kirigami.Units.largeSpacing
