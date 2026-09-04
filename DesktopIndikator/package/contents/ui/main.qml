@@ -9,18 +9,19 @@ import org.kde.plasma.plasmoid as KDE_plasmoid
 
 import org.kde.taskmanager as KDE_taskmanager
 
-KDE_plasmoid.PlasmoidItem { id: _Root
+KDE_plasmoid.PlasmoidItem {
+  id: _Root
 
   property int _fullWidth: height * 5
-  property real _sectionDateWidth: Number(configurationValue("sectionDateWidth", 3))
-  property real _nameSectionWidth: Number(configurationValue("sectionDesktopNameWidth", 1))
+  property real _sectionDateWidth: Number(configurationValue("sectionDateWidth", 2))
+  property real _nameSectionWidth: Number(configurationValue("sectionDesktopNameWidth", 3))
   property real _sectionDesktopNumberWidth: Number(configurationValue("sectionDesktopNumberWidth", 1))
   property bool _sectionDateVisible: configurationValue("sectionDateVisible", true) === true || configurationValue("sectionDateVisible", true) === "true"
-  property bool _nameSectionVisible: configurationValue("nameSectionVisible", true) === true || configurationValue("nameSectionVisible", true) === "true"
+  property bool _nameSectionVisible: configurationValue("sectionDesktopNameVisible", true) === true || configurationValue("sectionDesktopNameVisible", true) === "true"
   property bool _sectionDesktopNumberVisible: configurationValue("sectionDesktopNumberVisible", true) === true || configurationValue("sectionDesktopNumberVisible", true) === "true"
   property int _dateSectionOrder: sectionOrderIndex("date", 0)
-  property int _sectionDesktopNumberOrder: sectionOrderIndex("desktopNumber", 1)
-  property int _nameSectionOrder: sectionOrderIndex("desktopName", 2)
+  property int _nameSectionOrder: sectionOrderIndex("desktopName", 1)
+  property int _sectionDesktopNumberOrder: sectionOrderIndex("desktopNumber", 2)
 
   property var _defaultDeskColors: [
     "#a0ffa0",
@@ -56,36 +57,57 @@ KDE_plasmoid.PlasmoidItem { id: _Root
     var match = key.match(/^(.*?)([0-9]+)$/)
     if (match)
     {
-      var stored = KDE_plasmoid.Plasmoid.configuration[match[1] + "s"]
-      if (stored)
+      var keyPrefix = match[1]
+      var deskIndex = Number(match[2]) - 1
+      var candidateListNames = [
+          keyPrefix + "s",
+            keyPrefix === "dateColor" ? "dateBackgroundColors" : "",
+            keyPrefix === "numberColor" ? "desktopNumberBackgroundColors" : "",
+            keyPrefix === "numberTextColor" ? "desktopNumberColors" : "",
+            keyPrefix === "numberFont" ? "desktopNumberFonts" : ""
+      ]
+      for (var i = 0; i < candidateListNames.length; ++i)
       {
-        try
+        var listName = candidateListNames[i]
+        if (!listName)
         {
-          var values = JSON.parse(stored)
-          return values[Number(match[2]) - 1] || fallback
+          continue
         }
-        catch (e)
-        {}
+        var stored = KDE_plasmoid.Plasmoid.configuration[listName]
+        if (stored)
+        {
+          try
+          {
+            var values = JSON.parse(stored)
+            if (values && values[deskIndex] !== undefined && values[deskIndex] !== null && values[deskIndex] !== "")
+            {
+              return values[deskIndex]
+            }
+          }
+          catch (e)
+          {}
+        }
       }
       return fallback
     }
-    return KDE_plasmoid.Plasmoid.configuration[key] || fallback
+    var val = KDE_plasmoid.Plasmoid.configuration[key]
+    return val !== undefined && val !== null ? val : fallback
   }
 
   function sectionOrderIndex(section, fallback) {
-    var order = String(configurationValue("sectionOrder", "date,desktopName,number")).split(",")
+    var order = String(configurationValue("sectionOrder", "date,desktopName,desktopNumber")).split(",")
     var index = order.indexOf(section)
     return index >= 0 ? index : fallback
   }
 
-  function sectionTotalWidth() {
+  function totalSectionsWeigth() {
     return (_sectionDateVisible ? _sectionDateWidth : 0)
         + (_nameSectionVisible ? _nameSectionWidth : 0)
         + (_sectionDesktopNumberVisible ? _sectionDesktopNumberWidth : 0)
   }
 
   function sectionWidth(weight, visible) {
-    var total = sectionTotalWidth()
+    var total = totalSectionsWeigth()
     return visible && total > 0 ? _fullWidth * weight / total : 0
   }
 

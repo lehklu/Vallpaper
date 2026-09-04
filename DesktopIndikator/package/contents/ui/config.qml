@@ -6,7 +6,8 @@ import org.kde.kirigami as Kirigami
 import org.kde.plasma.plasmoid as KDE_plasmoid
 import org.kde.taskmanager as KDE_taskmanager
 
-QTQ.Item { id: _Root
+QTQ.Item {
+  id: _Root
 
   readonly property var _DEFAULT_COLORS_DARK: ["#071169"]
   readonly property var _DEFAULT_COLORS_LIGHT: ["#ffffff"]
@@ -15,74 +16,96 @@ QTQ.Item { id: _Root
 
   property int selectedDesktop: desktopBox.currentIndex + 1
 
+  property string cfg_sectionOrder: "date,desktopName,desktopNumber"
+  onCfg_sectionOrderChanged: loadSectionOrder()
+
   property int sectionDateOrderIdx: 0
-  property int sectionDateWidth: 2
-  property bool sectionDateVisible: true
+  property int cfg_sectionDateWidthWeight: 2
+  property bool cfg_sectionDateVisible: true
 
   property int sectionDesktopNameOrderIdx: 1
-  property int sectionDesktopNameWidth: 2
-  property bool sectionDesktopNameVisible: true
+  property int cfg_sectionDesktopNameWidthWeight: 3
+  property bool cfg_sectionDesktopNameVisible: true
 
   property int sectionDesktopNumberOrderIdx: 2
-  property int sectionDesktopNumberWidth: 1
-  property bool sectionDesktopNumberVisible: true
+  property int cfg_sectionDesktopNumberWidthWeight: 1
+  property bool cfg_sectionDesktopNumberVisible: true
 
+  property string cfg_dateBackgroundColors: "[]"
+  property string cfg_dayNameFonts: "[]"
+  property string cfg_dayNameColors: "[]"
+  property string cfg_dayDateFonts: "[]"
+  property string cfg_dayDateColors: "[]"
   property var dateBackgroundColors: _DEFAULT_COLORS_LIGHT
   property var dayNameColors: _DEFAULT_COLORS_DARK
   property var dayDateColors: _DEFAULT_COLORS_DARK
   property var dayNameFonts: ["SansSerif"]
   property var dayDateFonts: ["Serif"]
+  onCfg_dateBackgroundColorsChanged: syncListFromConfig("dateBackgroundColors", cfg_dateBackgroundColors)
+  onCfg_dayNameColorsChanged: syncListFromConfig("dayNameColors", cfg_dayNameColors)
+  onCfg_dayDateColorsChanged: syncListFromConfig("dayDateColors", cfg_dayDateColors)
+  onCfg_dayNameFontsChanged: syncListFromConfig("dayNameFonts", cfg_dayNameFonts)
+  onCfg_dayDateFontsChanged: syncListFromConfig("dayDateFonts", cfg_dayDateFonts)
 
+  property string cfg_desktopNameBackgroundColors: "[]"
+  property string cfg_desktopNameFonts: "[]"
+  property string cfg_desktopNameColors: "[]"
   property var desktopNameBackgroundColors: _DEFAULT_COLORS_LIGHT
   property var desktopNameColors: _DEFAULT_COLORS_DARK
   property var desktopNameFonts: ["SansSerif"]
+  onCfg_desktopNameBackgroundColorsChanged: syncListFromConfig("desktopNameBackgroundColors", cfg_desktopNameBackgroundColors)
+  onCfg_desktopNameColorsChanged: syncListFromConfig("desktopNameColors", cfg_desktopNameColors)
+  onCfg_desktopNameFontsChanged: syncListFromConfig("desktopNameFonts", cfg_desktopNameFonts)
 
+  property string cfg_desktopNumberBackgroundColors: "[]"
+  property string cfg_desktopNumberFonts: "[]"
+  property string cfg_desktopNumberColors: "[]"
   property var desktopNumberBackgroundColors: _DEFAULT_COLORS_DARK
   property var desktopNumberColors: _DEFAULT_COLORS_LIGHT
   property var desktopNumberFonts: ["Serif"]
+  onCfg_desktopNumberBackgroundColorsChanged: syncListFromConfig("desktopNumberBackgroundColors", cfg_desktopNumberBackgroundColors)
+  onCfg_desktopNumberColorsChanged: syncListFromConfig("desktopNumberColors", cfg_desktopNumberColors)
+  onCfg_desktopNumberFontsChanged: syncListFromConfig("desktopNumberFonts", cfg_desktopNumberFonts)
 
 
-  function saveLayout(key, value) {
+  function totalSectionsWeigth() {
 
-    KDE_plasmoid.Plasmoid.configuration[key] = value
-    KDE_plasmoid.Plasmoid.configuration.writeConfig()
-  }
-
-  function sectionTotalWidth() {
-    return (sectionDateVisible ? sectionDateWidth : 0)
-        + (sectionDesktopNameVisible ? sectionDesktopNameWidth : 0)
-        + (sectionDesktopNumberVisible ? sectionDesktopNumberWidth : 0)
+    return  (cfg_sectionDateVisible ? cfg_sectionDateWidthWeight : 0)
+        +   (cfg_sectionDesktopNameVisible ? cfg_sectionDesktopNameWidthWeight : 0)
+        +   (cfg_sectionDesktopNumberVisible ? cfg_sectionDesktopNumberWidthWeight : 0)
   }
 
   function sectionWidth(weight, visible, totalWidth) {
-    var total = sectionTotalWidth()
-    return visible && total > 0 ? totalWidth * weight / total : 0
+
+    const totalWeight = totalSectionsWeigth()
+    return visible && totalWeight > 0 ? totalWidth * weight / totalWeight : 0
   }
 
-  function sectionOffset(order, totalWidth) {
-    var total = sectionTotalWidth()
-    if (total <= 0)
+  function sectionOffset(orderIdx, totalWidth) {
+
+    var totalWeight = totalSectionsWeigth()
+    if (totalWeight == 0) { return 0 }
+    //<--
+
+
+    var offsetWeight = 0
+    if (cfg_sectionDateVisible && sectionDateOrderIdx < orderIdx)
     {
-      return 0
+      offsetWeight += cfg_sectionDateWidthWeight;
     }
-    var offset = 0
-    if (sectionDateVisible && sectionDateOrderIdx < order)
+    if (cfg_sectionDesktopNameVisible && sectionDesktopNameOrderIdx < orderIdx)
     {
-      offset += totalWidth * sectionDateWidth / total
+      offsetWeight += cfg_sectionDesktopNameWidthWeight;
     }
-    if (sectionDesktopNameVisible && sectionDesktopNameOrderIdx < order)
+    if (cfg_sectionDesktopNumberVisible && sectionDesktopNumberOrderIdx < orderIdx)
     {
-      offset += totalWidth * sectionDesktopNameWidth / total
+      offsetWeight += cfg_sectionDesktopNumberWidthWeight;
     }
-    if (sectionDesktopNumberVisible && sectionDesktopNumberOrderIdx < order)
-    {
-      offset += totalWidth * sectionDesktopNumberWidth / total
-    }
-    return offset
+
+    return totalWidth * offsetWeight / totalWeight
   }
 
-  component
-  SectionSettingsRow: QTQ_L.RowLayout
+  component SectionSettingsRow: QTQ_L.RowLayout
   {
     property string label
     property string sectionKey
@@ -92,13 +115,9 @@ QTQ.Item { id: _Root
     property bool canMoveDown: false
 
     signal widthSettingChanged(int value)
-
     signal visibleSettingChanged(bool value)
-
-      signal
-    moveUpRequested
-      signal
-    moveDownRequested
+    signal moveUpRequested
+    signal moveDownRequested
 
     QTQ_C.Button {
       icon.source: Qt.resolvedUrl("../icons/rounded-triangle-down.svg")
@@ -149,60 +168,56 @@ QTQ.Item { id: _Root
   }
 
   function sectionWidthValue(key) {
-    return key === "date" ? sectionDateWidth : key === "desktopName" ? sectionDesktopNameWidth : sectionDesktopNumberWidth
+    return key === "date" ? cfg_sectionDateWidthWeight : key === "desktopName" ? cfg_sectionDesktopNameWidthWeight : cfg_sectionDesktopNumberWidthWeight
   }
 
   function sectionVisibleValue(key) {
-    return key === "date" ? sectionDateVisible : key === "desktopName" ? sectionDesktopNameVisible : sectionDesktopNumberVisible
+    return key === "date" ? cfg_sectionDateVisible : key === "desktopName" ? cfg_sectionDesktopNameVisible : cfg_sectionDesktopNumberVisible
   }
 
   function setSectionWidth(key, value) {
     if (key === "date")
     {
-      sectionDateWidth = value
+      cfg_sectionDateWidthWeight = value
     }
     else if (key === "desktopName")
     {
-      sectionDesktopNameWidth = value
+      cfg_sectionDesktopNameWidthWeight = value
     }
     else
     {
-      sectionDesktopNumberWidth = value
+      cfg_sectionDesktopNumberWidthWeight = value
     }
-    saveLayout(key + "SectionWidth", value)
   }
 
   function setSectionVisible(key, value) {
     if (key === "date")
     {
-      sectionDateVisible = value
+      cfg_sectionDateVisible = value
     }
     else if (key === "desktopName")
     {
-      sectionDesktopNameVisible = value
+      cfg_sectionDesktopNameVisible = value
     }
     else
     {
-      sectionDesktopNumberVisible = value
+      cfg_sectionDesktopNumberVisible = value
     }
-    saveLayout(key + "SectionVisible", value)
   }
 
-  function saveSectionOrder() {
+  function updateSectionOrder() {
     var order = []
     for (var i = 0; i < sectionModel.count; ++i)
     {
       order.push(sectionModel.get(i).key)
     }
-    saveLayout("sectionOrder", order.join(","))
-    sectionDateOrderIdx = order.indexOf("date")
-    sectionDesktopNameOrderIdx = order.indexOf("desktopName")
-    sectionDesktopNumberOrderIdx = order.indexOf("desktopNumber")
+    cfg_sectionOrder = order.join(",")
+    saveSectionOrderProperties()
   }
 
   function loadSectionOrder() {
-    var savedOrder = String(KDE_plasmoid.Plasmoid.configuration.sectionOrder || "date,desktopNumber,desktopName").split(",")
-    var valid = ["date", "desktopNumber", "desktopName"]
+    var savedOrder = String(cfg_sectionOrder || (KDE_plasmoid.Plasmoid.configuration && KDE_plasmoid.Plasmoid.configuration.sectionOrder) || "date,desktopName,desktopNumber").split(",")
+    var valid = ["date", "desktopName", "desktopNumber"]
     var ordered = []
     for (var i = 0; i < savedOrder.length; ++i)
     {
@@ -220,13 +235,13 @@ QTQ.Item { id: _Root
     }
     for (var k = 0; k < ordered.length; ++k)
     {
-      var row = sectionModel.get(k)
       var currentIndex = -1
       for (var n = 0; n < sectionModel.count; ++n)
       {
         if (sectionModel.get(n).key === ordered[k])
         {
           currentIndex = n
+          break
         }
       }
       if (currentIndex >= 0 && currentIndex !== k)
@@ -238,29 +253,48 @@ QTQ.Item { id: _Root
   }
 
   function saveSectionOrderProperties() {
-    sectionDateOrderIdx = sectionModel.get(0).key === "date" ? 0 : sectionModel.get(1).key === "date" ? 1 : 2
-    sectionDesktopNameOrderIdx = sectionModel.get(0).key === "desktopName" ? 0 : sectionModel.get(1).key === "desktopName" ? 1 : 2
-    sectionDesktopNumberOrderIdx = sectionModel.get(0).key === "desktopNumber" ? 0 : sectionModel.get(1).key === "desktopNumber" ? 1 : 2
+    var dateIdx = -1, nameIdx = -1, numIdx = -1
+    for (var i = 0; i < sectionModel.count; ++i)
+    {
+      if (sectionModel.get(i).key === "date")
+      {
+        dateIdx = i
+      }
+      else if (sectionModel.get(i).key === "desktopName")
+      {
+        nameIdx = i
+      }
+      else if (sectionModel.get(i).key === "desktopNumber")
+      {
+        numIdx = i
+      }
+    }
+    sectionDateOrderIdx = dateIdx >= 0 ? dateIdx : 0
+    sectionDesktopNameOrderIdx = nameIdx >= 0 ? nameIdx : 1
+    sectionDesktopNumberOrderIdx = numIdx >= 0 ? numIdx : 2
   }
 
   function loadSettings() {
-    sectionDateWidth = Number(KDE_plasmoid.Plasmoid.configuration.sectionDateWidth || 3)
-    sectionDesktopNameWidth = Number(KDE_plasmoid.Plasmoid.configuration.sectionDesktopNameWidth || 1)
-    sectionDesktopNumberWidth = Number(KDE_plasmoid.Plasmoid.configuration.sectionDesktopNumberWidth || 1)
-    sectionDateVisible = KDE_plasmoid.Plasmoid.configuration.sectionDateVisible !== false && KDE_plasmoid.Plasmoid.configuration.sectionDateVisible !== "false"
-    sectionDesktopNameVisible = KDE_plasmoid.Plasmoid.configuration.sectionDesktopNameVisible !== false && KDE_plasmoid.Plasmoid.configuration.sectionDesktopNameVisible !== "false"
-    sectionDesktopNumberVisible = KDE_plasmoid.Plasmoid.configuration.sectionDesktopNumberVisible !== false && KDE_plasmoid.Plasmoid.configuration.sectionDesktopNumberVisible !== "false"
-    sectionDateOrderIdx = Number(KDE_plasmoid.Plasmoid.configuration.dateSectionOrder || 0)
-    sectionDesktopNameOrderIdx = Number(KDE_plasmoid.Plasmoid.configuration.sectionDesktopNameOrder || 1)
-    sectionDesktopNumberOrderIdx = Number(KDE_plasmoid.Plasmoid.configuration.sectionDesktopNumberOrder || 2)
-    var listNames = ["dateBackgroundColors", "desktopNumberBackgroundColors", "dayNameColors", "dayDateColors", "desktopNumberColors", "desktopNameColors", "desktopNameBackgroundColors", "dayNameFonts", "dayDateFonts", "desktopNumberFonts", "desktopNameFonts"]
+    var listNames = [
+      "dateBackgroundColors", "desktopNumberBackgroundColors",
+      "dayNameColors", "dayDateColors", "desktopNumberColors",
+      "desktopNameColors", "desktopNameBackgroundColors",
+      "dayNameFonts", "dayDateFonts", "desktopNumberFonts", "desktopNameFonts"
+    ]
     for (var l = 0; l < listNames.length; ++l)
     {
-      var stored = KDE_plasmoid.Plasmoid.configuration[listNames[l]]
+      var cfgKey = "cfg_" + listNames[l]
+      var stored = _Root[cfgKey] || (KDE_plasmoid.Plasmoid.configuration && KDE_plasmoid.Plasmoid.configuration[listNames[l]])
       if (stored)
       {
         try
-        { _Root[listNames[l]] = JSON.parse(stored) }
+        {
+          var parsed = JSON.parse(stored)
+          if (Array.isArray(parsed) && parsed.length > 0)
+          {
+            _Root[listNames[l]] = parsed
+          }
+        }
         catch (e)
         {}
       }
@@ -268,8 +302,12 @@ QTQ.Item { id: _Root
   }
 
   function setAt(list, index, value) {
-    var copy = list.slice()
-    copy[index] = value
+    var copy = (list && list.slice) ? list.slice() : []
+    while (copy.length <= index)
+    {
+      copy.push(copy[0] !== undefined ? copy[0] : value)
+    }
+    copy[index] = String(value)
     return copy
   }
 
@@ -388,11 +426,11 @@ QTQ.Item { id: _Root
               onVisibleSettingChanged: _Root.setSectionVisible(sectionKey, value)
               onMoveUpRequested: {
                 sectionModel.move(index, index - 1, 1)
-                _Root.saveSectionOrder()
+                _Root.updateSectionOrder()
               }
               onMoveDownRequested: {
                 sectionModel.move(index, index + 1, 1)
-                _Root.saveSectionOrder()
+                _Root.updateSectionOrder()
               }
             }
           }
@@ -498,9 +536,9 @@ QTQ.Item { id: _Root
       QTQ.Rectangle {
         id: dateBlock
         x: _Root.sectionOffset(_Root.sectionDateOrderIdx, parent.width)
-        width: _Root.sectionWidth(_Root.sectionDateWidth, _Root.sectionDateVisible, parent.width)
+        width: _Root.sectionWidth(_Root.cfg_sectionDateWidthWeight, _Root.cfg_sectionDateVisible, parent.width)
         height: parent.height
-        visible: _Root.sectionDateVisible
+        visible: _Root.cfg_sectionDateVisible
         color: _Root.dateBackgroundColors[preview.desktopNo - 1] || _DEFAULT_COLORS_LIGHT[0]
         border.color: dateMouse.containsMouse && !dayNameMouse.containsMouse && !dayDateMouse.containsMouse
             ? Kirigami.Theme.highlightColor : "transparent"
@@ -550,9 +588,9 @@ QTQ.Item { id: _Root
       QTQ.Rectangle {
         id: nameBlock
         x: _Root.sectionOffset(_Root.sectionDesktopNameOrderIdx, parent.width)
-        width: _Root.sectionWidth(_Root.sectionDesktopNameWidth, _Root.sectionDesktopNameVisible, parent.width)
+        width: _Root.sectionWidth(_Root.cfg_sectionDesktopNameWidthWeight, _Root.cfg_sectionDesktopNameVisible, parent.width)
         height: parent.height
-        visible: _Root.sectionDesktopNameVisible
+        visible: _Root.cfg_sectionDesktopNameVisible
         color: _Root.desktopNameBackgroundColors[preview.desktopNo - 1] || _DEFAULT_COLORS_LIGHT[0]
         border.color: nameMouse.containsMouse && !desktopNameTextMouse.containsMouse
             ? Kirigami.Theme.highlightColor : "transparent"
@@ -590,9 +628,9 @@ QTQ.Item { id: _Root
       QTQ.Rectangle {
         id: numberBlock
         x: _Root.sectionOffset(_Root.sectionDesktopNumberOrderIdx, parent.width)
-        width: _Root.sectionWidth(_Root.sectionDesktopNumberWidth, _Root.sectionDesktopNumberVisible, parent.width)
+        width: _Root.sectionWidth(_Root.cfg_sectionDesktopNumberWidthWeight, _Root.cfg_sectionDesktopNumberVisible, parent.width)
         height: parent.height
-        visible: _Root.sectionDesktopNumberVisible
+        visible: _Root.cfg_sectionDesktopNumberVisible
         color: _Root.desktopNumberBackgroundColors[preview.desktopNo - 1] || _DEFAULT_COLORS_DARK[0]
         border.color: numberMouse.containsMouse && !numberTextMouse.containsMouse
             ? Kirigami.Theme.highlightColor : "transparent"; border.width: 2
@@ -640,9 +678,7 @@ QTQ.Item { id: _Root
     standardButtons: QTQ_C.DialogButtonBox.Close
     property string target: ""
     property string fontName: "Serif"
-    property
-    QTQ.color
-    selectedTextColor: _DEFAULT_COLORS_DARK[0]
+    property var selectedTextColor: _DEFAULT_COLORS_DARK[0]
     contentItem: QTQ_L.ColumnLayout
     {
       spacing: Kirigami.Units.largeSpacing
@@ -671,17 +707,17 @@ QTQ.Item { id: _Root
       if (target === "date")
       {
         _Root.dateBackgroundColors = _Root.setAt(_Root.dateBackgroundColors, _Root.selectedDesktop - 1, selectedColor);
-        _Root.save("dateColor", selectedColor)
+        _Root.cfg_dateBackgroundColors = JSON.stringify(_Root.dateBackgroundColors)
       }
-      else if (target === "desktopNumber")
+      else if (target === "desktopNumber" || target === "number")
       {
         _Root.desktopNumberBackgroundColors = _Root.setAt(_Root.desktopNumberBackgroundColors, _Root.selectedDesktop - 1, selectedColor);
-        _Root.save("numberColor", selectedColor)
+        _Root.cfg_desktopNumberBackgroundColors = JSON.stringify(_Root.desktopNumberBackgroundColors)
       }
       else if (target === "desktopNameBackground")
       {
         _Root.desktopNameBackgroundColors = _Root.setAt(_Root.desktopNameBackgroundColors, _Root.selectedDesktop - 1, selectedColor);
-        _Root.save("desktopNameBackgroundColor", selectedColor)
+        _Root.cfg_desktopNameBackgroundColors = JSON.stringify(_Root.desktopNameBackgroundColors)
       }
       else
       {
@@ -689,22 +725,22 @@ QTQ.Item { id: _Root
         if (styleDialog.target === "dayName")
         {
           _Root.dayNameColors = _Root.setAt(_Root.dayNameColors, _Root.selectedDesktop - 1, selectedColor);
-          _Root.save("dayNameColor", selectedColor)
+          _Root.cfg_dayNameColors = JSON.stringify(_Root.dayNameColors)
         }
         else if (styleDialog.target === "dayDate")
         {
           _Root.dayDateColors = _Root.setAt(_Root.dayDateColors, _Root.selectedDesktop - 1, selectedColor);
-          _Root.save("dayDateColor", selectedColor)
+          _Root.cfg_dayDateColors = JSON.stringify(_Root.dayDateColors)
         }
         else if (styleDialog.target === "desktopName")
         {
           _Root.desktopNameColors = _Root.setAt(_Root.desktopNameColors, _Root.selectedDesktop - 1, selectedColor);
-          _Root.save("desktopNameColor", selectedColor)
+          _Root.cfg_desktopNameColors = JSON.stringify(_Root.desktopNameColors)
         }
         else
         {
           _Root.desktopNumberColors = _Root.setAt(_Root.desktopNumberColors, _Root.selectedDesktop - 1, selectedColor);
-          _Root.save("numberTextColor", selectedColor)
+          _Root.cfg_desktopNumberColors = JSON.stringify(_Root.desktopNumberColors)
         }
       }
     }
@@ -738,47 +774,51 @@ QTQ.Item { id: _Root
     }
     onAccepted: {
       var family = fontFamilyBox.currentText
+      if (!family)
+      {
+        return
+      }
       if (target === "dayName")
       {
         _Root.dayNameFonts = _Root.setAt(_Root.dayNameFonts, _Root.selectedDesktop - 1, family);
-        _Root.save("dayNameFont", family)
+        _Root.cfg_dayNameFonts = JSON.stringify(_Root.dayNameFonts)
       }
       else if (target === "dayDate")
       {
         _Root.dayDateFonts = _Root.setAt(_Root.dayDateFonts, _Root.selectedDesktop - 1, family);
-        _Root.save("dayDateFont", family)
+        _Root.cfg_dayDateFonts = JSON.stringify(_Root.dayDateFonts)
       }
       else if (target === "desktopName")
       {
         _Root.desktopNameFonts = _Root.setAt(_Root.desktopNameFonts, _Root.selectedDesktop - 1, family);
-        _Root.save("desktopNameFont", family)
+        _Root.cfg_desktopNameFonts = JSON.stringify(_Root.desktopNameFonts)
       }
       else if (target === "numberText")
       {
         _Root.desktopNumberFonts = _Root.setAt(_Root.desktopNumberFonts, _Root.selectedDesktop - 1, family);
-        _Root.save("numberFont", family)
+        _Root.cfg_desktopNumberFonts = JSON.stringify(_Root.desktopNumberFonts)
       }
       else if (target === "styleFont")
       {
         if (styleDialog.target === "dayName")
         {
           _Root.dayNameFonts = _Root.setAt(_Root.dayNameFonts, _Root.selectedDesktop - 1, family);
-          _Root.save("dayNameFont", family)
+          _Root.cfg_dayNameFonts = JSON.stringify(_Root.dayNameFonts)
         }
         else if (styleDialog.target === "dayDate")
         {
           _Root.dayDateFonts = _Root.setAt(_Root.dayDateFonts, _Root.selectedDesktop - 1, family);
-          _Root.save("dayDateFont", family)
+          _Root.cfg_dayDateFonts = JSON.stringify(_Root.dayDateFonts)
         }
         else if (styleDialog.target === "desktopName")
         {
           _Root.desktopNameFonts = _Root.setAt(_Root.desktopNameFonts, _Root.selectedDesktop - 1, family);
-          _Root.save("desktopNameFont", family)
+          _Root.cfg_desktopNameFonts = JSON.stringify(_Root.desktopNameFonts)
         }
         else
         {
           _Root.desktopNumberFonts = _Root.setAt(_Root.desktopNumberFonts, _Root.selectedDesktop - 1, family);
-          _Root.save("numberFont", family)
+          _Root.cfg_desktopNumberFonts = JSON.stringify(_Root.desktopNumberFonts)
         }
       }
     }
