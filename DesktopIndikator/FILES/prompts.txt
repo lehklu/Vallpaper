@@ -156,3 +156,5 @@ repair
 config.qml:567:9: color is not a type
 
 Don't save changes immediately, use ok, apply and cancel
+
+change of width does not enable 'Apply''

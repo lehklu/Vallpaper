@@ -20,15 +20,15 @@ QTQ.Item {
   onCfg_sectionOrderChanged: loadSectionOrder()
 
   property int sectionDateOrderIdx: 0
-  property int cfg_sectionDateWidthWeight: 2
+  property int cfg_sectionDateWidth: 2
   property bool cfg_sectionDateVisible: true
 
   property int sectionDesktopNameOrderIdx: 1
-  property int cfg_sectionDesktopNameWidthWeight: 3
+  property int cfg_sectionDesktopNameWidth: 3
   property bool cfg_sectionDesktopNameVisible: true
 
   property int sectionDesktopNumberOrderIdx: 2
-  property int cfg_sectionDesktopNumberWidthWeight: 1
+  property int cfg_sectionDesktopNumberWidth: 1
   property bool cfg_sectionDesktopNumberVisible: true
 
   property string cfg_dateBackgroundColors: "[]"
@@ -70,9 +70,9 @@ QTQ.Item {
 
   function totalSectionsWeigth() {
 
-    return  (cfg_sectionDateVisible ? cfg_sectionDateWidthWeight : 0)
-        +   (cfg_sectionDesktopNameVisible ? cfg_sectionDesktopNameWidthWeight : 0)
-        +   (cfg_sectionDesktopNumberVisible ? cfg_sectionDesktopNumberWidthWeight : 0)
+    return  (cfg_sectionDateVisible ? cfg_sectionDateWidth : 0)
+        +   (cfg_sectionDesktopNameVisible ? cfg_sectionDesktopNameWidth : 0)
+        +   (cfg_sectionDesktopNumberVisible ? cfg_sectionDesktopNumberWidth : 0)
   }
 
   function sectionWidth(weight, visible, totalWidth) {
@@ -91,15 +91,15 @@ QTQ.Item {
     var offsetWeight = 0
     if (cfg_sectionDateVisible && sectionDateOrderIdx < orderIdx)
     {
-      offsetWeight += cfg_sectionDateWidthWeight;
+      offsetWeight += cfg_sectionDateWidth;
     }
     if (cfg_sectionDesktopNameVisible && sectionDesktopNameOrderIdx < orderIdx)
     {
-      offsetWeight += cfg_sectionDesktopNameWidthWeight;
+      offsetWeight += cfg_sectionDesktopNameWidth;
     }
     if (cfg_sectionDesktopNumberVisible && sectionDesktopNumberOrderIdx < orderIdx)
     {
-      offsetWeight += cfg_sectionDesktopNumberWidthWeight;
+      offsetWeight += cfg_sectionDesktopNumberWidth;
     }
 
     return totalWidth * offsetWeight / totalWeight
@@ -168,7 +168,7 @@ QTQ.Item {
   }
 
   function sectionWidthValue(key) {
-    return key === "date" ? cfg_sectionDateWidthWeight : key === "desktopName" ? cfg_sectionDesktopNameWidthWeight : cfg_sectionDesktopNumberWidthWeight
+    return key === "date" ? cfg_sectionDateWidth : key === "desktopName" ? cfg_sectionDesktopNameWidth : cfg_sectionDesktopNumberWidth
   }
 
   function sectionVisibleValue(key) {
@@ -178,15 +178,15 @@ QTQ.Item {
   function setSectionWidth(key, value) {
     if (key === "date")
     {
-      cfg_sectionDateWidthWeight = value
+      cfg_sectionDateWidth = value
     }
     else if (key === "desktopName")
     {
-      cfg_sectionDesktopNameWidthWeight = value
+      cfg_sectionDesktopNameWidth = value
     }
     else
     {
-      cfg_sectionDesktopNumberWidthWeight = value
+      cfg_sectionDesktopNumberWidth = value
     }
   }
 
@@ -536,7 +536,7 @@ QTQ.Item {
       QTQ.Rectangle {
         id: dateBlock
         x: _Root.sectionOffset(_Root.sectionDateOrderIdx, parent.width)
-        width: _Root.sectionWidth(_Root.cfg_sectionDateWidthWeight, _Root.cfg_sectionDateVisible, parent.width)
+        width: _Root.sectionWidth(_Root.cfg_sectionDateWidth, _Root.cfg_sectionDateVisible, parent.width)
         height: parent.height
         visible: _Root.cfg_sectionDateVisible
         color: _Root.dateBackgroundColors[preview.desktopNo - 1] || _DEFAULT_COLORS_LIGHT[0]
@@ -588,7 +588,7 @@ QTQ.Item {
       QTQ.Rectangle {
         id: nameBlock
         x: _Root.sectionOffset(_Root.sectionDesktopNameOrderIdx, parent.width)
-        width: _Root.sectionWidth(_Root.cfg_sectionDesktopNameWidthWeight, _Root.cfg_sectionDesktopNameVisible, parent.width)
+        width: _Root.sectionWidth(_Root.cfg_sectionDesktopNameWidth, _Root.cfg_sectionDesktopNameVisible, parent.width)
         height: parent.height
         visible: _Root.cfg_sectionDesktopNameVisible
         color: _Root.desktopNameBackgroundColors[preview.desktopNo - 1] || _DEFAULT_COLORS_LIGHT[0]
@@ -628,7 +628,7 @@ QTQ.Item {
       QTQ.Rectangle {
         id: numberBlock
         x: _Root.sectionOffset(_Root.sectionDesktopNumberOrderIdx, parent.width)
-        width: _Root.sectionWidth(_Root.cfg_sectionDesktopNumberWidthWeight, _Root.cfg_sectionDesktopNumberVisible, parent.width)
+        width: _Root.sectionWidth(_Root.cfg_sectionDesktopNumberWidth, _Root.cfg_sectionDesktopNumberVisible, parent.width)
         height: parent.height
         visible: _Root.cfg_sectionDesktopNumberVisible
         color: _Root.desktopNumberBackgroundColors[preview.desktopNo - 1] || _DEFAULT_COLORS_DARK[0]
