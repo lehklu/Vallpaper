@@ -21,15 +21,12 @@ QTQ.Item {
 
   property int sectionDateOrderIdx: 0
   property int cfg_sectionDateWidthWeight: 2
-  property bool cfg_sectionDateVisible: true
 
   property int sectionDesktopNameOrderIdx: 1
   property int cfg_sectionDesktopNameWidthWeight: 3
-  property bool cfg_sectionDesktopNameVisible: true
 
   property int sectionDesktopNumberOrderIdx: 2
   property int cfg_sectionDesktopNumberWidthWeight: 1
-  property bool cfg_sectionDesktopNumberVisible: true
 
   property string cfg_dateBackgroundColors: "[]"
   property string cfg_dayNameFonts: "[]"
@@ -70,15 +67,15 @@ QTQ.Item {
 
   function totalSectionsWeigth() {
 
-    return  (cfg_sectionDateVisible ? cfg_sectionDateWidthWeight : 0)
-        +   (cfg_sectionDesktopNameVisible ? cfg_sectionDesktopNameWidthWeight : 0)
-        +   (cfg_sectionDesktopNumberVisible ? cfg_sectionDesktopNumberWidthWeight : 0)
+    return cfg_sectionDateWidthWeight
+        +  cfg_sectionDesktopNameWidthWeight
+        +  cfg_sectionDesktopNumberWidthWeight
   }
 
-  function sectionWidth(weight, visible, totalWidth) {
+  function sectionWidth(weight, totalWidth) {
 
     const totalWeight = totalSectionsWeigth()
-    return visible && totalWeight > 0 ? totalWidth * weight / totalWeight : 0
+    return totalWeight > 0 ? totalWidth * weight / totalWeight : 0
   }
 
   function sectionOffset(orderIdx, totalWidth) {
@@ -89,15 +86,15 @@ QTQ.Item {
 
 
     var offsetWeight = 0
-    if (cfg_sectionDateVisible && sectionDateOrderIdx < orderIdx)
+    if (sectionDateOrderIdx < orderIdx)
     {
       offsetWeight += cfg_sectionDateWidthWeight;
     }
-    if (cfg_sectionDesktopNameVisible && sectionDesktopNameOrderIdx < orderIdx)
+    if (sectionDesktopNameOrderIdx < orderIdx)
     {
       offsetWeight += cfg_sectionDesktopNameWidthWeight;
     }
-    if (cfg_sectionDesktopNumberVisible && sectionDesktopNumberOrderIdx < orderIdx)
+    if (sectionDesktopNumberOrderIdx < orderIdx)
     {
       offsetWeight += cfg_sectionDesktopNumberWidthWeight;
     }
@@ -110,12 +107,10 @@ QTQ.Item {
     property string label
     property string sectionKey
     property int widthValue: 1
-    property bool visibleValue: true
     property bool canMoveUp: false
     property bool canMoveDown: false
 
     signal widthSettingChanged(int value)
-    signal visibleSettingChanged(bool value)
     signal moveUpRequested
     signal moveDownRequested
 
@@ -141,7 +136,7 @@ QTQ.Item {
     QTQ_C.Label { text: parent.label; QTQ_L.Layout.fillWidth: true }
     QTQ_C.Label { text: qsTr("Width") }
     QTQ_C.SpinBox {
-      from: 1
+      from: 0
       to: 10
       value: parent.widthValue
       onValueModified: {
@@ -149,14 +144,6 @@ QTQ.Item {
         parent.widthSettingChanged(value)
       }
       QTQ_L.Layout.preferredWidth: Kirigami.Units.gridUnit * 5
-    }
-    QTQ_C.CheckBox {
-      checked: parent.visibleValue
-      text: qsTr("Visible")
-      onClicked: {
-        parent.visibleValue = checked
-        parent.visibleSettingChanged(checked)
-      }
     }
   }
 
@@ -171,10 +158,6 @@ QTQ.Item {
     return key === "date" ? cfg_sectionDateWidthWeight : key === "desktopName" ? cfg_sectionDesktopNameWidthWeight : cfg_sectionDesktopNumberWidthWeight
   }
 
-  function sectionVisibleValue(key) {
-    return key === "date" ? cfg_sectionDateVisible : key === "desktopName" ? cfg_sectionDesktopNameVisible : cfg_sectionDesktopNumberVisible
-  }
-
   function setSectionWidth(key, value) {
     if (key === "date")
     {
@@ -187,21 +170,6 @@ QTQ.Item {
     else
     {
       cfg_sectionDesktopNumberWidthWeight = value
-    }
-  }
-
-  function setSectionVisible(key, value) {
-    if (key === "date")
-    {
-      cfg_sectionDateVisible = value
-    }
-    else if (key === "desktopName")
-    {
-      cfg_sectionDesktopNameVisible = value
-    }
-    else
-    {
-      cfg_sectionDesktopNumberVisible = value
     }
   }
 
@@ -419,11 +387,9 @@ QTQ.Item {
               label: model.label
               sectionKey: model.key
               widthValue: _Root.sectionWidthValue(model.key)
-              visibleValue: _Root.sectionVisibleValue(model.key)
               canMoveUp: index > 0
               canMoveDown: index < sectionModel.count - 1
               onWidthSettingChanged: _Root.setSectionWidth(sectionKey, value)
-              onVisibleSettingChanged: _Root.setSectionVisible(sectionKey, value)
               onMoveUpRequested: {
                 sectionModel.move(index, index - 1, 1)
                 _Root.updateSectionOrder()
@@ -536,9 +502,9 @@ QTQ.Item {
       QTQ.Rectangle {
         id: dateBlock
         x: _Root.sectionOffset(_Root.sectionDateOrderIdx, parent.width)
-        width: _Root.sectionWidth(_Root.cfg_sectionDateWidthWeight, _Root.cfg_sectionDateVisible, parent.width)
+        width: _Root.sectionWidth(_Root.cfg_sectionDateWidthWeight, parent.width)
         height: parent.height
-        visible: _Root.cfg_sectionDateVisible
+        visible: _Root.cfg_sectionDateWidthWeight > 0
         color: _Root.dateBackgroundColors[preview.desktopNo - 1] || _DEFAULT_COLORS_LIGHT[0]
         border.color: dateMouse.containsMouse && !dayNameMouse.containsMouse && !dayDateMouse.containsMouse
             ? Kirigami.Theme.highlightColor : "transparent"
@@ -588,9 +554,9 @@ QTQ.Item {
       QTQ.Rectangle {
         id: nameBlock
         x: _Root.sectionOffset(_Root.sectionDesktopNameOrderIdx, parent.width)
-        width: _Root.sectionWidth(_Root.cfg_sectionDesktopNameWidthWeight, _Root.cfg_sectionDesktopNameVisible, parent.width)
+        width: _Root.sectionWidth(_Root.cfg_sectionDesktopNameWidthWeight, parent.width)
         height: parent.height
-        visible: _Root.cfg_sectionDesktopNameVisible
+        visible: _Root.cfg_sectionDesktopNameWidthWeight > 0
         color: _Root.desktopNameBackgroundColors[preview.desktopNo - 1] || _DEFAULT_COLORS_LIGHT[0]
         border.color: nameMouse.containsMouse && !desktopNameTextMouse.containsMouse
             ? Kirigami.Theme.highlightColor : "transparent"
@@ -628,9 +594,9 @@ QTQ.Item {
       QTQ.Rectangle {
         id: numberBlock
         x: _Root.sectionOffset(_Root.sectionDesktopNumberOrderIdx, parent.width)
-        width: _Root.sectionWidth(_Root.cfg_sectionDesktopNumberWidthWeight, _Root.cfg_sectionDesktopNumberVisible, parent.width)
+        width: _Root.sectionWidth(_Root.cfg_sectionDesktopNumberWidthWeight, parent.width)
         height: parent.height
-        visible: _Root.cfg_sectionDesktopNumberVisible
+        visible: _Root.cfg_sectionDesktopNumberWidthWeight > 0
         color: _Root.desktopNumberBackgroundColors[preview.desktopNo - 1] || _DEFAULT_COLORS_DARK[0]
         border.color: numberMouse.containsMouse && !numberTextMouse.containsMouse
             ? Kirigami.Theme.highlightColor : "transparent"; border.width: 2

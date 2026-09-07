@@ -6,13 +6,8 @@
 
     <group name="Settings">
       <entry name="sectionDateWidthWeight" type="Int"><default>2</default></entry>
-      <entry name="sectionDateVisible" type="Bool"><default>true</default></entry>
-
       <entry name="sectionDesktopNameWidthWeight" type="Int"><default>3</default></entry>
-      <entry name="sectionDesktopNameVisible" type="Bool"><default>true</default></entry>
-
       <entry name="sectionDesktopNumberWidthWeight" type="Int"><default>1</default></entry>
-      <entry name="sectionDesktopNumberVisible" type="Bool"><default>true</default></entry>
 
       <entry name="sectionOrder" type="String"><default>date,desktopName,desktopNumber</default></entry>
 

@@ -16,9 +16,6 @@ KDE_plasmoid.PlasmoidItem {
   property real _sectionDateWidthWeight: Number(configurationValue("sectionDateWidthWeight", 2))
   property real _nameSectionWidth: Number(configurationValue("sectionDesktopNameWidthWeight", 3))
   property real _sectionDesktopNumberWidthWeight: Number(configurationValue("sectionDesktopNumberWidthWeight", 1))
-  property bool _sectionDateVisible: configurationValue("sectionDateVisible", true) === true || configurationValue("sectionDateVisible", true) === "true"
-  property bool _nameSectionVisible: configurationValue("sectionDesktopNameVisible", true) === true || configurationValue("sectionDesktopNameVisible", true) === "true"
-  property bool _sectionDesktopNumberVisible: configurationValue("sectionDesktopNumberVisible", true) === true || configurationValue("sectionDesktopNumberVisible", true) === "true"
   property int _dateSectionOrder: sectionOrderIndex("date", 0)
   property int _nameSectionOrder: sectionOrderIndex("desktopName", 1)
   property int _sectionDesktopNumberOrder: sectionOrderIndex("desktopNumber", 2)
@@ -101,29 +98,27 @@ KDE_plasmoid.PlasmoidItem {
   }
 
   function totalSectionsWeigth() {
-    return (_sectionDateVisible ? _sectionDateWidthWeight : 0)
-        + (_nameSectionVisible ? _nameSectionWidth : 0)
-        + (_sectionDesktopNumberVisible ? _sectionDesktopNumberWidthWeight : 0)
+    return _sectionDateWidthWeight + _nameSectionWidth + _sectionDesktopNumberWidthWeight
   }
 
-  function sectionWidth(weight, visible) {
+  function sectionWidth(weight) {
     var total = totalSectionsWeigth()
-    return visible && total > 0 ? _fullWidth * weight / total : 0
+    return total > 0 ? _fullWidth * weight / total : 0
   }
 
   function sectionOffset(order) {
     var offset = 0
-    if (_sectionDateVisible && _dateSectionOrder < order)
+    if (_dateSectionOrder < order)
     {
-      offset += sectionWidth(_sectionDateWidthWeight, true)
+      offset += sectionWidth(_sectionDateWidthWeight)
     }
-    if (_nameSectionVisible && _nameSectionOrder < order)
+    if (_nameSectionOrder < order)
     {
-      offset += sectionWidth(_nameSectionWidth, true)
+      offset += sectionWidth(_nameSectionWidth)
     }
-    if (_sectionDesktopNumberVisible && _sectionDesktopNumberOrder < order)
+    if (_sectionDesktopNumberOrder < order)
     {
-      offset += sectionWidth(_sectionDesktopNumberWidthWeight, true)
+      offset += sectionWidth(_sectionDesktopNumberWidthWeight)
     }
     return offset
   }
@@ -212,9 +207,9 @@ KDE_plasmoid.PlasmoidItem {
   QTQ.Rectangle {
     id: _RectDate
     x: sectionOffset(_dateSectionOrder)
-    width: sectionWidth(_sectionDateWidthWeight, _sectionDateVisible)
+    width: sectionWidth(_sectionDateWidthWeight)
     height: parent.height
-    visible: _sectionDateVisible
+    visible: _sectionDateWidthWeight > 0
     color: _currentDeskColor
 
     QTQ.Text {
@@ -249,9 +244,9 @@ KDE_plasmoid.PlasmoidItem {
   QTQ.Rectangle {
     id: _RectName
     x: sectionOffset(_nameSectionOrder)
-    width: sectionWidth(_nameSectionWidth, _nameSectionVisible)
+    width: sectionWidth(_nameSectionWidth)
     height: parent.height
-    visible: _nameSectionVisible
+    visible: _nameSectionWidth > 0
     color: _currentDesktopNameBackgroundColor
 
     QTQ.Text {
@@ -268,10 +263,10 @@ KDE_plasmoid.PlasmoidItem {
   QTQ.Rectangle {
     id: _RectNo
     x: sectionOffset(_sectionDesktopNumberOrder)
-    width: sectionWidth(_sectionDesktopNumberWidthWeight, _sectionDesktopNumberVisible)
+    width: sectionWidth(_sectionDesktopNumberWidthWeight)
     height: parent.height
     color: _currentNumberColor
-    visible: _sectionDesktopNumberVisible
+    visible: _sectionDesktopNumberWidthWeight > 0
 
     QTQ.Text {
       id: _TxtNo
