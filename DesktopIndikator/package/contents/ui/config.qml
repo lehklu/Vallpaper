@@ -20,13 +20,13 @@ QTQ.Item {
   onCfg_sectionOrderChanged: loadSectionOrder()
 
   property int sectionDateOrderIdx: 0
-  property int cfg_sectionDateWidthWeight: 2
+  property int cfg_sectionDateWidthWeight: 50
 
   property int sectionDesktopNameOrderIdx: 1
-  property int cfg_sectionDesktopNameWidthWeight: 3
+  property int cfg_sectionDesktopNameWidthWeight: 50
 
   property int sectionDesktopNumberOrderIdx: 2
-  property int cfg_sectionDesktopNumberWidthWeight: 1
+  property int cfg_sectionDesktopNumberWidthWeight: 50
 
   property string cfg_dateBackgroundColors: "[]"
   property string cfg_dayNameFonts: "[]"
@@ -106,7 +106,7 @@ QTQ.Item {
   {
     property string label
     property string sectionKey
-    property int widthValue: 1
+    property int widthValue: 50
     property bool canMoveUp: false
     property bool canMoveDown: false
 
@@ -134,10 +134,10 @@ QTQ.Item {
       onClicked: parent.moveDownRequested()
     }
     QTQ_C.Label { text: parent.label; QTQ_L.Layout.fillWidth: true }
-    QTQ_C.Label { text: qsTr("Width") }
+    QTQ_C.Label { text: qsTr("Width weight") }
     QTQ_C.SpinBox {
       from: 0
-      to: 10
+      to: 100
       value: parent.widthValue
       onValueModified: {
         parent.widthValue = value

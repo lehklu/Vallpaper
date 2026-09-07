@@ -13,9 +13,9 @@ KDE_plasmoid.PlasmoidItem {
   id: _Root
 
   property int _fullWidth: height * 5
-  property real _sectionDateWidthWeight: Number(configurationValue("sectionDateWidthWeight", 2))
-  property real _nameSectionWidth: Number(configurationValue("sectionDesktopNameWidthWeight", 3))
-  property real _sectionDesktopNumberWidthWeight: Number(configurationValue("sectionDesktopNumberWidthWeight", 1))
+  property real _sectionDateWidthWeight: Number(configurationValue("sectionDateWidthWeight", 50))
+  property real _nameSectionWidth: Number(configurationValue("sectionDesktopNameWidthWeight", 50))
+  property real _sectionDesktopNumberWidthWeight: Number(configurationValue("sectionDesktopNumberWidthWeight", 50))
   property int _dateSectionOrder: sectionOrderIndex("date", 0)
   property int _nameSectionOrder: sectionOrderIndex("desktopName", 1)
   property int _sectionDesktopNumberOrder: sectionOrderIndex("desktopNumber", 2)
