@@ -19,6 +19,8 @@ QTQ.Item {
   property string cfg_sectionOrder: "date,desktopName,desktopNumber"
   onCfg_sectionOrderChanged: loadSectionOrder()
 
+  property int cfg_heightWidthRatio: 50
+
   property int sectionDateOrderIdx: 0
   property int cfg_sectionDateWidthWeight: 50
 
@@ -410,6 +412,26 @@ QTQ.Item {
       font.bold: true
     }
 
+    QTQ_L.RowLayout {
+      QTQ_L.Layout.fillWidth: true
+      QTQ_C.Label {
+        text: qsTr("Height/width ratio")
+        QTQ_L.Layout.fillWidth: true
+      }
+      QTQ_C.Label {
+        text: "10 :"
+      }
+      QTQ_C.SpinBox {
+        from: 1
+        to: 100
+        value: _Root.cfg_heightWidthRatio
+        onValueModified: {
+          _Root.cfg_heightWidthRatio = value
+        }
+        QTQ_L.Layout.preferredWidth: Kirigami.Units.gridUnit * 5
+      }
+    }
+
     QTQ_C.ComboBox {
       id: desktopBox
       model: desktopModel
@@ -438,8 +460,10 @@ QTQ.Item {
 
     QTQ.Loader {
       id: largePreview
-      QTQ_L.Layout.fillWidth: true
-      QTQ_L.Layout.preferredHeight: Kirigami.Units.gridUnit * 13
+      QTQ_L.Layout.alignment: Qt.AlignHCenter
+      QTQ_L.Layout.preferredHeight: Kirigami.Units.gridUnit * 6
+      QTQ_L.Layout.preferredWidth: QTQ_L.Layout.preferredHeight * (_Root.cfg_heightWidthRatio / 10)
+      QTQ_L.Layout.maximumWidth: _Root.width - Kirigami.Units.largeSpacing * 2
       sourceComponent: widgetPreview
       onLoaded: {
         item.desktopNo = _Root.selectedDesktop
@@ -474,7 +498,7 @@ QTQ.Item {
           elide: QTQ.Text.ElideRight
         }
         QTQ.Loader {
-          QTQ_L.Layout.preferredWidth: Kirigami.Units.gridUnit * 9
+          QTQ_L.Layout.preferredWidth: Kirigami.Units.gridUnit * 2 * (_Root.cfg_heightWidthRatio / 10)
           QTQ_L.Layout.preferredHeight: Kirigami.Units.gridUnit * 2
           sourceComponent: widgetPreview
           onLoaded: {

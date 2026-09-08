@@ -160,3 +160,7 @@ Don't save changes immediately, use ok, apply and cancel
 change of width does not enable 'Apply''
 
 allow width to be 0 and remove separate visibilty settings
+
+Add a new setting: height/width ratio witj values 10: 1-100. Put it above the dropdown of desktops.
+
+use it

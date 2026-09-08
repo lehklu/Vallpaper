@@ -5,6 +5,7 @@
       https://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
 
     <group name="Settings">
+      <entry name="heightWidthRatio" type="Int"><default>50</default></entry>
       <entry name="sectionDateWidthWeight" type="Int"><default>50</default></entry>
       <entry name="sectionDesktopNameWidthWeight" type="Int"><default>50</default></entry>
       <entry name="sectionDesktopNumberWidthWeight" type="Int"><default>50</default></entry>

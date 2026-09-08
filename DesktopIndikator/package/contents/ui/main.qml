@@ -12,7 +12,8 @@ import org.kde.taskmanager as KDE_taskmanager
 KDE_plasmoid.PlasmoidItem {
   id: _Root
 
-  property int _fullWidth: height * 5
+  property real _heightWidthRatio: Number(configurationValue("heightWidthRatio", 50))
+  property int _fullWidth: Math.round(height * _heightWidthRatio / 10)
   property real _sectionDateWidthWeight: Number(configurationValue("sectionDateWidthWeight", 50))
   property real _nameSectionWidth: Number(configurationValue("sectionDesktopNameWidthWeight", 50))
   property real _sectionDesktopNumberWidthWeight: Number(configurationValue("sectionDesktopNumberWidthWeight", 50))
@@ -132,7 +133,10 @@ KDE_plasmoid.PlasmoidItem {
   }
 
   width: _fullWidth
+  implicitWidth: _fullWidth
   QTQ_L.Layout.minimumWidth: _fullWidth
+  QTQ_L.Layout.preferredWidth: _fullWidth
+  QTQ_L.Layout.maximumWidth: _fullWidth
   QTQ_L.Layout.fillHeight: true
 
   KDE_taskmanager.VirtualDesktopInfo {
