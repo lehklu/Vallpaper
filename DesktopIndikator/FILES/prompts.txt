@@ -164,3 +164,9 @@ allow width to be 0 and remove separate visibilty settings
 Add a new setting: height/width ratio witj values 10: 1-100. Put it above the dropdown of desktops.
 
 use it
+
+Add a setting for all text fields: scale relative to parent width. Use the scale factor for font size.
+
+scale relative to height instead of width
+
+Preview in dropdown doesnt respect scalesetting.

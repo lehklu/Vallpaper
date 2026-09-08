@@ -47,6 +47,10 @@ KDE_plasmoid.PlasmoidItem {
   property string _currentDayDateFont: configurationValue("dayDateFont" + _currentDesktopNo, "Cantarell")
   property string _currentDesktopNameFont: configurationValue("desktopNameFont" + _currentDesktopNo, "Cantarell")
   property string _currentNumberFont: configurationValue("numberFont" + _currentDesktopNo, "Cantarell")
+  property real _currentDayNameScale: Number(configurationValue("dayNameScale" + _currentDesktopNo, 50))
+  property real _currentDayDateScale: Number(configurationValue("dayDateScale" + _currentDesktopNo, 50))
+  property real _currentDesktopNameScale: Number(configurationValue("desktopNameScale" + _currentDesktopNo, 50))
+  property real _currentNumberScale: Number(configurationValue("numberScale" + _currentDesktopNo, 50))
 
   function configurationValue(key, fallback) {
     // Keep this dependency so configuration changes refresh every current
@@ -62,7 +66,8 @@ KDE_plasmoid.PlasmoidItem {
             keyPrefix === "dateColor" ? "dateBackgroundColors" : "",
             keyPrefix === "numberColor" ? "desktopNumberBackgroundColors" : "",
             keyPrefix === "numberTextColor" ? "desktopNumberColors" : "",
-            keyPrefix === "numberFont" ? "desktopNumberFonts" : ""
+            keyPrefix === "numberFont" ? "desktopNumberFonts" : "",
+            keyPrefix === "numberScale" ? "desktopNumberScales" : ""
       ]
       for (var i = 0; i < candidateListNames.length; ++i)
       {
@@ -222,7 +227,7 @@ KDE_plasmoid.PlasmoidItem {
       anchors.horizontalCenter: parent.horizontalCenter
 
       font.family: _currentDayNameFont
-      font.pixelSize: _RectDate.height * 0.5
+      font.pixelSize: Math.max(1, _RectDate.height * (_currentDayNameScale / 100))
       font.weight: 400
 
       color: _currentDayNameColor
@@ -236,7 +241,7 @@ KDE_plasmoid.PlasmoidItem {
       anchors.horizontalCenter: parent.horizontalCenter
 
       font.family: _currentDayDateFont
-      font.pixelSize: _RectDate.height * 0.5
+      font.pixelSize: Math.max(1, _RectDate.height * (_currentDayDateScale / 100))
       font.weight: 600
 
       color: _currentDayDateColor
@@ -259,6 +264,7 @@ KDE_plasmoid.PlasmoidItem {
       text: _currentDesktopName
       color: _currentDesktopNameColor
       font.family: _currentDesktopNameFont
+      font.pixelSize: Math.max(1, _RectName.height * (_currentDesktopNameScale / 100))
       elide: QTQ.Text.ElideRight
       horizontalAlignment: QTQ.Text.AlignHCenter
     }
@@ -278,7 +284,7 @@ KDE_plasmoid.PlasmoidItem {
       anchors.horizontalCenter: parent.horizontalCenter
 
       font.family: _currentNumberFont
-      font.pixelSize: _RectNo.height * 0.8
+      font.pixelSize: Math.max(1, _RectNo.height * (_currentNumberScale / 100))
       font.weight: 700
 
       color: _currentNumberTextColor

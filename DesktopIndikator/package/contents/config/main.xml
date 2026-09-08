@@ -15,15 +15,19 @@
       <entry name="dateBackgroundColors" type="String"><default>[]</default></entry>
       <entry name="dayNameFonts" type="String"><default>[]</default></entry>
       <entry name="dayNameColors" type="String"><default>[]</default></entry>
+      <entry name="dayNameScales" type="String"><default>[]</default></entry>
       <entry name="dayDateFonts" type="String"><default>[]</default></entry>
       <entry name="dayDateColors" type="String"><default>[]</default></entry>
+      <entry name="dayDateScales" type="String"><default>[]</default></entry>
 
       <entry name="desktopNameBackgroundColors" type="String"><default>[]</default></entry>
       <entry name="desktopNameFonts" type="String"><default>[]</default></entry>        
       <entry name="desktopNameColors" type="String"><default>[]</default></entry>
+      <entry name="desktopNameScales" type="String"><default>[]</default></entry>
 
       <entry name="desktopNumberBackgroundColors" type="String"><default>[]</default></entry>
       <entry name="desktopNumberFonts" type="String"><default>[]</default></entry>
       <entry name="desktopNumberColors" type="String"><default>[]</default></entry>
+      <entry name="desktopNumberScales" type="String"><default>[]</default></entry>
     </group>
 </kcfg>
