@@ -23,32 +23,26 @@ KDE_plasmoid.PlasmoidItem {
   property int _nameSectionOrder: sectionOrderIndex("desktopName", 1)
   property int _sectionDesktopNumberOrder: sectionOrderIndex("desktopNumber", 2)
 
-  property var _defaultDeskColors: [
-    "#a0ffa0",
-    "#a8a8ff",
-    "#ff97ff",
-    "#ffff8f",
-    "#ffffff",
-    "#41f2f2"
-  ]
+  readonly property var _DEFAULT_COLORS_DARK: ["#071169"]
+  readonly property var _DEFAULT_COLORS_LIGHT: ["#ffffff"]
+
   property date _currentDate: new Date()
   property int _currentDesktopNo: 0
   property string _currentDesktopName: ""
   property int _configurationRevision: 0
-  property var _currentDeskColor: configurationValue("dateColor" + _currentDesktopNo,
-      _defaultDeskColors[(_currentDesktopNo - 1 + 6) % 6])
-  property var _currentNumberColor: configurationValue("numberColor" + _currentDesktopNo, "#000000")
-  property var _currentDayNameColor: configurationValue("dayNameColor" + _currentDesktopNo, "#000000")
-  property var _currentDayDateColor: configurationValue("dayDateColor" + _currentDesktopNo, "#000000")
-  property var _currentDesktopNameColor: configurationValue("desktopNameColor" + _currentDesktopNo, "#000000")
+  property var _currentDeskColor: configurationValue("dateColor" + _currentDesktopNo, _DEFAULT_COLORS_LIGHT[0])
+  property var _currentNumberColor: configurationValue("numberColor" + _currentDesktopNo, _DEFAULT_COLORS_DARK[0])
+  property var _currentDayNameColor: configurationValue("dayNameColor" + _currentDesktopNo, _DEFAULT_COLORS_DARK[0])
+  property var _currentDayDateColor: configurationValue("dayDateColor" + _currentDesktopNo, _DEFAULT_COLORS_DARK[0])
+  property var _currentDesktopNameColor: configurationValue("desktopNameColor" + _currentDesktopNo, _DEFAULT_COLORS_DARK[0])
   property var _currentDesktopNameBackgroundColor: configurationValue("desktopNameBackgroundColor" + _currentDesktopNo,
-      _defaultDeskColors[(_currentDesktopNo - 1 + 6) % 6])
+      _DEFAULT_COLORS_LIGHT[0])
   property var _currentNumberTextColor: configurationValue("numberTextColor" + _currentDesktopNo,
-      _defaultDeskColors[(_currentDesktopNo - 1 + 6) % 6])
-  property string _currentDayNameFont: configurationValue("dayNameFont" + _currentDesktopNo, "Inconsolata")
-  property string _currentDayDateFont: configurationValue("dayDateFont" + _currentDesktopNo, "Cantarell")
-  property string _currentDesktopNameFont: configurationValue("desktopNameFont" + _currentDesktopNo, "Cantarell")
-  property string _currentNumberFont: configurationValue("numberFont" + _currentDesktopNo, "Cantarell")
+      _DEFAULT_COLORS_LIGHT[0])
+  property string _currentDayNameFont: configurationValue("dayNameFont" + _currentDesktopNo, "SansSerif")
+  property string _currentDayDateFont: configurationValue("dayDateFont" + _currentDesktopNo, "Serif")
+  property string _currentDesktopNameFont: configurationValue("desktopNameFont" + _currentDesktopNo, "SansSerif")
+  property string _currentNumberFont: configurationValue("numberFont" + _currentDesktopNo, "Serif")
   property real _currentDayNameScale: Number(configurationValue("dayNameScale" + _currentDesktopNo, 50))
   property real _currentDayDateScale: Number(configurationValue("dayDateScale" + _currentDesktopNo, 50))
   property real _currentDesktopNameScale: Number(configurationValue("desktopNameScale" + _currentDesktopNo, 50))

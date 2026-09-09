@@ -182,3 +182,5 @@ Type DesktopIndicator unavailable
 Style dialog cannot be opened
 
 If widgets container changes dimensions, the widget has to keep its height/width ratio.
+
+Use the default values from config.qml also for main.qml

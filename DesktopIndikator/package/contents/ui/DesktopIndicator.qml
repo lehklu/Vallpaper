@@ -27,15 +27,15 @@ QTQ.Item {
   property int sectionDesktopNumberOrder: 2
 
   property var dateBackgroundColor: "#ffffff"
-  property var dayNameColor: "#000000"
-  property var dayDateColor: "#000000"
+  property var dayNameColor: "#071169"
+  property var dayDateColor: "#071169"
   property string dayNameFont: "SansSerif"
   property string dayDateFont: "Serif"
   property real dayNameScale: 50
   property real dayDateScale: 50
 
   property var desktopNameBackgroundColor: "#ffffff"
-  property var desktopNameColor: "#000000"
+  property var desktopNameColor: "#071169"
   property string desktopNameFont: "SansSerif"
   property real desktopNameScale: 50
 
