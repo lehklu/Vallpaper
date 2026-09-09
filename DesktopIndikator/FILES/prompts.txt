@@ -170,3 +170,7 @@ Add a setting for all text fields: scale relative to parent width. Use the scale
 scale relative to height instead of width
 
 Preview in dropdown doesnt respect scalesetting.
+
+Open style dialog above the preview.
+The style dialog shall not obscure the preview.
+Does not work

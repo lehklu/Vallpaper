@@ -701,6 +701,10 @@ QTQ.Item {
 
   QTQ_C.Dialog {
     id: styleDialog
+    parent: largePreview
+    anchors.centerIn: undefined
+    x: Math.round((largePreview.width - width) / 2)
+    y: -height - Kirigami.Units.smallSpacing
     title: target === "dayName" ? qsTr("Day name") : target === "dayDate" ? qsTr("Day date")
         : target === "desktopName" ? qsTr("Desktop name") : qsTr("Desktop number")
     standardButtons: QTQ_C.DialogButtonBox.Close
