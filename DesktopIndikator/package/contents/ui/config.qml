@@ -549,6 +549,7 @@ QTQ.Item {
     QTQ.Item {
       id: preview
       anchors.fill: parent
+      clip: true
       property int desktopNo: _Root.selectedDesktop
       property string desktopName: qsTr("Desktop")
       property bool interactive: true

@@ -12,6 +12,8 @@ import org.kde.taskmanager as KDE_taskmanager
 KDE_plasmoid.PlasmoidItem {
   id: _Root
 
+  clip: true
+
   property real _heightWidthRatio: Number(configurationValue("heightWidthRatio", 50))
   property int _fullWidth: Math.round(height * _heightWidthRatio / 10)
   property real _sectionDateWidthWeight: Number(configurationValue("sectionDateWidthWeight", 50))

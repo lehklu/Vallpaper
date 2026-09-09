@@ -174,3 +174,5 @@ Preview in dropdown doesnt respect scalesetting.
 Open style dialog above the preview.
 The style dialog shall not obscure the preview.
 Does not work
+
+Clip widget content at widget borders.
