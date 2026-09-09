@@ -176,3 +176,7 @@ The style dialog shall not obscure the preview.
 Does not work
 
 Clip widget content at widget borders.
+
+Use a component for the widget, large preview and preview in dropdown.
+Type DesktopIndicator unavailable
+Style dialog cannot be opened

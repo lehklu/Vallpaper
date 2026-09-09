@@ -105,32 +105,6 @@ KDE_plasmoid.PlasmoidItem {
     return index >= 0 ? index : fallback
   }
 
-  function totalSectionsWeigth() {
-    return _sectionDateWidthWeight + _nameSectionWidth + _sectionDesktopNumberWidthWeight
-  }
-
-  function sectionWidth(weight) {
-    var total = totalSectionsWeigth()
-    return total > 0 ? _fullWidth * weight / total : 0
-  }
-
-  function sectionOffset(order) {
-    var offset = 0
-    if (_dateSectionOrder < order)
-    {
-      offset += sectionWidth(_sectionDateWidthWeight)
-    }
-    if (_nameSectionOrder < order)
-    {
-      offset += sectionWidth(_nameSectionWidth)
-    }
-    if (_sectionDesktopNumberOrder < order)
-    {
-      offset += sectionWidth(_sectionDesktopNumberWidthWeight)
-    }
-    return offset
-  }
-
   QML.Connections {
     target: KDE_plasmoid.Plasmoid.configuration
 
@@ -215,83 +189,37 @@ KDE_plasmoid.PlasmoidItem {
     onTriggered: { _currentDate = new Date(); }
   }
 
-  QTQ.Rectangle {
-    id: _RectDate
-    x: sectionOffset(_dateSectionOrder)
-    width: sectionWidth(_sectionDateWidthWeight)
-    height: parent.height
-    visible: _sectionDateWidthWeight > 0
-    color: _currentDeskColor
+  DesktopIndicator {
+    anchors.fill: parent
+    desktopNo: _Root._currentDesktopNo
+    desktopName: _Root._currentDesktopName
+    currentDate: _Root._currentDate
+    interactive: false
 
-    QTQ.Text {
-      id: _TxtDay
-      anchors.top: parent.top
-      anchors.horizontalCenter: parent.horizontalCenter
+    sectionDateWidthWeight: _Root._sectionDateWidthWeight
+    sectionDesktopNameWidthWeight: _Root._nameSectionWidth
+    sectionDesktopNumberWidthWeight: _Root._sectionDesktopNumberWidthWeight
 
-      font.family: _currentDayNameFont
-      font.pixelSize: Math.max(1, _RectDate.height * (_currentDayNameScale / 100))
-      font.weight: 400
+    dateSectionOrder: _Root._dateSectionOrder
+    nameSectionOrder: _Root._nameSectionOrder
+    sectionDesktopNumberOrder: _Root._sectionDesktopNumberOrder
 
-      color: _currentDayNameColor
+    dateBackgroundColor: _Root._currentDeskColor
+    dayNameColor: _Root._currentDayNameColor
+    dayDateColor: _Root._currentDayDateColor
+    dayNameFont: _Root._currentDayNameFont
+    dayDateFont: _Root._currentDayDateFont
+    dayNameScale: _Root._currentDayNameScale
+    dayDateScale: _Root._currentDayDateScale
 
-      text: Qt.locale().toString(_Root._currentDate, "dddd")
-    }
+    desktopNameBackgroundColor: _Root._currentDesktopNameBackgroundColor
+    desktopNameColor: _Root._currentDesktopNameColor
+    desktopNameFont: _Root._currentDesktopNameFont
+    desktopNameScale: _Root._currentDesktopNameScale
 
-    QTQ.Text {
-      id: _TxtDate
-      anchors.bottom: parent.bottom
-      anchors.horizontalCenter: parent.horizontalCenter
-
-      font.family: _currentDayDateFont
-      font.pixelSize: Math.max(1, _RectDate.height * (_currentDayDateScale / 100))
-      font.weight: 600
-
-      color: _currentDayDateColor
-
-      text: Qt.locale().toString(_Root._currentDate, "dd.MM")
-    }
-  }
-
-  QTQ.Rectangle {
-    id: _RectName
-    x: sectionOffset(_nameSectionOrder)
-    width: sectionWidth(_nameSectionWidth)
-    height: parent.height
-    visible: _nameSectionWidth > 0
-    color: _currentDesktopNameBackgroundColor
-
-    QTQ.Text {
-      anchors.centerIn: parent
-      width: parent.width - 8
-      text: _currentDesktopName
-      color: _currentDesktopNameColor
-      font.family: _currentDesktopNameFont
-      font.pixelSize: Math.max(1, _RectName.height * (_currentDesktopNameScale / 100))
-      elide: QTQ.Text.ElideRight
-      horizontalAlignment: QTQ.Text.AlignHCenter
-    }
-  }
-
-  QTQ.Rectangle {
-    id: _RectNo
-    x: sectionOffset(_sectionDesktopNumberOrder)
-    width: sectionWidth(_sectionDesktopNumberWidthWeight)
-    height: parent.height
-    color: _currentNumberColor
-    visible: _sectionDesktopNumberWidthWeight > 0
-
-    QTQ.Text {
-      id: _TxtNo
-      anchors.verticalCenter: parent.verticalCenter
-      anchors.horizontalCenter: parent.horizontalCenter
-
-      font.family: _currentNumberFont
-      font.pixelSize: Math.max(1, _RectNo.height * (_currentNumberScale / 100))
-      font.weight: 700
-
-      color: _currentNumberTextColor
-
-      text: _Root._currentDesktopNo
-    }
+    numberBackgroundColor: _Root._currentNumberColor
+    numberTextColor: _Root._currentNumberTextColor
+    numberFont: _Root._currentNumberFont
+    numberScale: _Root._currentNumberScale
   }
 }
