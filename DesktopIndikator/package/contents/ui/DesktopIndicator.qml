@@ -16,6 +16,8 @@ QTQ.Item {
   property date currentDate: new Date()
   property bool interactive: false
 
+  property real heightWidthRatio: 50
+
   property int sectionDateWidthWeight: 50
   property int sectionDesktopNameWidthWeight: 50
   property int sectionDesktopNumberWidthWeight: 50
@@ -51,7 +53,7 @@ QTQ.Item {
 
   function sectionWidth(weight) {
     var total = totalSectionsWeight()
-    return total > 0 ? width * weight / total : 0
+    return total > 0 ? contentItem.width * weight / total : 0
   }
 
   function sectionOffset(order) {
@@ -73,11 +75,22 @@ QTQ.Item {
     {
       offsetWeight += sectionDesktopNumberWidthWeight
     }
-    return width * offsetWeight / total
+    return contentItem.width * offsetWeight / total
   }
 
-  QTQ.Rectangle {
-    id: dateBlock
+  QTQ.Item {
+    id: contentItem
+    width: (_Root.heightWidthRatio > 0 && _Root.width * 10 > _Root.height * _Root.heightWidthRatio)
+        ? Math.round(_Root.height * _Root.heightWidthRatio / 10)
+        : _Root.width
+    height: (_Root.heightWidthRatio > 0 && _Root.width * 10 > _Root.height * _Root.heightWidthRatio)
+        ? _Root.height
+        : (_Root.heightWidthRatio > 0 ? Math.round(_Root.width * 10 / _Root.heightWidthRatio) : _Root.height)
+    anchors.centerIn: parent
+    clip: true
+
+    QTQ.Rectangle {
+      id: dateBlock
     x: _Root.sectionOffset(_Root.dateSectionOrder)
     width: _Root.sectionWidth(_Root.sectionDateWidthWeight)
     height: parent.height
@@ -242,4 +255,5 @@ QTQ.Item {
       }
     }
   }
+}
 }

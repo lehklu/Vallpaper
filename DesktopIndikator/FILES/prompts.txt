@@ -180,3 +180,5 @@ Clip widget content at widget borders.
 Use a component for the widget, large preview and preview in dropdown.
 Type DesktopIndicator unavailable
 Style dialog cannot be opened
+
+If widgets container changes dimensions, the widget has to keep its height/width ratio.

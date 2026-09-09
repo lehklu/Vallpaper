@@ -191,6 +191,7 @@ KDE_plasmoid.PlasmoidItem {
 
   DesktopIndicator {
     anchors.fill: parent
+    heightWidthRatio: _Root._heightWidthRatio
     desktopNo: _Root._currentDesktopNo
     desktopName: _Root._currentDesktopName
     currentDate: _Root._currentDate

@@ -506,6 +506,7 @@ QTQ.Item {
     id: widgetPreview
     DesktopIndicator {
       anchors.fill: parent
+      heightWidthRatio: _Root.cfg_heightWidthRatio
       sectionDateWidthWeight: _Root.cfg_sectionDateWidthWeight
       sectionDesktopNameWidthWeight: _Root.cfg_sectionDesktopNameWidthWeight
       sectionDesktopNumberWidthWeight: _Root.cfg_sectionDesktopNumberWidthWeight
