@@ -273,6 +273,202 @@ QTQ.Item {
     return copy
   }
 
+  function updateStyleProperty(propName, value) {
+    if (linkToggle.checked)
+    {
+      var count = Math.max(desktopModel.count || 0, (_Root[propName] && _Root[propName].length) || 0, 1)
+      var arr = []
+      for (var i = 0; i < count; ++i)
+      {
+        arr.push(value)
+      }
+      _Root[propName] = arr
+      _Root["cfg_" + propName] = JSON.stringify(arr)
+    }
+    else
+    {
+      _Root[propName] = setAt(_Root[propName], selectedDesktop - 1, value)
+      _Root["cfg_" + propName] = JSON.stringify(_Root[propName])
+    }
+  }
+
+  function getDesktopStyle(idx) {
+    var deskIdx = Math.max(0, idx)
+    return {
+      type: "DesktopIndicatorStyle",
+      dateBackgroundColor: (dateBackgroundColors && dateBackgroundColors[deskIdx]) || _DEFAULT_COLORS_LIGHT[0],
+      dayNameColor: (dayNameColors && dayNameColors[deskIdx]) || _DEFAULT_COLORS_DARK[0],
+      dayDateColor: (dayDateColors && dayDateColors[deskIdx]) || _DEFAULT_COLORS_DARK[0],
+      dayNameFont: (dayNameFonts && dayNameFonts[deskIdx]) || "SansSerif",
+      dayDateFont: (dayDateFonts && dayDateFonts[deskIdx]) || "Serif",
+      dayNameScale: Number((dayNameScales && dayNameScales[deskIdx]) || 50),
+      dayDateScale: Number((dayDateScales && dayDateScales[deskIdx]) || 50),
+      desktopNameBackgroundColor: (desktopNameBackgroundColors && desktopNameBackgroundColors[deskIdx]) || _DEFAULT_COLORS_LIGHT[0],
+      desktopNameColor: (desktopNameColors && desktopNameColors[deskIdx]) || _DEFAULT_COLORS_DARK[0],
+      desktopNameFont: (desktopNameFonts && desktopNameFonts[deskIdx]) || "SansSerif",
+      desktopNameScale: Number((desktopNameScales && desktopNameScales[deskIdx]) || 50),
+      desktopNumberBackgroundColor: (desktopNumberBackgroundColors && desktopNumberBackgroundColors[deskIdx]) || _DEFAULT_COLORS_DARK[0],
+      desktopNumberColor: (desktopNumberColors && desktopNumberColors[deskIdx]) || _DEFAULT_COLORS_LIGHT[0],
+      desktopNumberFont: (desktopNumberFonts && desktopNumberFonts[deskIdx]) || "Serif",
+      desktopNumberScale: Number((desktopNumberScales && desktopNumberScales[deskIdx]) || 50)
+    }
+  }
+
+  function applyStyleToDesktop(style, deskIdx) {
+    if (!style)
+    {
+      return
+    }
+    if (linkToggle.checked)
+    {
+      applyStyleToAllDesktops(style)
+      return
+    }
+
+    var mapping = [
+      { prop: "dateBackgroundColors", val: style.dateBackgroundColor },
+      { prop: "dayNameColors", val: style.dayNameColor },
+      { prop: "dayDateColors", val: style.dayDateColor },
+      { prop: "dayNameFonts", val: style.dayNameFont },
+      { prop: "dayDateFonts", val: style.dayDateFont },
+      { prop: "dayNameScales", val: style.dayNameScale },
+      { prop: "dayDateScales", val: style.dayDateScale },
+      { prop: "desktopNameBackgroundColors", val: style.desktopNameBackgroundColor },
+      { prop: "desktopNameColors", val: style.desktopNameColor },
+      { prop: "desktopNameFonts", val: style.desktopNameFont },
+      { prop: "desktopNameScales", val: style.desktopNameScale },
+      { prop: "desktopNumberBackgroundColors", val: style.desktopNumberBackgroundColor },
+      { prop: "desktopNumberColors", val: style.desktopNumberColor },
+      { prop: "desktopNumberFonts", val: style.desktopNumberFont },
+      { prop: "desktopNumberScales", val: style.desktopNumberScale }
+    ]
+
+    for (var i = 0; i < mapping.length; ++i)
+    {
+      var m = mapping[i]
+      if (m.val !== undefined)
+      {
+        _Root[m.prop] = setAt(_Root[m.prop], deskIdx, m.val)
+        _Root["cfg_" + m.prop] = JSON.stringify(_Root[m.prop])
+      }
+    }
+  }
+
+  function applyStyleToAllDesktops(style) {
+    if (!style)
+    {
+      return
+    }
+    var count = Math.max(desktopModel.count || 0, 1)
+    var mapping = [
+      { prop: "dateBackgroundColors", val: style.dateBackgroundColor },
+      { prop: "dayNameColors", val: style.dayNameColor },
+      { prop: "dayDateColors", val: style.dayDateColor },
+      { prop: "dayNameFonts", val: style.dayNameFont },
+      { prop: "dayDateFonts", val: style.dayDateFont },
+      { prop: "dayNameScales", val: style.dayNameScale },
+      { prop: "dayDateScales", val: style.dayDateScale },
+      { prop: "desktopNameBackgroundColors", val: style.desktopNameBackgroundColor },
+      { prop: "desktopNameColors", val: style.desktopNameColor },
+      { prop: "desktopNameFonts", val: style.desktopNameFont },
+      { prop: "desktopNameScales", val: style.desktopNameScale },
+      { prop: "desktopNumberBackgroundColors", val: style.desktopNumberBackgroundColor },
+      { prop: "desktopNumberColors", val: style.desktopNumberColor },
+      { prop: "desktopNumberFonts", val: style.desktopNumberFont },
+      { prop: "desktopNumberScales", val: style.desktopNumberScale }
+    ]
+
+    for (var i = 0; i < mapping.length; ++i)
+    {
+      var m = mapping[i]
+      if (m.val !== undefined)
+      {
+        var arr = []
+        for (var d = 0; d < count; ++d)
+        {
+          arr.push(m.val)
+        }
+        _Root[m.prop] = arr
+        _Root["cfg_" + m.prop] = JSON.stringify(arr)
+      }
+    }
+  }
+
+  QTQ.TextEdit {
+    id: clipboardHelper
+    visible: false
+    activeFocusOnPress: false
+  }
+
+  property bool hasValidClipboardContent: false
+  property var lastCopiedStyle: null
+
+  function getClipboardText() {
+    clipboardHelper.text = ""
+    clipboardHelper.selectAll()
+    clipboardHelper.paste()
+    return clipboardHelper.text
+  }
+
+  function parseStyleFromText(str) {
+    if (!str || typeof str !== "string")
+    {
+      return null
+    }
+    try
+    {
+      var obj = JSON.parse(str)
+      if (obj && typeof obj === "object")
+      {
+        if (obj.type === "DesktopIndicatorStyle")
+        {
+          return obj
+        }
+        if (obj.dateBackgroundColor !== undefined ||
+            obj.dayNameColor !== undefined ||
+            obj.desktopNumberBackgroundColor !== undefined ||
+            obj.desktopNameColor !== undefined)
+        {
+          return obj
+        }
+      }
+    }
+    catch (e)
+    {}
+    return null
+  }
+
+  function checkClipboard() {
+    var text = getClipboardText()
+    hasValidClipboardContent = parseStyleFromText(text) !== null
+  }
+
+  function copySelectedDesktopStyle() {
+    var style = getDesktopStyle(selectedDesktop - 1)
+    clipboardHelper.text = JSON.stringify(style)
+    clipboardHelper.selectAll()
+    clipboardHelper.copy()
+    lastCopiedStyle = style
+    checkClipboard()
+  }
+
+  function pasteDesktopStyle() {
+    var text = getClipboardText()
+    var style = parseStyleFromText(text) || lastCopiedStyle
+    if (style)
+    {
+      applyStyleToDesktop(style, selectedDesktop - 1)
+    }
+  }
+
+  QTQ.Timer {
+    id: clipboardCheckTimer
+    interval: 1000
+    running: true
+    repeat: true
+    onTriggered: checkClipboard()
+  }
+
   function openColor(target, current) {
     colorDialog.target = target
     colorDialog.selectedColor = current
@@ -294,6 +490,7 @@ QTQ.Item {
   QTQ.Component.onCompleted: {
     loadSettings()
     loadSectionOrder()
+    checkClipboard()
   }
 
   onSelectedDesktopChanged: {
@@ -417,29 +614,59 @@ QTQ.Item {
       }
     }
 
-    QTQ_C.ComboBox {
-      id: desktopBox
-      model: desktopModel
-      textRole: "name"
+    QTQ_L.RowLayout {
       QTQ_L.Layout.fillWidth: true
-      implicitHeight: Kirigami.Units.gridUnit * 3
-      delegate: desktopDelegate
-      popup: QTQ_C.Popup
-      {
-        id: desktopPopup
-        y: desktopBox.height
-        width: desktopBox.width
-        padding: 0
-        height: Math.min(desktopModel.count * Kirigami.Units.gridUnit * 3,
-            Kirigami.Units.gridUnit * 20)
-        contentItem: QTQ.ListView
+      spacing: Kirigami.Units.smallSpacing
+
+      QTQ_C.ComboBox {
+        id: desktopBox
+        model: desktopModel
+        textRole: "name"
+        QTQ_L.Layout.fillWidth: true
+        enabled: !linkToggle.checked
+        implicitHeight: Kirigami.Units.gridUnit * 3
+        delegate: desktopDelegate
+        popup: QTQ_C.Popup
         {
-          anchors.fill: parent
-          clip: true
-          model: desktopModel
-          currentIndex: desktopBox.highlightedIndex
-          delegate: desktopDelegate
+          id: desktopPopup
+          y: desktopBox.height
+          width: desktopBox.width
+          padding: 0
+          height: Math.min(desktopModel.count * Kirigami.Units.gridUnit * 3,
+              Kirigami.Units.gridUnit * 10)
+          contentItem: QTQ.ListView
+          {
+            anchors.fill: parent
+            clip: true
+            model: desktopModel
+            currentIndex: desktopBox.highlightedIndex
+            delegate: desktopDelegate
+          }
         }
+      }
+
+      QTQ_C.Switch {
+        id: linkToggle
+        text: qsTr("Link")
+        QTQ_L.Layout.alignment: Qt.AlignVCenter
+      }
+    }
+
+    QTQ_L.RowLayout {
+      QTQ_L.Layout.alignment: Qt.AlignHCenter
+      spacing: Kirigami.Units.largeSpacing
+
+      QTQ_C.Button {
+        id: copyButton
+        text: qsTr("Copy")
+        onClicked: _Root.copySelectedDesktopStyle()
+      }
+
+      QTQ_C.Button {
+        id: pasteButton
+        text: qsTr("Paste")
+        enabled: _Root.hasValidClipboardContent
+        onClicked: _Root.pasteDesktopStyle()
       }
     }
 
@@ -600,23 +827,19 @@ QTQ.Item {
             styleDialog.scaleValue = value
             if (styleDialog.target === "dayName")
             {
-              _Root.dayNameScales = _Root.setAt(_Root.dayNameScales, _Root.selectedDesktop - 1, value)
-              _Root.cfg_dayNameScales = JSON.stringify(_Root.dayNameScales)
+              _Root.updateStyleProperty("dayNameScales", value)
             }
             else if (styleDialog.target === "dayDate")
             {
-              _Root.dayDateScales = _Root.setAt(_Root.dayDateScales, _Root.selectedDesktop - 1, value)
-              _Root.cfg_dayDateScales = JSON.stringify(_Root.dayDateScales)
+              _Root.updateStyleProperty("dayDateScales", value)
             }
             else if (styleDialog.target === "desktopName")
             {
-              _Root.desktopNameScales = _Root.setAt(_Root.desktopNameScales, _Root.selectedDesktop - 1, value)
-              _Root.cfg_desktopNameScales = JSON.stringify(_Root.desktopNameScales)
+              _Root.updateStyleProperty("desktopNameScales", value)
             }
             else
             {
-              _Root.desktopNumberScales = _Root.setAt(_Root.desktopNumberScales, _Root.selectedDesktop - 1, value)
-              _Root.cfg_desktopNumberScales = JSON.stringify(_Root.desktopNumberScales)
+              _Root.updateStyleProperty("desktopNumberScales", value)
             }
           }
           QTQ_L.Layout.preferredWidth: Kirigami.Units.gridUnit * 5
@@ -631,41 +854,34 @@ QTQ.Item {
     onAccepted: {
       if (target === "date")
       {
-        _Root.dateBackgroundColors = _Root.setAt(_Root.dateBackgroundColors, _Root.selectedDesktop - 1, selectedColor);
-        _Root.cfg_dateBackgroundColors = JSON.stringify(_Root.dateBackgroundColors)
+        _Root.updateStyleProperty("dateBackgroundColors", selectedColor)
       }
       else if (target === "desktopNumber" || target === "number")
       {
-        _Root.desktopNumberBackgroundColors = _Root.setAt(_Root.desktopNumberBackgroundColors, _Root.selectedDesktop - 1, selectedColor);
-        _Root.cfg_desktopNumberBackgroundColors = JSON.stringify(_Root.desktopNumberBackgroundColors)
+        _Root.updateStyleProperty("desktopNumberBackgroundColors", selectedColor)
       }
       else if (target === "desktopNameBackground")
       {
-        _Root.desktopNameBackgroundColors = _Root.setAt(_Root.desktopNameBackgroundColors, _Root.selectedDesktop - 1, selectedColor);
-        _Root.cfg_desktopNameBackgroundColors = JSON.stringify(_Root.desktopNameBackgroundColors)
+        _Root.updateStyleProperty("desktopNameBackgroundColors", selectedColor)
       }
       else
       {
         styleDialog.selectedTextColor = selectedColor
         if (styleDialog.target === "dayName")
         {
-          _Root.dayNameColors = _Root.setAt(_Root.dayNameColors, _Root.selectedDesktop - 1, selectedColor);
-          _Root.cfg_dayNameColors = JSON.stringify(_Root.dayNameColors)
+          _Root.updateStyleProperty("dayNameColors", selectedColor)
         }
         else if (styleDialog.target === "dayDate")
         {
-          _Root.dayDateColors = _Root.setAt(_Root.dayDateColors, _Root.selectedDesktop - 1, selectedColor);
-          _Root.cfg_dayDateColors = JSON.stringify(_Root.dayDateColors)
+          _Root.updateStyleProperty("dayDateColors", selectedColor)
         }
         else if (styleDialog.target === "desktopName")
         {
-          _Root.desktopNameColors = _Root.setAt(_Root.desktopNameColors, _Root.selectedDesktop - 1, selectedColor);
-          _Root.cfg_desktopNameColors = JSON.stringify(_Root.desktopNameColors)
+          _Root.updateStyleProperty("desktopNameColors", selectedColor)
         }
         else
         {
-          _Root.desktopNumberColors = _Root.setAt(_Root.desktopNumberColors, _Root.selectedDesktop - 1, selectedColor);
-          _Root.cfg_desktopNumberColors = JSON.stringify(_Root.desktopNumberColors)
+          _Root.updateStyleProperty("desktopNumberColors", selectedColor)
         }
       }
     }
@@ -705,45 +921,37 @@ QTQ.Item {
       }
       if (target === "dayName")
       {
-        _Root.dayNameFonts = _Root.setAt(_Root.dayNameFonts, _Root.selectedDesktop - 1, family);
-        _Root.cfg_dayNameFonts = JSON.stringify(_Root.dayNameFonts)
+        _Root.updateStyleProperty("dayNameFonts", family)
       }
       else if (target === "dayDate")
       {
-        _Root.dayDateFonts = _Root.setAt(_Root.dayDateFonts, _Root.selectedDesktop - 1, family);
-        _Root.cfg_dayDateFonts = JSON.stringify(_Root.dayDateFonts)
+        _Root.updateStyleProperty("dayDateFonts", family)
       }
       else if (target === "desktopName")
       {
-        _Root.desktopNameFonts = _Root.setAt(_Root.desktopNameFonts, _Root.selectedDesktop - 1, family);
-        _Root.cfg_desktopNameFonts = JSON.stringify(_Root.desktopNameFonts)
+        _Root.updateStyleProperty("desktopNameFonts", family)
       }
       else if (target === "numberText")
       {
-        _Root.desktopNumberFonts = _Root.setAt(_Root.desktopNumberFonts, _Root.selectedDesktop - 1, family);
-        _Root.cfg_desktopNumberFonts = JSON.stringify(_Root.desktopNumberFonts)
+        _Root.updateStyleProperty("desktopNumberFonts", family)
       }
       else if (target === "styleFont")
       {
         if (styleDialog.target === "dayName")
         {
-          _Root.dayNameFonts = _Root.setAt(_Root.dayNameFonts, _Root.selectedDesktop - 1, family);
-          _Root.cfg_dayNameFonts = JSON.stringify(_Root.dayNameFonts)
+          _Root.updateStyleProperty("dayNameFonts", family)
         }
         else if (styleDialog.target === "dayDate")
         {
-          _Root.dayDateFonts = _Root.setAt(_Root.dayDateFonts, _Root.selectedDesktop - 1, family);
-          _Root.cfg_dayDateFonts = JSON.stringify(_Root.dayDateFonts)
+          _Root.updateStyleProperty("dayDateFonts", family)
         }
         else if (styleDialog.target === "desktopName")
         {
-          _Root.desktopNameFonts = _Root.setAt(_Root.desktopNameFonts, _Root.selectedDesktop - 1, family);
-          _Root.cfg_desktopNameFonts = JSON.stringify(_Root.desktopNameFonts)
+          _Root.updateStyleProperty("desktopNameFonts", family)
         }
         else
         {
-          _Root.desktopNumberFonts = _Root.setAt(_Root.desktopNumberFonts, _Root.selectedDesktop - 1, family);
-          _Root.cfg_desktopNumberFonts = JSON.stringify(_Root.desktopNumberFonts)
+          _Root.updateStyleProperty("desktopNumberFonts", family)
         }
       }
     }

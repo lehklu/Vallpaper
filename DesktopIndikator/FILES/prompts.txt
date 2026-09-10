@@ -184,3 +184,14 @@ Style dialog cannot be opened
 If widgets container changes dimensions, the widget has to keep its height/width ratio.
 
 Use the default values from config.qml also for main.qml
+
+Add 3 Features/buttons:
+Button 'Link': on the right side of the dropdown. a 2 state button. when pressed, all changes in style are applied to
+all desktops. When pressed, dropdown is disabled and the button is red.
+
+Buttons 'Copy' and 'Paste': centered below the dropdown. 'Copy' copies the style of the selected desktop to the
+clipboard. 'Paste' pastes the style of the clipboard to the selected desktop. 'Paste' is disabled if there is no
+valid clipboard content.
+
+'Link': use toggle instead of button. Only the actual changed style is applied to all desktops.
+'Paste': The preview in the dropdown shall be updated.
