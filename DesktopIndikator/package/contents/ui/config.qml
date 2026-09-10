@@ -544,7 +544,7 @@ QTQ.Item {
     spacing: Kirigami.Units.largeSpacing
 
     QTQ_C.Label {
-      text: qsTr("Widget sections")
+      text: qsTr("Common settings")
       font.bold: true
       QTQ_L.Layout.topMargin: Kirigami.Units.smallSpacing
     }
@@ -588,12 +588,6 @@ QTQ.Item {
       }
     }
 
-    QTQ_C.Label {
-      text: qsTr("Appearance")
-      QTQ_L.Layout.fillWidth: true
-      font.bold: true
-    }
-
     QTQ_L.RowLayout {
       QTQ_L.Layout.fillWidth: true
       QTQ_C.Label {
@@ -614,6 +608,12 @@ QTQ.Item {
       }
     }
 
+    QTQ_C.Label {
+      text: qsTr("Per desktop settings")
+      QTQ_L.Layout.fillWidth: true
+      font.bold: true
+    }
+
     QTQ_L.RowLayout {
       QTQ_L.Layout.fillWidth: true
       spacing: Kirigami.Units.smallSpacing
@@ -632,8 +632,7 @@ QTQ.Item {
           y: desktopBox.height
           width: desktopBox.width
           padding: 0
-          height: Math.min(desktopModel.count * Kirigami.Units.gridUnit * 3,
-              Kirigami.Units.gridUnit * 10)
+          height: Math.min(desktopModel.count * Kirigami.Units.gridUnit * 3, _Root.height - largePreview.y)
           contentItem: QTQ.ListView
           {
             anchors.fill: parent
