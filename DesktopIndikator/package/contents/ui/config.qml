@@ -544,7 +544,7 @@ QTQ.Item {
     spacing: Kirigami.Units.largeSpacing
 
     QTQ_C.Label {
-      text: qsTr("Common settings")
+      text: qsTr("Global")
       font.bold: true
       QTQ_L.Layout.topMargin: Kirigami.Units.smallSpacing
     }
@@ -609,7 +609,7 @@ QTQ.Item {
     }
 
     QTQ_C.Label {
-      text: qsTr("Per desktop settings")
+      text: qsTr("Per desktop")
       QTQ_L.Layout.fillWidth: true
       font.bold: true
     }
