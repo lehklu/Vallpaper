@@ -646,7 +646,7 @@ QTQ.Item {
 
       QTQ_C.Switch {
         id: linkToggle
-        text: qsTr("Link")
+        text: qsTr("Linked")
         QTQ_L.Layout.alignment: Qt.AlignVCenter
       }
     }
