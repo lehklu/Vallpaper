@@ -675,6 +675,7 @@ QTQ.Item {
       QTQ_L.Layout.preferredHeight: Kirigami.Units.gridUnit * 6
       QTQ_L.Layout.preferredWidth: QTQ_L.Layout.preferredHeight * (_Root.cfg_heightWidthRatio / 10)
       QTQ_L.Layout.maximumWidth: _Root.width - Kirigami.Units.largeSpacing * 2
+      QTQ_L.Layout.margins: Kirigami.Units.largeSpacing * 2
       sourceComponent: widgetPreview
       onLoaded: {
         item.interactive = true
@@ -689,19 +690,11 @@ QTQ.Item {
       QTQ.Rectangle {
         visible: linkToggle.checked
         anchors.fill: parent
-        anchors.margins: -6
+        anchors.margins: - Kirigami.Units.largeSpacing * 2
         color: "transparent"
         border.color: Kirigami.Theme.highlightColor
-        border.width: 2
-      }
-
-      QTQ.Rectangle {
-        visible: linkToggle.checked
-        anchors.fill: parent
-        anchors.margins: -2
-        color: "transparent"
-        border.color: Kirigami.Theme.highlightColor
-        border.width: 2
+        border.width: Kirigami.Units.largeSpacing
+        radius: Kirigami.Units.largeSpacing
       }
     }
 
