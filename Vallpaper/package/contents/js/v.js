@@ -250,3 +250,26 @@ const GET_CURRENT_DESKNO = function($VirtualDesktopInfo) {
 
   return idx+1;
 }
+
+const GET_CURRENT_DESKNO_FOR_SCREEN = function($VirtualDesktopInfo, $screenName) {
+
+  if( ! $screenName || typeof $VirtualDesktopInfo.currentDesktopByScreenName !== 'function')
+  { return GET_CURRENT_DESKNO($VirtualDesktopInfo); }
+  //<--
+
+
+  const currentId = $VirtualDesktopInfo.currentDesktopByScreenName($screenName);
+  const ids = $VirtualDesktopInfo.desktopIds;
+
+  let idx = 0;
+
+  for(; idx < ids.length; idx++)
+  {
+    if(ids[idx] == currentId) { break; }
+    //<--
+
+
+  }
+
+  return idx+1;
+}
