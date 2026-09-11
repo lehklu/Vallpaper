@@ -685,6 +685,24 @@ QTQ.Item {
               ? desktopModel.get(idx).name : qsTr("Desktop %1").arg(_Root.selectedDesktop)
         })
       }
+
+      QTQ.Rectangle {
+        visible: linkToggle.checked
+        anchors.fill: parent
+        anchors.margins: -6
+        color: "transparent"
+        border.color: Kirigami.Theme.highlightColor
+        border.width: 2
+      }
+
+      QTQ.Rectangle {
+        visible: linkToggle.checked
+        anchors.fill: parent
+        anchors.margins: -2
+        color: "transparent"
+        border.color: Kirigami.Theme.highlightColor
+        border.width: 2
+      }
     }
 
     QTQ_C.Label {

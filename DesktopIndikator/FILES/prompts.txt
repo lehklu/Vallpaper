@@ -195,3 +195,5 @@ valid clipboard content.
 
 'Link': use toggle instead of button. Only the actual changed style is applied to all desktops.
 'Paste': The preview in the dropdown shall be updated.
+
+If 'Linked' is checked, show a double border around the large preview. Color of the border shall be the same as the active color of the toggle.
