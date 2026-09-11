@@ -721,13 +721,6 @@ QTQ.Item {
       }
     }
 
-    QTQ_C.Label {
-      text: qsTr("Click an element to change its style")
-      opacity: 0.7
-      horizontalAlignment: QTQ.Text.AlignHCenter
-      QTQ_L.Layout.fillWidth: true
-      QTQ_L.Layout.alignment: Qt.AlignHCenter
-    }
     QTQ.Item { QTQ_L.Layout.fillHeight: true }
   }
 
