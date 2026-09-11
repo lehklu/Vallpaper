@@ -1,3 +1,7 @@
+/*
+ *  Copyright 2026  Werner Lechner <werner.lechner@lehklu.at>
+ */
+
 import QtQuick as QTQ
 import QtQuick.Controls as QTQ_C
 import QtQuick.Dialogs as QTQ_D
@@ -78,6 +82,74 @@ QTQ.Item {
   onCfg_desktopNumberFontsChanged: syncListFromConfig("desktopNumberFonts", cfg_desktopNumberFonts)
   onCfg_desktopNumberScalesChanged: syncListFromConfig("desktopNumberScales", cfg_desktopNumberScales)
 
+  readonly property var _STYLE_PROPERTIES: [
+    { prop: "dateBackgroundColors", key: "dateBackgroundColor", fallback: _DEFAULT_COLORS_LIGHT[0] },
+    { prop: "dayNameColors", key: "dayNameColor", fallback: _DEFAULT_COLORS_DARK[0] },
+    { prop: "dayDateColors", key: "dayDateColor", fallback: _DEFAULT_COLORS_DARK[0] },
+    { prop: "dayNameFonts", key: "dayNameFont", fallback: "SansSerif" },
+    { prop: "dayDateFonts", key: "dayDateFont", fallback: "Serif" },
+    { prop: "dayNameScales", key: "dayNameScale", fallback: 50 },
+    { prop: "dayDateScales", key: "dayDateScale", fallback: 50 },
+    { prop: "desktopNameBackgroundColors", key: "desktopNameBackgroundColor", fallback: _DEFAULT_COLORS_LIGHT[0] },
+    { prop: "desktopNameColors", key: "desktopNameColor", fallback: _DEFAULT_COLORS_DARK[0] },
+    { prop: "desktopNameFonts", key: "desktopNameFont", fallback: "SansSerif" },
+    { prop: "desktopNameScales", key: "desktopNameScale", fallback: 50 },
+    { prop: "desktopNumberBackgroundColors", key: "desktopNumberBackgroundColor", fallback: _DEFAULT_COLORS_DARK[0] },
+    { prop: "desktopNumberColors", key: "desktopNumberColor", fallback: _DEFAULT_COLORS_LIGHT[0] },
+    { prop: "desktopNumberFonts", key: "desktopNumberFont", fallback: "Serif" },
+    { prop: "desktopNumberScales", key: "desktopNumberScale", fallback: 50 }
+  ]
+
+  readonly property var _STYLE_TARGETS: ({
+    "dayName": {
+      title: qsTr("Day name"),
+      fontProp: "dayNameFonts",
+      colorProp: "dayNameColors",
+      scaleProp: "dayNameScales",
+      defaultFont: "SansSerif",
+      defaultColor: _DEFAULT_COLORS_DARK[0],
+      previewText: () => Qt.locale().toString(new Date(), "dddd")
+    },
+    "dayDate": {
+      title: qsTr("Day date"),
+      fontProp: "dayDateFonts",
+      colorProp: "dayDateColors",
+      scaleProp: "dayDateScales",
+      defaultFont: "Serif",
+      defaultColor: _DEFAULT_COLORS_DARK[0],
+      previewText: () => Qt.locale().toString(new Date(), "dd.MM")
+    },
+    "desktopName": {
+      title: qsTr("Desktop name"),
+      fontProp: "desktopNameFonts",
+      colorProp: "desktopNameColors",
+      scaleProp: "desktopNameScales",
+      defaultFont: "SansSerif",
+      defaultColor: _DEFAULT_COLORS_DARK[0],
+      previewText: () => {
+        var idx = _Root.selectedDesktop - 1
+        return (idx >= 0 && idx < desktopModel.count && desktopModel.get(idx))
+            ? desktopModel.get(idx).name : qsTr("Desktop %1").arg(_Root.selectedDesktop)
+      }
+    },
+    "desktopNumber": {
+      title: qsTr("Desktop number"),
+      fontProp: "desktopNumberFonts",
+      colorProp: "desktopNumberColors",
+      scaleProp: "desktopNumberScales",
+      defaultFont: "Serif",
+      defaultColor: _DEFAULT_COLORS_LIGHT[0],
+      previewText: () => String(_Root.selectedDesktop)
+    }
+  })
+
+  readonly property var _BG_TARGET_PROPS: ({
+    "date": "dateBackgroundColors",
+    "desktopNameBackground": "desktopNameBackgroundColors",
+    "number": "desktopNumberBackgroundColors",
+    "desktopNumber": "desktopNumberBackgroundColors"
+  })
+
   function syncListFromConfig(propName, jsonStr) {
     if (jsonStr)
     {
@@ -93,7 +165,6 @@ QTQ.Item {
       {}
     }
   }
-
 
   component SectionSettingsRow: QTQ_L.RowLayout
   {
@@ -148,7 +219,15 @@ QTQ.Item {
   }
 
   function sectionWidthValue(key) {
-    return key === "date" ? cfg_sectionDateWidthWeight : key === "desktopName" ? cfg_sectionDesktopNameWidthWeight : cfg_sectionDesktopNumberWidthWeight
+    if (key === "date")
+    {
+      return cfg_sectionDateWidthWeight
+    }
+    if (key === "desktopName")
+    {
+      return cfg_sectionDesktopNameWidthWeight
+    }
+    return cfg_sectionDesktopNumberWidthWeight
   }
 
   function setSectionWidth(key, value) {
@@ -236,30 +315,12 @@ QTQ.Item {
   }
 
   function loadSettings() {
-    var listNames = [
-      "dateBackgroundColors", "desktopNumberBackgroundColors",
-      "dayNameColors", "dayDateColors", "desktopNumberColors",
-      "desktopNameColors", "desktopNameBackgroundColors",
-      "dayNameFonts", "dayDateFonts", "desktopNumberFonts", "desktopNameFonts",
-      "dayNameScales", "dayDateScales", "desktopNameScales", "desktopNumberScales"
-    ]
-    for (var l = 0; l < listNames.length; ++l)
+    for (var l = 0; l < _STYLE_PROPERTIES.length; ++l)
     {
-      var cfgKey = "cfg_" + listNames[l]
-      var stored = _Root[cfgKey] || (KDE_plasmoid.Plasmoid.configuration && KDE_plasmoid.Plasmoid.configuration[listNames[l]])
-      if (stored)
-      {
-        try
-        {
-          var parsed = JSON.parse(stored)
-          if (Array.isArray(parsed) && parsed.length > 0)
-          {
-            _Root[listNames[l]] = parsed
-          }
-        }
-        catch (e)
-        {}
-      }
+      var propName = _STYLE_PROPERTIES[l].prop
+      var cfgKey = "cfg_" + propName
+      var stored = _Root[cfgKey] || (KDE_plasmoid.Plasmoid.configuration && KDE_plasmoid.Plasmoid.configuration[propName])
+      syncListFromConfig(propName, stored)
     }
   }
 
@@ -294,24 +355,15 @@ QTQ.Item {
 
   function getDesktopStyle(idx) {
     var deskIdx = Math.max(0, idx)
-    return {
-      type: "DesktopIndicatorStyle",
-      dateBackgroundColor: (dateBackgroundColors && dateBackgroundColors[deskIdx]) || _DEFAULT_COLORS_LIGHT[0],
-      dayNameColor: (dayNameColors && dayNameColors[deskIdx]) || _DEFAULT_COLORS_DARK[0],
-      dayDateColor: (dayDateColors && dayDateColors[deskIdx]) || _DEFAULT_COLORS_DARK[0],
-      dayNameFont: (dayNameFonts && dayNameFonts[deskIdx]) || "SansSerif",
-      dayDateFont: (dayDateFonts && dayDateFonts[deskIdx]) || "Serif",
-      dayNameScale: Number((dayNameScales && dayNameScales[deskIdx]) || 50),
-      dayDateScale: Number((dayDateScales && dayDateScales[deskIdx]) || 50),
-      desktopNameBackgroundColor: (desktopNameBackgroundColors && desktopNameBackgroundColors[deskIdx]) || _DEFAULT_COLORS_LIGHT[0],
-      desktopNameColor: (desktopNameColors && desktopNameColors[deskIdx]) || _DEFAULT_COLORS_DARK[0],
-      desktopNameFont: (desktopNameFonts && desktopNameFonts[deskIdx]) || "SansSerif",
-      desktopNameScale: Number((desktopNameScales && desktopNameScales[deskIdx]) || 50),
-      desktopNumberBackgroundColor: (desktopNumberBackgroundColors && desktopNumberBackgroundColors[deskIdx]) || _DEFAULT_COLORS_DARK[0],
-      desktopNumberColor: (desktopNumberColors && desktopNumberColors[deskIdx]) || _DEFAULT_COLORS_LIGHT[0],
-      desktopNumberFont: (desktopNumberFonts && desktopNumberFonts[deskIdx]) || "Serif",
-      desktopNumberScale: Number((desktopNumberScales && desktopNumberScales[deskIdx]) || 50)
+    var result = { type: "DesktopIndicatorStyle" }
+    for (var i = 0; i < _STYLE_PROPERTIES.length; ++i)
+    {
+      var item = _STYLE_PROPERTIES[i]
+      var list = _Root[item.prop]
+      var val = (list && list[deskIdx] !== undefined) ? list[deskIdx] : item.fallback
+      result[item.key] = typeof item.fallback === "number" ? Number(val) : val
     }
+    return result
   }
 
   function applyStyleToDesktop(style, deskIdx) {
@@ -324,32 +376,13 @@ QTQ.Item {
       applyStyleToAllDesktops(style)
       return
     }
-
-    var mapping = [
-      { prop: "dateBackgroundColors", val: style.dateBackgroundColor },
-      { prop: "dayNameColors", val: style.dayNameColor },
-      { prop: "dayDateColors", val: style.dayDateColor },
-      { prop: "dayNameFonts", val: style.dayNameFont },
-      { prop: "dayDateFonts", val: style.dayDateFont },
-      { prop: "dayNameScales", val: style.dayNameScale },
-      { prop: "dayDateScales", val: style.dayDateScale },
-      { prop: "desktopNameBackgroundColors", val: style.desktopNameBackgroundColor },
-      { prop: "desktopNameColors", val: style.desktopNameColor },
-      { prop: "desktopNameFonts", val: style.desktopNameFont },
-      { prop: "desktopNameScales", val: style.desktopNameScale },
-      { prop: "desktopNumberBackgroundColors", val: style.desktopNumberBackgroundColor },
-      { prop: "desktopNumberColors", val: style.desktopNumberColor },
-      { prop: "desktopNumberFonts", val: style.desktopNumberFont },
-      { prop: "desktopNumberScales", val: style.desktopNumberScale }
-    ]
-
-    for (var i = 0; i < mapping.length; ++i)
+    for (var i = 0; i < _STYLE_PROPERTIES.length; ++i)
     {
-      var m = mapping[i]
-      if (m.val !== undefined)
+      var item = _STYLE_PROPERTIES[i]
+      if (style[item.key] !== undefined)
       {
-        _Root[m.prop] = setAt(_Root[m.prop], deskIdx, m.val)
-        _Root["cfg_" + m.prop] = JSON.stringify(_Root[m.prop])
+        _Root[item.prop] = setAt(_Root[item.prop], deskIdx, style[item.key])
+        _Root["cfg_" + item.prop] = JSON.stringify(_Root[item.prop])
       }
     }
   }
@@ -360,36 +393,18 @@ QTQ.Item {
       return
     }
     var count = Math.max(desktopModel.count || 0, 1)
-    var mapping = [
-      { prop: "dateBackgroundColors", val: style.dateBackgroundColor },
-      { prop: "dayNameColors", val: style.dayNameColor },
-      { prop: "dayDateColors", val: style.dayDateColor },
-      { prop: "dayNameFonts", val: style.dayNameFont },
-      { prop: "dayDateFonts", val: style.dayDateFont },
-      { prop: "dayNameScales", val: style.dayNameScale },
-      { prop: "dayDateScales", val: style.dayDateScale },
-      { prop: "desktopNameBackgroundColors", val: style.desktopNameBackgroundColor },
-      { prop: "desktopNameColors", val: style.desktopNameColor },
-      { prop: "desktopNameFonts", val: style.desktopNameFont },
-      { prop: "desktopNameScales", val: style.desktopNameScale },
-      { prop: "desktopNumberBackgroundColors", val: style.desktopNumberBackgroundColor },
-      { prop: "desktopNumberColors", val: style.desktopNumberColor },
-      { prop: "desktopNumberFonts", val: style.desktopNumberFont },
-      { prop: "desktopNumberScales", val: style.desktopNumberScale }
-    ]
-
-    for (var i = 0; i < mapping.length; ++i)
+    for (var i = 0; i < _STYLE_PROPERTIES.length; ++i)
     {
-      var m = mapping[i]
-      if (m.val !== undefined)
+      var item = _STYLE_PROPERTIES[i]
+      if (style[item.key] !== undefined)
       {
         var arr = []
         for (var d = 0; d < count; ++d)
         {
-          arr.push(m.val)
+          arr.push(style[item.key])
         }
-        _Root[m.prop] = arr
-        _Root["cfg_" + m.prop] = JSON.stringify(arr)
+        _Root[item.prop] = arr
+        _Root["cfg_" + item.prop] = JSON.stringify(arr)
       }
     }
   }
@@ -478,12 +493,10 @@ QTQ.Item {
   function openFont(target, current) {
     fontDialog.target = target
     fontDialog.selectedFamily = current
-    fontDialog.previewText = target === "styleFont"
-        ? styleDialog.target === "dayName" ? Qt.locale().toString(new Date(), "dddd")
-            : styleDialog.target === "dayDate" ? Qt.locale().toString(new Date(), "dd.MM")
-                : styleDialog.target === "desktopName" ? desktopModel.get(selectedDesktop - 1).name
-                    : String(selectedDesktop)
-        : String(selectedDesktop)
+    var styleTarget = target === "styleFont" ? styleDialog.target : target
+    var targetKey = styleTarget === "numberText" ? "desktopNumber" : styleTarget
+    var info = _STYLE_TARGETS[targetKey]
+    fontDialog.previewText = info ? info.previewText() : String(selectedDesktop)
     fontDialog.open()
   }
 
@@ -775,19 +788,14 @@ QTQ.Item {
   }
 
   function openStyle(target) {
+    var targetKey = target === "numberText" ? "desktopNumber" : target
+    var info = _STYLE_TARGETS[targetKey]
+    var deskIdx = selectedDesktop - 1
     styleDialog.target = target
-    styleDialog.fontName = (target === "dayName" ? dayNameFonts[selectedDesktop - 1]
-            : target === "dayDate" ? dayDateFonts[selectedDesktop - 1]
-                : target === "desktopName" ? desktopNameFonts[selectedDesktop - 1] : desktopNumberFonts[selectedDesktop - 1])
-        || (target === "dayName" ? "SansSerif" : "Serif")
-    styleDialog.selectedTextColor = (target === "dayName" ? dayNameColors[selectedDesktop - 1]
-            : target === "dayDate" ? dayDateColors[selectedDesktop - 1]
-                : target === "desktopName" ? desktopNameColors[selectedDesktop - 1] : desktopNumberColors[selectedDesktop - 1])
-        || _DEFAULT_COLORS_DARK[0]
-    styleDialog.scaleValue = Number((target === "dayName" ? dayNameScales[selectedDesktop - 1]
-            : target === "dayDate" ? dayDateScales[selectedDesktop - 1]
-                : target === "desktopName" ? desktopNameScales[selectedDesktop - 1] : desktopNumberScales[selectedDesktop - 1])
-        || 50)
+    styleDialog.title = info ? info.title : qsTr("Style")
+    styleDialog.fontName = (_Root[info.fontProp] && _Root[info.fontProp][deskIdx]) || info.defaultFont
+    styleDialog.selectedTextColor = (_Root[info.colorProp] && _Root[info.colorProp][deskIdx]) || info.defaultColor
+    styleDialog.scaleValue = Number((_Root[info.scaleProp] && _Root[info.scaleProp][deskIdx]) || 50)
     styleDialog.open()
   }
 
@@ -797,8 +805,6 @@ QTQ.Item {
     anchors.centerIn: undefined
     x: Math.round((largePreview.width - width) / 2)
     y: -height - Kirigami.Units.smallSpacing
-    title: target === "dayName" ? qsTr("Day name") : target === "dayDate" ? qsTr("Day date")
-        : target === "desktopName" ? qsTr("Desktop name") : qsTr("Desktop number")
     standardButtons: QTQ_C.DialogButtonBox.Close
     property string target: ""
     property string fontName: "Serif"
@@ -835,21 +841,11 @@ QTQ.Item {
           value: styleDialog.scaleValue
           onValueModified: {
             styleDialog.scaleValue = value
-            if (styleDialog.target === "dayName")
+            var targetKey = styleDialog.target === "numberText" ? "desktopNumber" : styleDialog.target
+            var info = _STYLE_TARGETS[targetKey]
+            if (info)
             {
-              _Root.updateStyleProperty("dayNameScales", value)
-            }
-            else if (styleDialog.target === "dayDate")
-            {
-              _Root.updateStyleProperty("dayDateScales", value)
-            }
-            else if (styleDialog.target === "desktopName")
-            {
-              _Root.updateStyleProperty("desktopNameScales", value)
-            }
-            else
-            {
-              _Root.updateStyleProperty("desktopNumberScales", value)
+              _Root.updateStyleProperty(info.scaleProp, value)
             }
           }
           QTQ_L.Layout.preferredWidth: Kirigami.Units.gridUnit * 5
@@ -862,36 +858,19 @@ QTQ.Item {
     id: colorDialog
     property string target: ""
     onAccepted: {
-      if (target === "date")
+      var bgProp = _BG_TARGET_PROPS[target]
+      if (bgProp)
       {
-        _Root.updateStyleProperty("dateBackgroundColors", selectedColor)
-      }
-      else if (target === "desktopNumber" || target === "number")
-      {
-        _Root.updateStyleProperty("desktopNumberBackgroundColors", selectedColor)
-      }
-      else if (target === "desktopNameBackground")
-      {
-        _Root.updateStyleProperty("desktopNameBackgroundColors", selectedColor)
+        _Root.updateStyleProperty(bgProp, selectedColor)
       }
       else
       {
         styleDialog.selectedTextColor = selectedColor
-        if (styleDialog.target === "dayName")
+        var targetKey = styleDialog.target === "numberText" ? "desktopNumber" : styleDialog.target
+        var info = _STYLE_TARGETS[targetKey]
+        if (info)
         {
-          _Root.updateStyleProperty("dayNameColors", selectedColor)
-        }
-        else if (styleDialog.target === "dayDate")
-        {
-          _Root.updateStyleProperty("dayDateColors", selectedColor)
-        }
-        else if (styleDialog.target === "desktopName")
-        {
-          _Root.updateStyleProperty("desktopNameColors", selectedColor)
-        }
-        else
-        {
-          _Root.updateStyleProperty("desktopNumberColors", selectedColor)
+          _Root.updateStyleProperty(info.colorProp, selectedColor)
         }
       }
     }
@@ -929,40 +908,15 @@ QTQ.Item {
       {
         return
       }
-      if (target === "dayName")
+      var targetKey = target === "styleFont" ? styleDialog.target : target
+      if (targetKey === "numberText")
       {
-        _Root.updateStyleProperty("dayNameFonts", family)
+        targetKey = "desktopNumber"
       }
-      else if (target === "dayDate")
+      var info = _STYLE_TARGETS[targetKey]
+      if (info)
       {
-        _Root.updateStyleProperty("dayDateFonts", family)
-      }
-      else if (target === "desktopName")
-      {
-        _Root.updateStyleProperty("desktopNameFonts", family)
-      }
-      else if (target === "numberText")
-      {
-        _Root.updateStyleProperty("desktopNumberFonts", family)
-      }
-      else if (target === "styleFont")
-      {
-        if (styleDialog.target === "dayName")
-        {
-          _Root.updateStyleProperty("dayNameFonts", family)
-        }
-        else if (styleDialog.target === "dayDate")
-        {
-          _Root.updateStyleProperty("dayDateFonts", family)
-        }
-        else if (styleDialog.target === "desktopName")
-        {
-          _Root.updateStyleProperty("desktopNameFonts", family)
-        }
-        else
-        {
-          _Root.updateStyleProperty("desktopNumberFonts", family)
-        }
+        _Root.updateStyleProperty(info.fontProp, family)
       }
     }
   }

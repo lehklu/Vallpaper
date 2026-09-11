@@ -91,169 +91,169 @@ QTQ.Item {
 
     QTQ.Rectangle {
       id: dateBlock
-    x: _Root.sectionOffset(_Root.dateSectionOrder)
-    width: _Root.sectionWidth(_Root.sectionDateWidthWeight)
-    height: parent.height
-    visible: _Root.sectionDateWidthWeight > 0
-    color: _Root.dateBackgroundColor
-    border.color: _Root.interactive && dateMouse.containsMouse && !dayNameMouse.containsMouse && !dayDateMouse.containsMouse
-        ? Kirigami.Theme.highlightColor : "transparent"
-    border.width: 2
-
-    QTQ.MouseArea {
-      id: dateMouse
-      anchors.fill: parent
-      hoverEnabled: _Root.interactive
-      enabled: _Root.interactive
-      onClicked: _Root.colorRequested("date", dateBlock.color)
-    }
-
-    QTQ.Text {
-      id: dayNameText
-      anchors.top: parent.top
-      anchors.horizontalCenter: parent.horizontalCenter
-
-      text: Qt.locale().toString(_Root.currentDate, "dddd")
-      color: _Root.dayNameColor
-      font.family: _Root.dayNameFont
-      font.pixelSize: Math.max(1, parent.height * (_Root.dayNameScale / 100))
-      font.weight: 400
-
-      QTQ.Rectangle {
-        anchors.fill: parent
-        color: "transparent"
-        border.color: _Root.interactive && dayNameMouse.containsMouse ? Kirigami.Theme.highlightColor : "transparent"
-        border.width: 2
-      }
-    }
-
-    QTQ.Text {
-      id: dayDateText
-      anchors.bottom: parent.bottom
-      anchors.horizontalCenter: parent.horizontalCenter
-
-      text: Qt.locale().toString(_Root.currentDate, "dd.MM")
-      color: _Root.dayDateColor
-      font.family: _Root.dayDateFont
-      font.pixelSize: Math.max(1, parent.height * (_Root.dayDateScale / 100))
-      font.weight: 600
+      x: _Root.sectionOffset(_Root.dateSectionOrder)
+      width: _Root.sectionWidth(_Root.sectionDateWidthWeight)
+      height: parent.height
+      visible: _Root.sectionDateWidthWeight > 0
+      color: _Root.dateBackgroundColor
+      border.color: _Root.interactive && dateMouse.containsMouse && !dayNameMouse.containsMouse && !dayDateMouse.containsMouse
+          ? Kirigami.Theme.highlightColor : "transparent"
+      border.width: 2
 
       QTQ.MouseArea {
-        id: dayDateMouse
+        id: dateMouse
         anchors.fill: parent
         hoverEnabled: _Root.interactive
         enabled: _Root.interactive
-        onClicked: _Root.styleRequested("dayDate")
+        onClicked: _Root.colorRequested("date", dateBlock.color)
       }
 
-      QTQ.Rectangle {
-        anchors.fill: parent
-        color: "transparent"
-        border.color: _Root.interactive && dayDateMouse.containsMouse ? Kirigami.Theme.highlightColor : "transparent"
-        border.width: 2
+      QTQ.Text {
+        id: dayNameText
+        anchors.top: parent.top
+        anchors.horizontalCenter: parent.horizontalCenter
+
+        text: Qt.locale().toString(_Root.currentDate, "dddd")
+        color: _Root.dayNameColor
+        font.family: _Root.dayNameFont
+        font.pixelSize: Math.max(1, parent.height * (_Root.dayNameScale / 100))
+        font.weight: 400
+
+        QTQ.Rectangle {
+          anchors.fill: parent
+          color: "transparent"
+          border.color: _Root.interactive && dayNameMouse.containsMouse ? Kirigami.Theme.highlightColor : "transparent"
+          border.width: 2
+        }
       }
-    }
 
-    QTQ.MouseArea {
-      id: dayNameMouse
-      anchors.top: parent.top
-      anchors.left: parent.left
-      anchors.right: parent.right
-      height: parent.height / 2
-      hoverEnabled: _Root.interactive
-      enabled: _Root.interactive
-      onClicked: _Root.styleRequested("dayName")
-    }
-  }
+      QTQ.Text {
+        id: dayDateText
+        anchors.bottom: parent.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
 
-  QTQ.Rectangle {
-    id: nameBlock
-    x: _Root.sectionOffset(_Root.nameSectionOrder)
-    width: _Root.sectionWidth(_Root.sectionDesktopNameWidthWeight)
-    height: parent.height
-    visible: _Root.sectionDesktopNameWidthWeight > 0
-    color: _Root.desktopNameBackgroundColor
-    border.color: _Root.interactive && nameMouse.containsMouse && !desktopNameTextMouse.containsMouse
-        ? Kirigami.Theme.highlightColor : "transparent"
-    border.width: 2
+        text: Qt.locale().toString(_Root.currentDate, "dd.MM")
+        color: _Root.dayDateColor
+        font.family: _Root.dayDateFont
+        font.pixelSize: Math.max(1, parent.height * (_Root.dayDateScale / 100))
+        font.weight: 600
 
-    QTQ.MouseArea {
-      id: nameMouse
-      anchors.fill: parent
-      hoverEnabled: _Root.interactive
-      enabled: _Root.interactive
-      onClicked: _Root.colorRequested("desktopNameBackground", nameBlock.color)
-    }
+        QTQ.MouseArea {
+          id: dayDateMouse
+          anchors.fill: parent
+          hoverEnabled: _Root.interactive
+          enabled: _Root.interactive
+          onClicked: _Root.styleRequested("dayDate")
+        }
 
-    QTQ_C.Label {
-      anchors.centerIn: parent
-      width: Math.max(0, parent.width - Kirigami.Units.smallSpacing * 2)
-      text: _Root.desktopName
-      color: _Root.desktopNameColor
-      font.family: _Root.desktopNameFont
-      font.pixelSize: Math.max(1, parent.height * (_Root.desktopNameScale / 100))
-      horizontalAlignment: QTQ.Text.AlignHCenter
-      elide: QTQ.Text.ElideRight
+        QTQ.Rectangle {
+          anchors.fill: parent
+          color: "transparent"
+          border.color: _Root.interactive && dayDateMouse.containsMouse ? Kirigami.Theme.highlightColor : "transparent"
+          border.width: 2
+        }
+      }
 
       QTQ.MouseArea {
-        id: desktopNameTextMouse
+        id: dayNameMouse
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: parent.height / 2
+        hoverEnabled: _Root.interactive
+        enabled: _Root.interactive
+        onClicked: _Root.styleRequested("dayName")
+      }
+    }
+
+    QTQ.Rectangle {
+      id: nameBlock
+      x: _Root.sectionOffset(_Root.nameSectionOrder)
+      width: _Root.sectionWidth(_Root.sectionDesktopNameWidthWeight)
+      height: parent.height
+      visible: _Root.sectionDesktopNameWidthWeight > 0
+      color: _Root.desktopNameBackgroundColor
+      border.color: _Root.interactive && nameMouse.containsMouse && !desktopNameTextMouse.containsMouse
+          ? Kirigami.Theme.highlightColor : "transparent"
+      border.width: 2
+
+      QTQ.MouseArea {
+        id: nameMouse
         anchors.fill: parent
         hoverEnabled: _Root.interactive
         enabled: _Root.interactive
-        onClicked: _Root.styleRequested("desktopName")
+        onClicked: _Root.colorRequested("desktopNameBackground", nameBlock.color)
       }
 
-      QTQ.Rectangle {
-        anchors.fill: parent
-        color: "transparent"
-        border.color: _Root.interactive && desktopNameTextMouse.containsMouse ? Kirigami.Theme.highlightColor : "transparent"
-        border.width: 2
+      QTQ_C.Label {
+        anchors.centerIn: parent
+        width: Math.max(0, parent.width - Kirigami.Units.smallSpacing * 2)
+        text: _Root.desktopName
+        color: _Root.desktopNameColor
+        font.family: _Root.desktopNameFont
+        font.pixelSize: Math.max(1, parent.height * (_Root.desktopNameScale / 100))
+        horizontalAlignment: QTQ.Text.AlignHCenter
+        elide: QTQ.Text.ElideRight
+
+        QTQ.MouseArea {
+          id: desktopNameTextMouse
+          anchors.fill: parent
+          hoverEnabled: _Root.interactive
+          enabled: _Root.interactive
+          onClicked: _Root.styleRequested("desktopName")
+        }
+
+        QTQ.Rectangle {
+          anchors.fill: parent
+          color: "transparent"
+          border.color: _Root.interactive && desktopNameTextMouse.containsMouse ? Kirigami.Theme.highlightColor : "transparent"
+          border.width: 2
+        }
       }
     }
-  }
 
-  QTQ.Rectangle {
-    id: numberBlock
-    x: _Root.sectionOffset(_Root.sectionDesktopNumberOrder)
-    width: _Root.sectionWidth(_Root.sectionDesktopNumberWidthWeight)
-    height: parent.height
-    visible: _Root.sectionDesktopNumberWidthWeight > 0
-    color: _Root.numberBackgroundColor
-    border.color: _Root.interactive && numberMouse.containsMouse && !numberTextMouse.containsMouse
-        ? Kirigami.Theme.highlightColor : "transparent"
-    border.width: 2
-
-    QTQ.MouseArea {
-      id: numberMouse
-      anchors.fill: parent
-      hoverEnabled: _Root.interactive
-      enabled: _Root.interactive
-      onClicked: _Root.colorRequested("number", numberBlock.color)
-    }
-
-    QTQ.Text {
-      anchors.centerIn: parent
-      text: _Root.desktopNo
-      color: _Root.numberTextColor
-      font.family: _Root.numberFont
-      font.pixelSize: Math.max(1, parent.height * (_Root.numberScale / 100))
-      font.weight: 700
+    QTQ.Rectangle {
+      id: numberBlock
+      x: _Root.sectionOffset(_Root.sectionDesktopNumberOrder)
+      width: _Root.sectionWidth(_Root.sectionDesktopNumberWidthWeight)
+      height: parent.height
+      visible: _Root.sectionDesktopNumberWidthWeight > 0
+      color: _Root.numberBackgroundColor
+      border.color: _Root.interactive && numberMouse.containsMouse && !numberTextMouse.containsMouse
+          ? Kirigami.Theme.highlightColor : "transparent"
+      border.width: 2
 
       QTQ.MouseArea {
-        id: numberTextMouse
+        id: numberMouse
         anchors.fill: parent
         hoverEnabled: _Root.interactive
         enabled: _Root.interactive
-        onClicked: _Root.styleRequested("numberText")
+        onClicked: _Root.colorRequested("number", numberBlock.color)
       }
 
-      QTQ.Rectangle {
-        anchors.fill: parent
-        color: "transparent"
-        border.color: _Root.interactive && numberTextMouse.containsMouse ? Kirigami.Theme.highlightColor : "transparent"
-        border.width: 2
+      QTQ.Text {
+        anchors.centerIn: parent
+        text: _Root.desktopNo
+        color: _Root.numberTextColor
+        font.family: _Root.numberFont
+        font.pixelSize: Math.max(1, parent.height * (_Root.numberScale / 100))
+        font.weight: 700
+
+        QTQ.MouseArea {
+          id: numberTextMouse
+          anchors.fill: parent
+          hoverEnabled: _Root.interactive
+          enabled: _Root.interactive
+          onClicked: _Root.styleRequested("numberText")
+        }
+
+        QTQ.Rectangle {
+          anchors.fill: parent
+          color: "transparent"
+          border.color: _Root.interactive && numberTextMouse.containsMouse ? Kirigami.Theme.highlightColor : "transparent"
+          border.width: 2
+        }
       }
     }
   }
-}
 }
