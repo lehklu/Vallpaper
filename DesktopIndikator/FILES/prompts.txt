@@ -199,3 +199,7 @@ valid clipboard content.
 If 'Linked' is checked, show a double border around the large preview. Color of the border shall be the same as the active color of the toggle.
 
 Refactor
+
+Refactor
+
+Center the text 'Click an element to change its style'

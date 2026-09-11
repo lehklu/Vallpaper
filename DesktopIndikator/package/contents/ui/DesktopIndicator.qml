@@ -48,12 +48,15 @@ QTQ.Item {
   signal styleRequested(string target)
 
   function totalSectionsWeight() {
-    return sectionDateWidthWeight + sectionDesktopNameWidthWeight + sectionDesktopNumberWidthWeight
+    var wDate = sectionDateWidthWeight > 0 ? sectionDateWidthWeight : 0
+    var wName = sectionDesktopNameWidthWeight > 0 ? sectionDesktopNameWidthWeight : 0
+    var wNum = sectionDesktopNumberWidthWeight > 0 ? sectionDesktopNumberWidthWeight : 0
+    return wDate + wName + wNum
   }
 
   function sectionWidth(weight) {
     var total = totalSectionsWeight()
-    return total > 0 ? contentItem.width * weight / total : 0
+    return total > 0 && weight > 0 ? contentItem.width * weight / total : 0
   }
 
   function sectionOffset(order) {
@@ -63,15 +66,15 @@ QTQ.Item {
       return 0
     }
     var offsetWeight = 0
-    if (dateSectionOrder < order)
+    if (dateSectionOrder < order && sectionDateWidthWeight > 0)
     {
       offsetWeight += sectionDateWidthWeight
     }
-    if (nameSectionOrder < order)
+    if (nameSectionOrder < order && sectionDesktopNameWidthWeight > 0)
     {
       offsetWeight += sectionDesktopNameWidthWeight
     }
-    if (sectionDesktopNumberOrder < order)
+    if (sectionDesktopNumberOrder < order && sectionDesktopNumberWidthWeight > 0)
     {
       offsetWeight += sectionDesktopNumberWidthWeight
     }
@@ -119,6 +122,14 @@ QTQ.Item {
         font.pixelSize: Math.max(1, parent.height * (_Root.dayNameScale / 100))
         font.weight: 400
 
+        QTQ.MouseArea {
+          id: dayNameMouse
+          anchors.fill: parent
+          hoverEnabled: _Root.interactive
+          enabled: _Root.interactive
+          onClicked: _Root.styleRequested("dayName")
+        }
+
         QTQ.Rectangle {
           anchors.fill: parent
           color: "transparent"
@@ -153,17 +164,6 @@ QTQ.Item {
           border.width: 2
         }
       }
-
-      QTQ.MouseArea {
-        id: dayNameMouse
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-        height: parent.height / 2
-        hoverEnabled: _Root.interactive
-        enabled: _Root.interactive
-        onClicked: _Root.styleRequested("dayName")
-      }
     }
 
     QTQ.Rectangle {
@@ -186,6 +186,7 @@ QTQ.Item {
       }
 
       QTQ_C.Label {
+        id: desktopNameText
         anchors.centerIn: parent
         width: Math.max(0, parent.width - Kirigami.Units.smallSpacing * 2)
         text: _Root.desktopName
@@ -232,6 +233,7 @@ QTQ.Item {
       }
 
       QTQ.Text {
+        id: numberText
         anchors.centerIn: parent
         text: _Root.desktopNo
         color: _Root.numberTextColor

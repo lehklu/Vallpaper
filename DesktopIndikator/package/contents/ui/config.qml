@@ -13,8 +13,10 @@ import org.kde.taskmanager as KDE_taskmanager
 QTQ.Item {
   id: _Root
 
-  readonly property var _DEFAULT_COLORS_DARK: ["#071169"]
-  readonly property var _DEFAULT_COLORS_LIGHT: ["#ffffff"]
+  readonly property string _DEFAULT_DARK_COLOR: "#071169"
+  readonly property string _DEFAULT_LIGHT_COLOR: "#ffffff"
+  readonly property var _DEFAULT_COLORS_DARK: [_DEFAULT_DARK_COLOR]
+  readonly property var _DEFAULT_COLORS_LIGHT: [_DEFAULT_LIGHT_COLOR]
 
   property var title // for KDE Settings page
 
@@ -83,19 +85,19 @@ QTQ.Item {
   onCfg_desktopNumberScalesChanged: syncListFromConfig("desktopNumberScales", cfg_desktopNumberScales)
 
   readonly property var _STYLE_PROPERTIES: [
-    { prop: "dateBackgroundColors", key: "dateBackgroundColor", fallback: _DEFAULT_COLORS_LIGHT[0] },
-    { prop: "dayNameColors", key: "dayNameColor", fallback: _DEFAULT_COLORS_DARK[0] },
-    { prop: "dayDateColors", key: "dayDateColor", fallback: _DEFAULT_COLORS_DARK[0] },
+    { prop: "dateBackgroundColors", key: "dateBackgroundColor", fallback: _DEFAULT_LIGHT_COLOR },
+    { prop: "dayNameColors", key: "dayNameColor", fallback: _DEFAULT_DARK_COLOR },
+    { prop: "dayDateColors", key: "dayDateColor", fallback: _DEFAULT_DARK_COLOR },
     { prop: "dayNameFonts", key: "dayNameFont", fallback: "SansSerif" },
     { prop: "dayDateFonts", key: "dayDateFont", fallback: "Serif" },
     { prop: "dayNameScales", key: "dayNameScale", fallback: 50 },
     { prop: "dayDateScales", key: "dayDateScale", fallback: 50 },
-    { prop: "desktopNameBackgroundColors", key: "desktopNameBackgroundColor", fallback: _DEFAULT_COLORS_LIGHT[0] },
-    { prop: "desktopNameColors", key: "desktopNameColor", fallback: _DEFAULT_COLORS_DARK[0] },
+    { prop: "desktopNameBackgroundColors", key: "desktopNameBackgroundColor", fallback: _DEFAULT_LIGHT_COLOR },
+    { prop: "desktopNameColors", key: "desktopNameColor", fallback: _DEFAULT_DARK_COLOR },
     { prop: "desktopNameFonts", key: "desktopNameFont", fallback: "SansSerif" },
     { prop: "desktopNameScales", key: "desktopNameScale", fallback: 50 },
-    { prop: "desktopNumberBackgroundColors", key: "desktopNumberBackgroundColor", fallback: _DEFAULT_COLORS_DARK[0] },
-    { prop: "desktopNumberColors", key: "desktopNumberColor", fallback: _DEFAULT_COLORS_LIGHT[0] },
+    { prop: "desktopNumberBackgroundColors", key: "desktopNumberBackgroundColor", fallback: _DEFAULT_DARK_COLOR },
+    { prop: "desktopNumberColors", key: "desktopNumberColor", fallback: _DEFAULT_LIGHT_COLOR },
     { prop: "desktopNumberFonts", key: "desktopNumberFont", fallback: "Serif" },
     { prop: "desktopNumberScales", key: "desktopNumberScale", fallback: 50 }
   ]
@@ -107,7 +109,7 @@ QTQ.Item {
       colorProp: "dayNameColors",
       scaleProp: "dayNameScales",
       defaultFont: "SansSerif",
-      defaultColor: _DEFAULT_COLORS_DARK[0],
+      defaultColor: _DEFAULT_DARK_COLOR,
       previewText: () => Qt.locale().toString(new Date(), "dddd")
     },
     "dayDate": {
@@ -116,7 +118,7 @@ QTQ.Item {
       colorProp: "dayDateColors",
       scaleProp: "dayDateScales",
       defaultFont: "Serif",
-      defaultColor: _DEFAULT_COLORS_DARK[0],
+      defaultColor: _DEFAULT_DARK_COLOR,
       previewText: () => Qt.locale().toString(new Date(), "dd.MM")
     },
     "desktopName": {
@@ -125,7 +127,7 @@ QTQ.Item {
       colorProp: "desktopNameColors",
       scaleProp: "desktopNameScales",
       defaultFont: "SansSerif",
-      defaultColor: _DEFAULT_COLORS_DARK[0],
+      defaultColor: _DEFAULT_DARK_COLOR,
       previewText: () => {
         var idx = _Root.selectedDesktop - 1
         return (idx >= 0 && idx < desktopModel.count && desktopModel.get(idx))
@@ -138,7 +140,7 @@ QTQ.Item {
       colorProp: "desktopNumberColors",
       scaleProp: "desktopNumberScales",
       defaultFont: "Serif",
-      defaultColor: _DEFAULT_COLORS_LIGHT[0],
+      defaultColor: _DEFAULT_LIGHT_COLOR,
       previewText: () => String(_Root.selectedDesktop)
     }
   })
@@ -164,6 +166,16 @@ QTQ.Item {
       catch (e)
       {}
     }
+  }
+
+  function getDesktopProperty(propName, desktopNo, fallback) {
+    var list = _Root[propName]
+    var idx = desktopNo - 1
+    if (list && idx >= 0 && idx < list.length && list[idx] !== undefined && list[idx] !== null && list[idx] !== "")
+    {
+      return list[idx]
+    }
+    return fallback
   }
 
   component SectionSettingsRow: QTQ_L.RowLayout
@@ -534,16 +546,14 @@ QTQ.Item {
   function rebuildDesktops() {
     var previousIndex = desktopBox.currentIndex
     desktopModel.clear()
-    // Use every available source: Plasma versions differ in when these
-    // properties become populated while the configuration page starts.
     var ids = desktopInfo.desktopIds || []
     var names = desktopInfo.desktopNames || []
     var count = Math.max(desktopInfo.numberOfDesktops || 0,
         ids.length || 0, names.length || 0, 1)
     for (var i = 0; i < count; ++i)
     {
-      var desktopName = desktopInfo.desktopNames && desktopInfo.desktopNames[i]
-          ? desktopInfo.desktopNames[i] : qsTr("Desktop %1").arg(i + 1)
+      var desktopName = (names && names[i])
+          ? names[i] : qsTr("Desktop %1").arg(i + 1)
       desktopModel.append({name: desktopName, number: i + 1})
     }
     desktopBox.currentIndex = Math.min(Math.max(previousIndex, 0), count - 1)
@@ -712,9 +722,11 @@ QTQ.Item {
     }
 
     QTQ_C.Label {
-      text: qsTr("Click an element in the preview to customize it.")
+      text: qsTr("Click an element to change its style")
       opacity: 0.7
+      horizontalAlignment: QTQ.Text.AlignHCenter
       QTQ_L.Layout.fillWidth: true
+      QTQ_L.Layout.alignment: Qt.AlignHCenter
     }
     QTQ.Item { QTQ_L.Layout.fillHeight: true }
   }
@@ -764,23 +776,23 @@ QTQ.Item {
       nameSectionOrder: _Root.sectionDesktopNameOrderIdx
       sectionDesktopNumberOrder: _Root.sectionDesktopNumberOrderIdx
 
-      dateBackgroundColor: (_Root.dateBackgroundColors && _Root.dateBackgroundColors[desktopNo - 1]) || _Root._DEFAULT_COLORS_LIGHT[0]
-      dayNameColor: (_Root.dayNameColors && _Root.dayNameColors[desktopNo - 1]) || _Root._DEFAULT_COLORS_DARK[0]
-      dayDateColor: (_Root.dayDateColors && _Root.dayDateColors[desktopNo - 1]) || _Root._DEFAULT_COLORS_DARK[0]
-      dayNameFont: (_Root.dayNameFonts && _Root.dayNameFonts[desktopNo - 1]) || "SansSerif"
-      dayDateFont: (_Root.dayDateFonts && _Root.dayDateFonts[desktopNo - 1]) || "Serif"
-      dayNameScale: Number((_Root.dayNameScales && _Root.dayNameScales[desktopNo - 1]) || 50)
-      dayDateScale: Number((_Root.dayDateScales && _Root.dayDateScales[desktopNo - 1]) || 50)
+      dateBackgroundColor: _Root.getDesktopProperty("dateBackgroundColors", desktopNo, _DEFAULT_LIGHT_COLOR)
+      dayNameColor: _Root.getDesktopProperty("dayNameColors", desktopNo, _DEFAULT_DARK_COLOR)
+      dayDateColor: _Root.getDesktopProperty("dayDateColors", desktopNo, _DEFAULT_DARK_COLOR)
+      dayNameFont: _Root.getDesktopProperty("dayNameFonts", desktopNo, "SansSerif")
+      dayDateFont: _Root.getDesktopProperty("dayDateFonts", desktopNo, "Serif")
+      dayNameScale: Number(_Root.getDesktopProperty("dayNameScales", desktopNo, 50))
+      dayDateScale: Number(_Root.getDesktopProperty("dayDateScales", desktopNo, 50))
 
-      desktopNameBackgroundColor: (_Root.desktopNameBackgroundColors && _Root.desktopNameBackgroundColors[desktopNo - 1]) || _Root._DEFAULT_COLORS_LIGHT[0]
-      desktopNameColor: (_Root.desktopNameColors && _Root.desktopNameColors[desktopNo - 1]) || _Root._DEFAULT_COLORS_DARK[0]
-      desktopNameFont: (_Root.desktopNameFonts && _Root.desktopNameFonts[desktopNo - 1]) || "SansSerif"
-      desktopNameScale: Number((_Root.desktopNameScales && _Root.desktopNameScales[desktopNo - 1]) || 50)
+      desktopNameBackgroundColor: _Root.getDesktopProperty("desktopNameBackgroundColors", desktopNo, _DEFAULT_LIGHT_COLOR)
+      desktopNameColor: _Root.getDesktopProperty("desktopNameColors", desktopNo, _DEFAULT_DARK_COLOR)
+      desktopNameFont: _Root.getDesktopProperty("desktopNameFonts", desktopNo, "SansSerif")
+      desktopNameScale: Number(_Root.getDesktopProperty("desktopNameScales", desktopNo, 50))
 
-      numberBackgroundColor: (_Root.desktopNumberBackgroundColors && _Root.desktopNumberBackgroundColors[desktopNo - 1]) || _Root._DEFAULT_COLORS_DARK[0]
-      numberTextColor: (_Root.desktopNumberColors && _Root.desktopNumberColors[desktopNo - 1]) || _Root._DEFAULT_COLORS_LIGHT[0]
-      numberFont: (_Root.desktopNumberFonts && _Root.desktopNumberFonts[desktopNo - 1]) || "Serif"
-      numberScale: Number((_Root.desktopNumberScales && _Root.desktopNumberScales[desktopNo - 1]) || 50)
+      numberBackgroundColor: _Root.getDesktopProperty("desktopNumberBackgroundColors", desktopNo, _DEFAULT_DARK_COLOR)
+      numberTextColor: _Root.getDesktopProperty("desktopNumberColors", desktopNo, _DEFAULT_LIGHT_COLOR)
+      numberFont: _Root.getDesktopProperty("desktopNumberFonts", desktopNo, "Serif")
+      numberScale: Number(_Root.getDesktopProperty("desktopNumberScales", desktopNo, 50))
 
       onColorRequested: (target, currentColor) => _Root.openColor(target, currentColor)
       onStyleRequested: (target) => _Root.openStyle(target)
@@ -808,7 +820,7 @@ QTQ.Item {
     standardButtons: QTQ_C.DialogButtonBox.Close
     property string target: ""
     property string fontName: "Serif"
-    property var selectedTextColor: _DEFAULT_COLORS_DARK[0]
+    property var selectedTextColor: _DEFAULT_DARK_COLOR
     property int scaleValue: 50
     contentItem: QTQ_L.ColumnLayout
     {
@@ -883,7 +895,13 @@ QTQ.Item {
     property string target: ""
     property string selectedFamily: "Serif"
     property string previewText: "Aa"
-    onOpened: fontFamilyBox.currentIndex = fontFamilyBox.model.indexOf(selectedFamily)
+    onOpened: {
+      var families = fontFamilyBox.model || []
+      if (Array.isArray(families))
+      {
+        fontFamilyBox.currentIndex = families.indexOf(selectedFamily)
+      }
+    }
     contentItem: QTQ_L.ColumnLayout
     {
       spacing: Kirigami.Units.largeSpacing

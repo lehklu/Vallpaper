@@ -13,90 +13,78 @@ KDE_plasmoid.PlasmoidItem {
 
   clip: true
 
-  property real _heightWidthRatio: Number(configurationValue("heightWidthRatio", 50))
-  property int _fullWidth: Math.round(height * _heightWidthRatio / 10)
-  property real _sectionDateWidthWeight: Number(configurationValue("sectionDateWidthWeight", 50))
-  property real _nameSectionWidth: Number(configurationValue("sectionDesktopNameWidthWeight", 50))
-  property real _sectionDesktopNumberWidthWeight: Number(configurationValue("sectionDesktopNumberWidthWeight", 50))
-  property int _dateSectionOrder: sectionOrderIndex("date", 0)
-  property int _nameSectionOrder: sectionOrderIndex("desktopName", 1)
-  property int _sectionDesktopNumberOrder: sectionOrderIndex("desktopNumber", 2)
-
   readonly property var _DEFAULT_COLORS_DARK: ["#071169"]
   readonly property var _DEFAULT_COLORS_LIGHT: ["#ffffff"]
+  readonly property string _DEFAULT_DARK_COLOR: "#071169"
+  readonly property string _DEFAULT_LIGHT_COLOR: "#ffffff"
+  readonly property string _DEFAULT_SANS_FONT: "SansSerif"
+  readonly property string _DEFAULT_SERIF_FONT: "Serif"
+  readonly property real _DEFAULT_SCALE: 50
 
-  property date _currentDate: new Date()
-  property int _currentDesktopNo: 0
-  property string _currentDesktopName: ""
   property int _configurationRevision: 0
-  property var _currentDeskColor: configurationValue("dateColor" + _currentDesktopNo, _DEFAULT_COLORS_LIGHT[0])
-  property var _currentNumberColor: configurationValue("numberColor" + _currentDesktopNo, _DEFAULT_COLORS_DARK[0])
-  property var _currentDayNameColor: configurationValue("dayNameColor" + _currentDesktopNo, _DEFAULT_COLORS_DARK[0])
-  property var _currentDayDateColor: configurationValue("dayDateColor" + _currentDesktopNo, _DEFAULT_COLORS_DARK[0])
-  property var _currentDesktopNameColor: configurationValue("desktopNameColor" + _currentDesktopNo, _DEFAULT_COLORS_DARK[0])
-  property var _currentDesktopNameBackgroundColor: configurationValue("desktopNameBackgroundColor" + _currentDesktopNo,
-      _DEFAULT_COLORS_LIGHT[0])
-  property var _currentNumberTextColor: configurationValue("numberTextColor" + _currentDesktopNo,
-      _DEFAULT_COLORS_LIGHT[0])
-  property string _currentDayNameFont: configurationValue("dayNameFont" + _currentDesktopNo, "SansSerif")
-  property string _currentDayDateFont: configurationValue("dayDateFont" + _currentDesktopNo, "Serif")
-  property string _currentDesktopNameFont: configurationValue("desktopNameFont" + _currentDesktopNo, "SansSerif")
-  property string _currentNumberFont: configurationValue("numberFont" + _currentDesktopNo, "Serif")
-  property real _currentDayNameScale: Number(configurationValue("dayNameScale" + _currentDesktopNo, 50))
-  property real _currentDayDateScale: Number(configurationValue("dayDateScale" + _currentDesktopNo, 50))
-  property real _currentDesktopNameScale: Number(configurationValue("desktopNameScale" + _currentDesktopNo, 50))
-  property real _currentNumberScale: Number(configurationValue("numberScale" + _currentDesktopNo, 50))
 
-  function configurationValue(key, fallback) {
-    // Keep this dependency so configuration changes refresh every current
-    // appearance property, including dynamically named desktop settings.
-    var revision = _configurationRevision
-    var match = key.match(/^(.*?)([0-9]+)$/)
-    if (match)
-    {
-      var keyPrefix = match[1]
-      var deskIndex = Number(match[2]) - 1
-      var candidateListNames = [
-        keyPrefix + "s",
-        keyPrefix === "dateColor" ? "dateBackgroundColors" : "",
-        keyPrefix === "numberColor" ? "desktopNumberBackgroundColors" : "",
-        keyPrefix === "numberTextColor" ? "desktopNumberColors" : "",
-        keyPrefix === "numberFont" ? "desktopNumberFonts" : "",
-        keyPrefix === "numberScale" ? "desktopNumberScales" : ""
-      ]
-      for (var i = 0; i < candidateListNames.length; ++i)
-      {
-        var listName = candidateListNames[i]
-        if (!listName)
-        {
-          continue
-        }
-        var stored = KDE_plasmoid.Plasmoid.configuration[listName]
-        if (stored)
-        {
-          try
-          {
-            var values = JSON.parse(stored)
-            if (values && values[deskIndex] !== undefined && values[deskIndex] !== null && values[deskIndex] !== "")
-            {
-              return values[deskIndex]
-            }
-          }
-          catch (e)
-          {}
-        }
-      }
-      return fallback
-    }
+  function getConfig(key, fallback) {
+    var _rev = _configurationRevision
     var val = KDE_plasmoid.Plasmoid.configuration[key]
     return val !== undefined && val !== null ? val : fallback
   }
 
+  function getDesktopConfig(listName, deskIndex, fallback) {
+    var _rev = _configurationRevision
+    var stored = KDE_plasmoid.Plasmoid.configuration[listName]
+    if (stored)
+    {
+      try
+      {
+        var values = JSON.parse(stored)
+        if (Array.isArray(values) && deskIndex >= 0 && deskIndex < values.length &&
+            values[deskIndex] !== undefined && values[deskIndex] !== null && values[deskIndex] !== "")
+        {
+          return values[deskIndex]
+        }
+      }
+      catch (e)
+      {}
+    }
+    return fallback
+  }
+
   function sectionOrderIndex(section, fallback) {
-    var order = String(configurationValue("sectionOrder", "date,desktopName,desktopNumber")).split(",")
+    var order = String(getConfig("sectionOrder", "date,desktopName,desktopNumber")).split(",")
     var index = order.indexOf(section)
     return index >= 0 ? index : fallback
   }
+
+  property real _heightWidthRatio: Number(getConfig("heightWidthRatio", 50))
+  property int _fullWidth: Math.round(height * _heightWidthRatio / 10)
+  property real _sectionDateWidthWeight: Number(getConfig("sectionDateWidthWeight", 50))
+  property real _sectionDesktopNameWidthWeight: Number(getConfig("sectionDesktopNameWidthWeight", 50))
+  property real _sectionDesktopNumberWidthWeight: Number(getConfig("sectionDesktopNumberWidthWeight", 50))
+  property int _dateSectionOrder: sectionOrderIndex("date", 0)
+  property int _nameSectionOrder: sectionOrderIndex("desktopName", 1)
+  property int _sectionDesktopNumberOrder: sectionOrderIndex("desktopNumber", 2)
+
+  property date _currentDate: new Date()
+  property int _currentDesktopNo: 0
+  property string _currentDesktopName: ""
+
+  readonly property int _currentDeskIndex: _currentDesktopNo - 1
+
+  property var _currentDeskColor: getDesktopConfig("dateBackgroundColors", _currentDeskIndex, _DEFAULT_LIGHT_COLOR)
+  property var _currentNumberColor: getDesktopConfig("desktopNumberBackgroundColors", _currentDeskIndex, _DEFAULT_DARK_COLOR)
+  property var _currentDayNameColor: getDesktopConfig("dayNameColors", _currentDeskIndex, _DEFAULT_DARK_COLOR)
+  property var _currentDayDateColor: getDesktopConfig("dayDateColors", _currentDeskIndex, _DEFAULT_DARK_COLOR)
+  property var _currentDesktopNameColor: getDesktopConfig("desktopNameColors", _currentDeskIndex, _DEFAULT_DARK_COLOR)
+  property var _currentDesktopNameBackgroundColor: getDesktopConfig("desktopNameBackgroundColors", _currentDeskIndex, _DEFAULT_LIGHT_COLOR)
+  property var _currentNumberTextColor: getDesktopConfig("desktopNumberColors", _currentDeskIndex, _DEFAULT_LIGHT_COLOR)
+  property string _currentDayNameFont: getDesktopConfig("dayNameFonts", _currentDeskIndex, _DEFAULT_SANS_FONT)
+  property string _currentDayDateFont: getDesktopConfig("dayDateFonts", _currentDeskIndex, _DEFAULT_SERIF_FONT)
+  property string _currentDesktopNameFont: getDesktopConfig("desktopNameFonts", _currentDeskIndex, _DEFAULT_SANS_FONT)
+  property string _currentNumberFont: getDesktopConfig("desktopNumberFonts", _currentDeskIndex, _DEFAULT_SERIF_FONT)
+  property real _currentDayNameScale: Number(getDesktopConfig("dayNameScales", _currentDeskIndex, _DEFAULT_SCALE))
+  property real _currentDayDateScale: Number(getDesktopConfig("dayDateScales", _currentDeskIndex, _DEFAULT_SCALE))
+  property real _currentDesktopNameScale: Number(getDesktopConfig("desktopNameScales", _currentDeskIndex, _DEFAULT_SCALE))
+  property real _currentNumberScale: Number(getDesktopConfig("desktopNumberScales", _currentDeskIndex, _DEFAULT_SCALE))
 
   QML.Connections {
     target: KDE_plasmoid.Plasmoid.configuration
@@ -145,14 +133,16 @@ KDE_plasmoid.PlasmoidItem {
     onTriggered: desktopInfo.broadcastDesktopChanged()
   }
 
-  function handleOnDesktopChanged($currentDesktopNo) {
-    if ($currentDesktopNo < 1)
+  function handleOnDesktopChanged(newDeskNo) {
+    if (newDeskNo < 1)
     {
       return
     }
-    _Root._currentDesktopNo = $currentDesktopNo
-    _Root._currentDesktopName = desktopInfo.desktopNames[$currentDesktopNo - 1]
-        || qsTr("Desktop %1").arg($currentDesktopNo)
+    _Root._currentDesktopNo = newDeskNo
+    var names = desktopInfo.desktopNames || []
+    _Root._currentDesktopName = (names && names[newDeskNo - 1])
+        ? names[newDeskNo - 1]
+        : qsTr("Desktop %1").arg(newDeskNo)
   }
 
   QTQ.Timer {
@@ -173,7 +163,7 @@ KDE_plasmoid.PlasmoidItem {
     interactive: false
 
     sectionDateWidthWeight: _Root._sectionDateWidthWeight
-    sectionDesktopNameWidthWeight: _Root._nameSectionWidth
+    sectionDesktopNameWidthWeight: _Root._sectionDesktopNameWidthWeight
     sectionDesktopNumberWidthWeight: _Root._sectionDesktopNumberWidthWeight
 
     dateSectionOrder: _Root._dateSectionOrder

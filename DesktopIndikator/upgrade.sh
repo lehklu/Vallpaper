@@ -1,4 +1,12 @@
 #!/bin/sh
+set -eu
 
-sudo kpackagetool6 -g -t Plasma/Applet --upgrade ./package
-sudo chmod a+rx -R /usr/share/plasma/plasmoids/at.lehklu.plasma.desktopindikator6/*
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PACKAGE_DIR="$SCRIPT_DIR/package"
+PLUGIN_ID="at.lehklu.plasma.desktopindikator6"
+INSTALL_DIR="/usr/share/plasma/plasmoids/$PLUGIN_ID"
+
+sudo kpackagetool6 -g -t Plasma/Applet --upgrade "$PACKAGE_DIR"
+if [ -d "$INSTALL_DIR" ]; then
+    sudo chmod -R a+rx "$INSTALL_DIR"
+fi

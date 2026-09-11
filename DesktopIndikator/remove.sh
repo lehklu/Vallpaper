@@ -1,3 +1,6 @@
 #!/bin/sh
+set -eu
 
-sudo kpackagetool6 -g -t Plasma/Applet --remove at.lehklu.plasma.desktopindikator6
+PLUGIN_ID="at.lehklu.plasma.desktopindikator6"
+
+sudo kpackagetool6 -g -t Plasma/Applet --remove "$PLUGIN_ID"
