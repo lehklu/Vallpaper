@@ -5,13 +5,15 @@
       https://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
 
     <group name="Settings">
-      <entry name="heightWidthRatio" type="Int"><default>50</default></entry>
-      <entry name="sectionDateWidthWeight" type="Int"><default>50</default></entry>
-      <entry name="sectionDesktopNameWidthWeight" type="Int"><default>50</default></entry>
-      <entry name="sectionDesktopNumberWidthWeight" type="Int"><default>50</default></entry>
+
+      <entry name="heightWidthRatio" type="Int"><default>60</default></entry>
+      <entry name="sectionDateWidthWeight" type="Int"><default>20</default></entry>
+      <entry name="sectionDesktopNameWidthWeight" type="Int"><default>30</default></entry>
+      <entry name="sectionDesktopNumberWidthWeight" type="Int"><default>10</default></entry>
 
       <entry name="sectionOrder" type="String"><default>date,desktopName,desktopNumber</default></entry>
 
+      <!-- date -->
       <entry name="dateBackgroundColors" type="String"><default>[]</default></entry>
       <entry name="dayNameFonts" type="String"><default>[]</default></entry>
       <entry name="dayNameColors" type="String"><default>[]</default></entry>
@@ -20,14 +22,17 @@
       <entry name="dayDateColors" type="String"><default>[]</default></entry>
       <entry name="dayDateScales" type="String"><default>[]</default></entry>
 
+      <!-- desktopName -->
       <entry name="desktopNameBackgroundColors" type="String"><default>[]</default></entry>
       <entry name="desktopNameFonts" type="String"><default>[]</default></entry>        
       <entry name="desktopNameColors" type="String"><default>[]</default></entry>
       <entry name="desktopNameScales" type="String"><default>[]</default></entry>
 
+      <!-- desktopNumber -->
       <entry name="desktopNumberBackgroundColors" type="String"><default>[]</default></entry>
       <entry name="desktopNumberFonts" type="String"><default>[]</default></entry>
       <entry name="desktopNumberColors" type="String"><default>[]</default></entry>
       <entry name="desktopNumberScales" type="String"><default>[]</default></entry>
+
     </group>
 </kcfg>
