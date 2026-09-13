@@ -168,14 +168,14 @@ QTQ.Item {
     }
   }
 
-  function getDesktopProperty(propName, desktopNo, fallback) {
+  function ensureDesktopProperty(propName, desktopNo) {
     var list = _Root[propName]
     var idx = desktopNo - 1
     if (list && idx >= 0 && idx < list.length && list[idx] !== undefined && list[idx] !== null && list[idx] !== "")
     {
       return list[idx]
     }
-    return fallback
+    return (list && list.length > 0) ? list[0] : undefined
   }
 
   component SectionSettingsRow: QTQ_L.RowLayout
@@ -769,23 +769,23 @@ QTQ.Item {
       nameSectionOrder: _Root.sectionDesktopNameOrderIdx
       sectionDesktopNumberOrder: _Root.sectionDesktopNumberOrderIdx
 
-      dateBackgroundColor: _Root.getDesktopProperty("dateBackgroundColors", desktopNo, _DEFAULT_LIGHT_COLOR)
-      dayNameColor: _Root.getDesktopProperty("dayNameColors", desktopNo, _DEFAULT_DARK_COLOR)
-      dayDateColor: _Root.getDesktopProperty("dayDateColors", desktopNo, _DEFAULT_DARK_COLOR)
-      dayNameFont: _Root.getDesktopProperty("dayNameFonts", desktopNo, "Sans Serif")
-      dayDateFont: _Root.getDesktopProperty("dayDateFonts", desktopNo, "Serif")
-      dayNameScale: Number(_Root.getDesktopProperty("dayNameScales", desktopNo, 50))
-      dayDateScale: Number(_Root.getDesktopProperty("dayDateScales", desktopNo, 50))
+      dateBackgroundColor: _Root.ensureDesktopProperty("dateBackgroundColors", desktopNo)
+      dayNameColor: _Root.ensureDesktopProperty("dayNameColors", desktopNo)
+      dayDateColor: _Root.ensureDesktopProperty("dayDateColors", desktopNo)
+      dayNameFont: _Root.ensureDesktopProperty("dayNameFonts", desktopNo)
+      dayDateFont: _Root.ensureDesktopProperty("dayDateFonts", desktopNo)
+      dayNameScale: Number(_Root.ensureDesktopProperty("dayNameScales", desktopNo))
+      dayDateScale: Number(_Root.ensureDesktopProperty("dayDateScales", desktopNo))
 
-      desktopNameBackgroundColor: _Root.getDesktopProperty("desktopNameBackgroundColors", desktopNo, _DEFAULT_LIGHT_COLOR)
-      desktopNameColor: _Root.getDesktopProperty("desktopNameColors", desktopNo, _DEFAULT_DARK_COLOR)
-      desktopNameFont: _Root.getDesktopProperty("desktopNameFonts", desktopNo, "Sans Serif")
-      desktopNameScale: Number(_Root.getDesktopProperty("desktopNameScales", desktopNo, 50))
+      desktopNameBackgroundColor: _Root.ensureDesktopProperty("desktopNameBackgroundColors", desktopNo)
+      desktopNameColor: _Root.ensureDesktopProperty("desktopNameColors", desktopNo)
+      desktopNameFont: _Root.ensureDesktopProperty("desktopNameFonts", desktopNo)
+      desktopNameScale: Number(_Root.ensureDesktopProperty("desktopNameScales", desktopNo))
 
-      numberBackgroundColor: _Root.getDesktopProperty("desktopNumberBackgroundColors", desktopNo, _DEFAULT_DARK_COLOR)
-      numberTextColor: _Root.getDesktopProperty("desktopNumberColors", desktopNo, _DEFAULT_LIGHT_COLOR)
-      numberFont: _Root.getDesktopProperty("desktopNumberFonts", desktopNo, "Serif")
-      numberScale: Number(_Root.getDesktopProperty("desktopNumberScales", desktopNo, 50))
+      numberBackgroundColor: _Root.ensureDesktopProperty("desktopNumberBackgroundColors", desktopNo)
+      numberTextColor: _Root.ensureDesktopProperty("desktopNumberColors", desktopNo)
+      numberFont: _Root.ensureDesktopProperty("desktopNumberFonts", desktopNo)
+      numberScale: Number(_Root.ensureDesktopProperty("desktopNumberScales", desktopNo))
 
       onColorRequested: (target, currentColor) => _Root.openColor(target, currentColor)
       onStyleRequested: (target) => _Root.openStyle(target)

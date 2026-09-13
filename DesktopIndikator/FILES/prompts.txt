@@ -203,3 +203,5 @@ Refactor
 Refactor
 
 Center the text 'Click an element to change its style'
+
+Rename getDesktopProperty() to ensureDesktopProperty(). Remove fallback parameter and use value from first desktop instead.
