@@ -29,14 +29,14 @@ QTQ.Item {
   property var dateBackgroundColor: "#ffffff"
   property var dayNameColor: "#071169"
   property var dayDateColor: "#071169"
-  property string dayNameFont: "SansSerif"
+  property string dayNameFont: "Sans Serif"
   property string dayDateFont: "Serif"
   property real dayNameScale: 50
   property real dayDateScale: 50
 
   property var desktopNameBackgroundColor: "#ffffff"
   property var desktopNameColor: "#071169"
-  property string desktopNameFont: "SansSerif"
+  property string desktopNameFont: "Sans Serif"
   property real desktopNameScale: 50
 
   property var numberBackgroundColor: "#071169"

@@ -17,8 +17,8 @@ KDE_plasmoid.PlasmoidItem {
   readonly property var _DEFAULT_COLORS_LIGHT: ["#ffffff"]
   readonly property string _DEFAULT_DARK_COLOR: "#071169"
   readonly property string _DEFAULT_LIGHT_COLOR: "#ffffff"
-  readonly property string _DEFAULT_SANS_FONT: "SansSerif"
-  readonly property string _DEFAULT_SERIF_FONT: "Serif"
+  readonly property string _DEFAULT_SANS_FONT: "Sans Serif"
+  readonly property string _DEFAULT_Serif_FONT: "Serif"
   readonly property real _DEFAULT_SCALE: 50
 
   property int _configurationRevision: 0
@@ -78,9 +78,9 @@ KDE_plasmoid.PlasmoidItem {
   property var _currentDesktopNameBackgroundColor: getDesktopConfig("desktopNameBackgroundColors", _currentDeskIndex, _DEFAULT_LIGHT_COLOR)
   property var _currentNumberTextColor: getDesktopConfig("desktopNumberColors", _currentDeskIndex, _DEFAULT_LIGHT_COLOR)
   property string _currentDayNameFont: getDesktopConfig("dayNameFonts", _currentDeskIndex, _DEFAULT_SANS_FONT)
-  property string _currentDayDateFont: getDesktopConfig("dayDateFonts", _currentDeskIndex, _DEFAULT_SERIF_FONT)
+  property string _currentDayDateFont: getDesktopConfig("dayDateFonts", _currentDeskIndex, _DEFAULT_Serif_FONT)
   property string _currentDesktopNameFont: getDesktopConfig("desktopNameFonts", _currentDeskIndex, _DEFAULT_SANS_FONT)
-  property string _currentNumberFont: getDesktopConfig("desktopNumberFonts", _currentDeskIndex, _DEFAULT_SERIF_FONT)
+  property string _currentNumberFont: getDesktopConfig("desktopNumberFonts", _currentDeskIndex, _DEFAULT_Serif_FONT)
   property real _currentDayNameScale: Number(getDesktopConfig("dayNameScales", _currentDeskIndex, _DEFAULT_SCALE))
   property real _currentDayDateScale: Number(getDesktopConfig("dayDateScales", _currentDeskIndex, _DEFAULT_SCALE))
   property real _currentDesktopNameScale: Number(getDesktopConfig("desktopNameScales", _currentDeskIndex, _DEFAULT_SCALE))
