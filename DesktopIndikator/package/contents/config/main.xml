@@ -14,25 +14,25 @@
       <entry name="sectionOrder" type="String"><default>date,desktopName,desktopNumber</default></entry>
 
       <!-- date -->
-      <entry name="dateBackgroundColors" type="String"><default>[]</default></entry>
-      <entry name="dayNameFonts" type="String"><default>[]</default></entry>
-      <entry name="dayNameColors" type="String"><default>[]</default></entry>
-      <entry name="dayNameScales" type="String"><default>[]</default></entry>
-      <entry name="dayDateFonts" type="String"><default>[]</default></entry>
-      <entry name="dayDateColors" type="String"><default>[]</default></entry>
-      <entry name="dayDateScales" type="String"><default>[]</default></entry>
+      <entry name="dateBackgroundColors" type="String"><default>[#fff]</default></entry>
+      <entry name="dayNameFonts" type="String"><default>[Serif]</default></entry>
+      <entry name="dayNameColors" type="String"><default>[#071169]</default></entry>
+      <entry name="dayNameScales" type="String"><default>[30]</default></entry>
+      <entry name="dayDateFonts" type="String"><default>[Sans Serif]</default></entry>
+      <entry name="dayDateColors" type="String"><default>[#071169]</default></entry>
+      <entry name="dayDateScales" type="String"><default>[50]</default></entry>
 
       <!-- desktopName -->
-      <entry name="desktopNameBackgroundColors" type="String"><default>[]</default></entry>
-      <entry name="desktopNameFonts" type="String"><default>[]</default></entry>        
-      <entry name="desktopNameColors" type="String"><default>[]</default></entry>
-      <entry name="desktopNameScales" type="String"><default>[]</default></entry>
+      <entry name="desktopNameBackgroundColors" type="String"><default>[#eee]</default></entry>
+      <entry name="desktopNameFonts" type="String"><default>[Serif]</default></entry>
+      <entry name="desktopNameColors" type="String"><default>[#071169]</default></entry>
+      <entry name="desktopNameScales" type="String"><default>[30]</default></entry>
 
       <!-- desktopNumber -->
-      <entry name="desktopNumberBackgroundColors" type="String"><default>[]</default></entry>
-      <entry name="desktopNumberFonts" type="String"><default>[]</default></entry>
-      <entry name="desktopNumberColors" type="String"><default>[]</default></entry>
-      <entry name="desktopNumberScales" type="String"><default>[]</default></entry>
+      <entry name="desktopNumberBackgroundColors" type="String"><default>[#071169]</default></entry>
+      <entry name="desktopNumberFonts" type="String"><default>[Serif]</default></entry>
+      <entry name="desktopNumberColors" type="String"><default>[#fff]</default></entry>
+      <entry name="desktopNumberScales" type="String"><default>[70]</default></entry>
 
     </group>
 </kcfg>
