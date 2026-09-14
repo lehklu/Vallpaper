@@ -21,11 +21,11 @@ KDE_plasmoid.PlasmoidItem {
   readonly property string _DEFAULT_Serif_FONT: "Serif"
   readonly property real _DEFAULT_SCALE: 50
 
-  property int _configurationRevision: 0
+  property int _configurationChangedDependencyTrigger: 0
 
   readonly property var _parsedConfiguration: {
-    var _rev = _configurationRevision
-    var raw = KDE_plasmoid.Plasmoid.configuration ? KDE_plasmoid.Plasmoid.configuration.configuration : ""
+    var _rev = _configurationChangedDependencyTrigger
+    var raw = KDE_plasmoid.Plasmoid.configuration ? KDE_plasmoid.Plasmoid.configuration.desktopindikator601 : ""
     if (raw)
     {
       try
@@ -43,7 +43,7 @@ KDE_plasmoid.PlasmoidItem {
   }
 
   function getConfig(key, fallback) {
-    var _rev = _configurationRevision
+    var _rev = _configurationChangedDependencyTrigger
     if (_parsedConfiguration && _parsedConfiguration[key] !== undefined && _parsedConfiguration[key] !== null)
     {
       return _parsedConfiguration[key]
@@ -53,7 +53,7 @@ KDE_plasmoid.PlasmoidItem {
   }
 
   function getDesktopConfig(listName, deskIndex, fallback) {
-    var _rev = _configurationRevision
+    var _rev = _configurationChangedDependencyTrigger
     var values = _parsedConfiguration ? _parsedConfiguration[listName] : undefined
     if (typeof values === "string")
     {
@@ -138,7 +138,15 @@ KDE_plasmoid.PlasmoidItem {
     target: KDE_plasmoid.Plasmoid.configuration
 
     function onValueChanged() {
-      _Root._configurationRevision++
+      _Root._configurationChangedDependencyTrigger++
+    }
+
+    function onDesktopindikator601Changed() {
+      _Root._configurationChangedDependencyTrigger++
+    }
+
+    function onConfigurationChanged() {
+      _Root._configurationChangedDependencyTrigger++
     }
   }
 

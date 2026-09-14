@@ -208,3 +208,10 @@ Rename getDesktopProperty() to ensureDesktopProperty(). Remove fallback paramete
 
 Make the configuraiton a JSON string.
 Keep values at index 0 as default and save desktop specific values starting with index 1.
+
+repair config saving per desktop.
+
+rename _configurationRevision to _configurationChangedDependencyTrigger
+
+in main.xml change entry name="configuration" to entry name="desktopindikator601"
+propagate change to project.

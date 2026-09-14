@@ -16,12 +16,12 @@ QTQ.Item { id: _Root
 
   property int selectedDesktop: desktopBox.currentIndex + 1
 
-  property string cfg_configuration: "{}"
+  property string cfg_desktopindikator601: "{}"
   property bool _isSaving: false
-  onCfg_configurationChanged: {
+  onCfg_desktopindikator601Changed: {
     if (!_isSaving)
     {
-      loadConfiguration(cfg_configuration)
+      loadConfiguration(cfg_desktopindikator601)
     }
   }
 
@@ -39,21 +39,24 @@ QTQ.Item { id: _Root
   property int sectionDesktopNumberOrderIdx: 2
   property int sectionDesktopNumberWidthWeight: 50
 
-  property var dateBackgroundColors: _DEFAULT_COLORS_LIGHT
-  property var dayNameColors
-  property var dayDateColors
+  readonly property var _DEFAULT_COLORS_LIGHT: ["#ffffff"]
+  readonly property var _DEFAULT_COLORS_DARK: ["#071169"]
+
+  property var dateBackgroundColors: ["#ffffff"]
+  property var dayNameColors: ["#071169"]
+  property var dayDateColors: ["#071169"]
   property var dayNameFonts: ["Sans Serif"]
   property var dayDateFonts: ["Serif"]
   property var dayNameScales: [50]
   property var dayDateScales: [50]
 
-  property var desktopNameBackgroundColors: _DEFAULT_COLORS_LIGHT
-  property var desktopNameColors
+  property var desktopNameBackgroundColors: ["#ffffff"]
+  property var desktopNameColors: ["#071169"]
   property var desktopNameFonts: ["Sans Serif"]
   property var desktopNameScales: [50]
 
-  property var desktopNumberBackgroundColors
-  property var desktopNumberColors: _DEFAULT_COLORS_LIGHT
+  property var desktopNumberBackgroundColors: ["#071169"]
+  property var desktopNumberColors: ["#ffffff"]
   property var desktopNumberFonts: ["Serif"]
   property var desktopNumberScales: [50]
 
@@ -82,7 +85,7 @@ QTQ.Item { id: _Root
       colorProp: "dayNameColors",
       scaleProp: "dayNameScales",
       defaultFont: "Sans Serif",
-      defaultColor: _Root.dayNameColors[0],
+      defaultColor: "#071169",
       previewText: () => Qt.locale().toString(new Date(), "dddd")
     },
     "dayDate": {
@@ -91,7 +94,7 @@ QTQ.Item { id: _Root
       colorProp: "dayDateColors",
       scaleProp: "dayDateScales",
       defaultFont: "Serif",
-      defaultColor: dayDateFonts[0],
+      defaultColor: "#071169",
       previewText: () => Qt.locale().toString(new Date(), "dd.MM")
     },
     "desktopName": {
@@ -100,7 +103,7 @@ QTQ.Item { id: _Root
       colorProp: "desktopNameColors",
       scaleProp: "desktopNameScales",
       defaultFont: "Sans Serif",
-      defaultColor: desktopNameColors[0],
+      defaultColor: "#071169",
       previewText: () => {
         var idx = _Root.selectedDesktop - 1
         return (idx >= 0 && idx < desktopModel.count && desktopModel.get(idx))
@@ -113,7 +116,7 @@ QTQ.Item { id: _Root
       colorProp: "desktopNumberColors",
       scaleProp: "desktopNumberScales",
       defaultFont: "Serif",
-      defaultColor: desktopNumberColors[0],
+      defaultColor: "#ffffff",
       previewText: () => String(_Root.selectedDesktop)
     }
   })
@@ -126,13 +129,16 @@ QTQ.Item { id: _Root
   })
 
   function syncListFromConfig(propName, jsonStrOrArray) {
-    if (!jsonStrOrArray)
+    if (jsonStrOrArray === undefined || jsonStrOrArray === null || jsonStrOrArray === "")
     {
       return
     }
-    if (Array.isArray(jsonStrOrArray) && jsonStrOrArray.length > 0)
+    if (Array.isArray(jsonStrOrArray))
     {
-      _Root[propName] = jsonStrOrArray
+      if (jsonStrOrArray.length > 0)
+      {
+        _Root[propName] = jsonStrOrArray.slice()
+      }
       return
     }
     if (typeof jsonStrOrArray === "string")
@@ -143,21 +149,28 @@ QTQ.Item { id: _Root
         if (Array.isArray(parsed) && parsed.length > 0)
         {
           _Root[propName] = parsed
+          return
         }
       }
       catch (e)
       {}
+      _Root[propName] = [jsonStrOrArray]
+      return
     }
+    _Root[propName] = [jsonStrOrArray]
   }
 
-  function ensureDesktopProperty(propName, desktopNo) {
-    var list = _Root[propName]
+  function ensureDesktopValue(list, desktopNo) {
     var idx = desktopNo
     if (list && idx > 0 && idx < list.length && list[idx] !== undefined && list[idx] !== null && list[idx] !== "")
     {
       return list[idx]
     }
     return (list && list.length > 0) ? list[0] : undefined
+  }
+
+  function ensureDesktopProperty(propName, desktopNo) {
+    return ensureDesktopValue(_Root[propName], desktopNo)
   }
 
   component SectionSettingsRow: QTQ_L.RowLayout
@@ -311,7 +324,7 @@ QTQ.Item { id: _Root
   }
 
   function loadConfiguration(jsonStr) {
-    var raw = jsonStr || cfg_configuration || (KDE_plasmoid.Plasmoid.configuration && KDE_plasmoid.Plasmoid.configuration.configuration) || ""
+    var raw = jsonStr || cfg_desktopindikator601 || (KDE_plasmoid.Plasmoid.configuration && KDE_plasmoid.Plasmoid.configuration.desktopindikator601) || ""
     var configObj = {}
     if (raw)
     {
@@ -395,41 +408,51 @@ QTQ.Item { id: _Root
     for (var l = 0; l < _STYLE_PROPERTIES.length; ++l)
     {
       var propName = _STYLE_PROPERTIES[l].prop
-      configObj[propName] = _Root[propName]
+      var valList = _Root[propName]
+      if (Array.isArray(valList))
+      {
+        configObj[propName] = valList.map(v => (v && typeof v === "object" && v.toString) ? v.toString() : v)
+      }
+      else
+      {
+        configObj[propName] = valList
+      }
     }
     var jsonStr = JSON.stringify(configObj)
-    if (_Root.cfg_configuration !== jsonStr)
+    if (_Root.cfg_desktopindikator601 !== jsonStr)
     {
       _isSaving = true
-      _Root.cfg_configuration = jsonStr
+      _Root.cfg_desktopindikator601 = jsonStr
       _isSaving = false
     }
   }
 
   function setAt(list, index, value) {
-    var copy = (list && list.slice) ? list.slice() : []
+    var copy = (list && Array.isArray(list)) ? list.slice() : []
+    var defaultVal = (copy.length > 0 && copy[0] !== undefined) ? copy[0] : value
     while (copy.length <= index)
     {
-      copy.push(copy[0] !== undefined ? copy[0] : value)
+      copy.push(defaultVal)
     }
     copy[index] = value
     return copy
   }
 
   function updateStyleProperty(propName, value) {
+    var stringVal = (value && typeof value === "object" && value.toString) ? value.toString() : value
     if (linkToggle.checked)
     {
       var count = Math.max(desktopModel.count || 0, (_Root[propName] && _Root[propName].length ? _Root[propName].length - 1 : 0), 1)
       var arr = []
       for (var i = 0; i <= count; ++i)
       {
-        arr.push(value)
+        arr.push(stringVal)
       }
       _Root[propName] = arr
     }
     else
     {
-      _Root[propName] = setAt(_Root[propName], selectedDesktop, value)
+      _Root[propName] = setAt(_Root[propName], selectedDesktop, stringVal)
     }
     saveConfiguration()
   }
@@ -441,7 +464,7 @@ QTQ.Item { id: _Root
     {
       var item = _STYLE_PROPERTIES[i]
       var val = ensureDesktopProperty(item.prop, deskIdx)
-      result[item.key] = val
+      result[item.key] = (val && typeof val === "object" && val.toString) ? val.toString() : val
     }
     return result
   }
@@ -459,9 +482,11 @@ QTQ.Item { id: _Root
     for (var i = 0; i < _STYLE_PROPERTIES.length; ++i)
     {
       var item = _STYLE_PROPERTIES[i]
-      if (style[item.key] !== undefined)
+      var val = style[item.key]
+      if (val !== undefined)
       {
-        _Root[item.prop] = setAt(_Root[item.prop], deskIdx, style[item.key])
+        var stringVal = (val && typeof val === "object" && val.toString) ? val.toString() : val
+        _Root[item.prop] = setAt(_Root[item.prop], deskIdx, stringVal)
       }
     }
     saveConfiguration()
@@ -476,12 +501,14 @@ QTQ.Item { id: _Root
     for (var i = 0; i < _STYLE_PROPERTIES.length; ++i)
     {
       var item = _STYLE_PROPERTIES[i]
-      if (style[item.key] !== undefined)
+      var val = style[item.key]
+      if (val !== undefined)
       {
+        var stringVal = (val && typeof val === "object" && val.toString) ? val.toString() : val
         var arr = []
         for (var d = 0; d <= count; ++d)
         {
-          arr.push(style[item.key])
+          arr.push(stringVal)
         }
         _Root[item.prop] = arr
       }
@@ -837,23 +864,23 @@ QTQ.Item { id: _Root
       nameSectionOrder: _Root.sectionDesktopNameOrderIdx
       sectionDesktopNumberOrder: _Root.sectionDesktopNumberOrderIdx
 
-      dateBackgroundColor: _Root.ensureDesktopProperty("dateBackgroundColors", desktopNo)
-      dayNameColor: _Root.ensureDesktopProperty("dayNameColors", desktopNo)
-      dayDateColor: _Root.ensureDesktopProperty("dayDateColors", desktopNo)
-      dayNameFont: _Root.ensureDesktopProperty("dayNameFonts", desktopNo)
-      dayDateFont: _Root.ensureDesktopProperty("dayDateFonts", desktopNo)
-      dayNameScale: Number(_Root.ensureDesktopProperty("dayNameScales", desktopNo))
-      dayDateScale: Number(_Root.ensureDesktopProperty("dayDateScales", desktopNo))
+      dateBackgroundColor: _Root.ensureDesktopValue(_Root.dateBackgroundColors, desktopNo)
+      dayNameColor: _Root.ensureDesktopValue(_Root.dayNameColors, desktopNo)
+      dayDateColor: _Root.ensureDesktopValue(_Root.dayDateColors, desktopNo)
+      dayNameFont: _Root.ensureDesktopValue(_Root.dayNameFonts, desktopNo) || "Sans Serif"
+      dayDateFont: _Root.ensureDesktopValue(_Root.dayDateFonts, desktopNo) || "Serif"
+      dayNameScale: Number(_Root.ensureDesktopValue(_Root.dayNameScales, desktopNo) || 50)
+      dayDateScale: Number(_Root.ensureDesktopValue(_Root.dayDateScales, desktopNo) || 50)
 
-      desktopNameBackgroundColor: _Root.ensureDesktopProperty("desktopNameBackgroundColors", desktopNo)
-      desktopNameColor: _Root.ensureDesktopProperty("desktopNameColors", desktopNo)
-      desktopNameFont: _Root.ensureDesktopProperty("desktopNameFonts", desktopNo)
-      desktopNameScale: Number(_Root.ensureDesktopProperty("desktopNameScales", desktopNo))
+      desktopNameBackgroundColor: _Root.ensureDesktopValue(_Root.desktopNameBackgroundColors, desktopNo)
+      desktopNameColor: _Root.ensureDesktopValue(_Root.desktopNameColors, desktopNo)
+      desktopNameFont: _Root.ensureDesktopValue(_Root.desktopNameFonts, desktopNo) || "Sans Serif"
+      desktopNameScale: Number(_Root.ensureDesktopValue(_Root.desktopNameScales, desktopNo) || 50)
 
-      numberBackgroundColor: _Root.ensureDesktopProperty("desktopNumberBackgroundColors", desktopNo)
-      numberTextColor: _Root.ensureDesktopProperty("desktopNumberColors", desktopNo)
-      numberFont: _Root.ensureDesktopProperty("desktopNumberFonts", desktopNo)
-      numberScale: Number(_Root.ensureDesktopProperty("desktopNumberScales", desktopNo))
+      numberBackgroundColor: _Root.ensureDesktopValue(_Root.desktopNumberBackgroundColors, desktopNo)
+      numberTextColor: _Root.ensureDesktopValue(_Root.desktopNumberColors, desktopNo)
+      numberFont: _Root.ensureDesktopValue(_Root.desktopNumberFonts, desktopNo) || "Serif"
+      numberScale: Number(_Root.ensureDesktopValue(_Root.desktopNumberScales, desktopNo) || 50)
 
       onColorRequested: (target, currentColor) => _Root.openColor(target, currentColor)
       onStyleRequested: (target) => _Root.openStyle(target)
@@ -866,8 +893,8 @@ QTQ.Item { id: _Root
     var deskIdx = selectedDesktop
     styleDialog.target = target
     styleDialog.title = info ? info.title : qsTr("Style")
-    styleDialog.fontName = (_Root.ensureDesktopProperty(info.fontProp, deskIdx)) || info.defaultFont
-    styleDialog.selectedTextColor = (_Root.ensureDesktopProperty(info.colorProp, deskIdx)) || info.defaultColor
+    styleDialog.fontName = (_Root.ensureDesktopProperty(info.fontProp, deskIdx)) || (info ? info.defaultFont : "Sans Serif")
+    styleDialog.selectedTextColor = (_Root.ensureDesktopProperty(info.colorProp, deskIdx)) || (info ? info.defaultColor : "#071169")
     styleDialog.scaleValue = Number((_Root.ensureDesktopProperty(info.scaleProp, deskIdx)) || 50)
     styleDialog.open()
   }
@@ -993,6 +1020,7 @@ QTQ.Item { id: _Root
       if (info)
       {
         _Root.updateStyleProperty(info.fontProp, family)
+        styleDialog.fontName = family
       }
     }
   }
