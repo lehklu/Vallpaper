@@ -10,13 +10,7 @@ import org.kde.kirigami as Kirigami
 import org.kde.plasma.plasmoid as KDE_plasmoid
 import org.kde.taskmanager as KDE_taskmanager
 
-QTQ.Item {
-  id: _Root
-
-  readonly property string _DEFAULT_DARK_COLOR: "#071169"
-  readonly property string _DEFAULT_LIGHT_COLOR: "#ffffff"
-  readonly property var _DEFAULT_COLORS_DARK: [_DEFAULT_DARK_COLOR]
-  readonly property var _DEFAULT_COLORS_LIGHT: [_DEFAULT_LIGHT_COLOR]
+QTQ.Item { id: _Root
 
   property var title // for KDE Settings page
 
@@ -46,19 +40,19 @@ QTQ.Item {
   property int sectionDesktopNumberWidthWeight: 50
 
   property var dateBackgroundColors: _DEFAULT_COLORS_LIGHT
-  property var dayNameColors: _DEFAULT_COLORS_DARK
-  property var dayDateColors: _DEFAULT_COLORS_DARK
+  property var dayNameColors
+  property var dayDateColors
   property var dayNameFonts: ["Sans Serif"]
   property var dayDateFonts: ["Serif"]
   property var dayNameScales: [50]
   property var dayDateScales: [50]
 
   property var desktopNameBackgroundColors: _DEFAULT_COLORS_LIGHT
-  property var desktopNameColors: _DEFAULT_COLORS_DARK
+  property var desktopNameColors
   property var desktopNameFonts: ["Sans Serif"]
   property var desktopNameScales: [50]
 
-  property var desktopNumberBackgroundColors: _DEFAULT_COLORS_DARK
+  property var desktopNumberBackgroundColors
   property var desktopNumberColors: _DEFAULT_COLORS_LIGHT
   property var desktopNumberFonts: ["Serif"]
   property var desktopNumberScales: [50]
@@ -88,7 +82,7 @@ QTQ.Item {
       colorProp: "dayNameColors",
       scaleProp: "dayNameScales",
       defaultFont: "Sans Serif",
-      defaultColor: _DEFAULT_DARK_COLOR,
+      defaultColor: _Root.dayNameColors[0],
       previewText: () => Qt.locale().toString(new Date(), "dddd")
     },
     "dayDate": {
@@ -97,7 +91,7 @@ QTQ.Item {
       colorProp: "dayDateColors",
       scaleProp: "dayDateScales",
       defaultFont: "Serif",
-      defaultColor: _DEFAULT_DARK_COLOR,
+      defaultColor: dayDateFonts[0],
       previewText: () => Qt.locale().toString(new Date(), "dd.MM")
     },
     "desktopName": {
@@ -106,7 +100,7 @@ QTQ.Item {
       colorProp: "desktopNameColors",
       scaleProp: "desktopNameScales",
       defaultFont: "Sans Serif",
-      defaultColor: _DEFAULT_DARK_COLOR,
+      defaultColor: desktopNameColors[0],
       previewText: () => {
         var idx = _Root.selectedDesktop - 1
         return (idx >= 0 && idx < desktopModel.count && desktopModel.get(idx))
@@ -119,7 +113,7 @@ QTQ.Item {
       colorProp: "desktopNumberColors",
       scaleProp: "desktopNumberScales",
       defaultFont: "Serif",
-      defaultColor: _DEFAULT_LIGHT_COLOR,
+      defaultColor: desktopNumberColors[0],
       previewText: () => String(_Root.selectedDesktop)
     }
   })
@@ -887,7 +881,7 @@ QTQ.Item {
     standardButtons: QTQ_C.DialogButtonBox.Close
     property string target: ""
     property string fontName: "Serif"
-    property var selectedTextColor: _DEFAULT_DARK_COLOR
+    property var selectedTextColor
     property int scaleValue: 50
     contentItem: QTQ_L.ColumnLayout
     {
