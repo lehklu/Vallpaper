@@ -22,27 +22,29 @@ QTQ.Item {
 
   property int selectedDesktop: desktopBox.currentIndex + 1
 
-  property string cfg_sectionOrder: "date,desktopName,desktopNumber"
-  onCfg_sectionOrderChanged: loadSectionOrder()
+  property string cfg_configuration: "{}"
+  property bool _isSaving: false
+  onCfg_configurationChanged: {
+    if (!_isSaving)
+    {
+      loadConfiguration(cfg_configuration)
+    }
+  }
 
-  property int cfg_heightWidthRatio: 50
+  property string sectionOrder: "date,desktopName,desktopNumber"
+  onSectionOrderChanged: loadSectionOrder()
+
+  property int heightWidthRatio: 50
 
   property int sectionDateOrderIdx: 0
-  property int cfg_sectionDateWidthWeight: 50
+  property int sectionDateWidthWeight: 50
 
   property int sectionDesktopNameOrderIdx: 1
-  property int cfg_sectionDesktopNameWidthWeight: 50
+  property int sectionDesktopNameWidthWeight: 50
 
   property int sectionDesktopNumberOrderIdx: 2
-  property int cfg_sectionDesktopNumberWidthWeight: 50
+  property int sectionDesktopNumberWidthWeight: 50
 
-  property string cfg_dateBackgroundColors: "[]"
-  property string cfg_dayNameFonts: "[]"
-  property string cfg_dayNameColors: "[]"
-  property string cfg_dayNameScales: "[]"
-  property string cfg_dayDateFonts: "[]"
-  property string cfg_dayDateColors: "[]"
-  property string cfg_dayDateScales: "[]"
   property var dateBackgroundColors: _DEFAULT_COLORS_LIGHT
   property var dayNameColors: _DEFAULT_COLORS_DARK
   property var dayDateColors: _DEFAULT_COLORS_DARK
@@ -50,39 +52,16 @@ QTQ.Item {
   property var dayDateFonts: ["Serif"]
   property var dayNameScales: [50]
   property var dayDateScales: [50]
-  onCfg_dateBackgroundColorsChanged: syncListFromConfig("dateBackgroundColors", cfg_dateBackgroundColors)
-  onCfg_dayNameColorsChanged: syncListFromConfig("dayNameColors", cfg_dayNameColors)
-  onCfg_dayDateColorsChanged: syncListFromConfig("dayDateColors", cfg_dayDateColors)
-  onCfg_dayNameFontsChanged: syncListFromConfig("dayNameFonts", cfg_dayNameFonts)
-  onCfg_dayDateFontsChanged: syncListFromConfig("dayDateFonts", cfg_dayDateFonts)
-  onCfg_dayNameScalesChanged: syncListFromConfig("dayNameScales", cfg_dayNameScales)
-  onCfg_dayDateScalesChanged: syncListFromConfig("dayDateScales", cfg_dayDateScales)
 
-  property string cfg_desktopNameBackgroundColors: "[]"
-  property string cfg_desktopNameFonts: "[]"
-  property string cfg_desktopNameColors: "[]"
-  property string cfg_desktopNameScales: "[]"
   property var desktopNameBackgroundColors: _DEFAULT_COLORS_LIGHT
   property var desktopNameColors: _DEFAULT_COLORS_DARK
   property var desktopNameFonts: ["Sans Serif"]
   property var desktopNameScales: [50]
-  onCfg_desktopNameBackgroundColorsChanged: syncListFromConfig("desktopNameBackgroundColors", cfg_desktopNameBackgroundColors)
-  onCfg_desktopNameColorsChanged: syncListFromConfig("desktopNameColors", cfg_desktopNameColors)
-  onCfg_desktopNameFontsChanged: syncListFromConfig("desktopNameFonts", cfg_desktopNameFonts)
-  onCfg_desktopNameScalesChanged: syncListFromConfig("desktopNameScales", cfg_desktopNameScales)
 
-  property string cfg_desktopNumberBackgroundColors: "[]"
-  property string cfg_desktopNumberFonts: "[]"
-  property string cfg_desktopNumberColors: "[]"
-  property string cfg_desktopNumberScales: "[]"
   property var desktopNumberBackgroundColors: _DEFAULT_COLORS_DARK
   property var desktopNumberColors: _DEFAULT_COLORS_LIGHT
   property var desktopNumberFonts: ["Serif"]
   property var desktopNumberScales: [50]
-  onCfg_desktopNumberBackgroundColorsChanged: syncListFromConfig("desktopNumberBackgroundColors", cfg_desktopNumberBackgroundColors)
-  onCfg_desktopNumberColorsChanged: syncListFromConfig("desktopNumberColors", cfg_desktopNumberColors)
-  onCfg_desktopNumberFontsChanged: syncListFromConfig("desktopNumberFonts", cfg_desktopNumberFonts)
-  onCfg_desktopNumberScalesChanged: syncListFromConfig("desktopNumberScales", cfg_desktopNumberScales)
 
   readonly property var _STYLE_PROPERTIES: [
     { prop: "dateBackgroundColors", key: "dateBackgroundColor" },
@@ -152,12 +131,21 @@ QTQ.Item {
     "desktopNumber": "desktopNumberBackgroundColors"
   })
 
-  function syncListFromConfig(propName, jsonStr) {
-    if (jsonStr)
+  function syncListFromConfig(propName, jsonStrOrArray) {
+    if (!jsonStrOrArray)
+    {
+      return
+    }
+    if (Array.isArray(jsonStrOrArray) && jsonStrOrArray.length > 0)
+    {
+      _Root[propName] = jsonStrOrArray
+      return
+    }
+    if (typeof jsonStrOrArray === "string")
     {
       try
       {
-        var parsed = JSON.parse(jsonStr)
+        var parsed = JSON.parse(jsonStrOrArray)
         if (Array.isArray(parsed) && parsed.length > 0)
         {
           _Root[propName] = parsed
@@ -170,8 +158,8 @@ QTQ.Item {
 
   function ensureDesktopProperty(propName, desktopNo) {
     var list = _Root[propName]
-    var idx = desktopNo - 1
-    if (list && idx >= 0 && idx < list.length && list[idx] !== undefined && list[idx] !== null && list[idx] !== "")
+    var idx = desktopNo
+    if (list && idx > 0 && idx < list.length && list[idx] !== undefined && list[idx] !== null && list[idx] !== "")
     {
       return list[idx]
     }
@@ -233,28 +221,29 @@ QTQ.Item {
   function sectionWidthValue(key) {
     if (key === "date")
     {
-      return cfg_sectionDateWidthWeight
+      return sectionDateWidthWeight
     }
     if (key === "desktopName")
     {
-      return cfg_sectionDesktopNameWidthWeight
+      return sectionDesktopNameWidthWeight
     }
-    return cfg_sectionDesktopNumberWidthWeight
+    return sectionDesktopNumberWidthWeight
   }
 
   function setSectionWidth(key, value) {
     if (key === "date")
     {
-      cfg_sectionDateWidthWeight = value
+      sectionDateWidthWeight = value
     }
     else if (key === "desktopName")
     {
-      cfg_sectionDesktopNameWidthWeight = value
+      sectionDesktopNameWidthWeight = value
     }
     else
     {
-      cfg_sectionDesktopNumberWidthWeight = value
+      sectionDesktopNumberWidthWeight = value
     }
+    saveConfiguration()
   }
 
   function updateSectionOrder() {
@@ -263,12 +252,13 @@ QTQ.Item {
     {
       order.push(sectionModel.get(i).key)
     }
-    cfg_sectionOrder = order.join(",")
+    sectionOrder = order.join(",")
     saveSectionOrderProperties()
+    saveConfiguration()
   }
 
   function loadSectionOrder() {
-    var savedOrder = String(cfg_sectionOrder || (KDE_plasmoid.Plasmoid.configuration && KDE_plasmoid.Plasmoid.configuration.sectionOrder) || "date,desktopName,desktopNumber").split(",")
+    var savedOrder = String(sectionOrder || "date,desktopName,desktopNumber").split(",")
     var valid = ["date", "desktopName", "desktopNumber"]
     var ordered = []
     for (var i = 0; i < savedOrder.length; ++i)
@@ -326,13 +316,99 @@ QTQ.Item {
     sectionDesktopNumberOrderIdx = numIdx >= 0 ? numIdx : 2
   }
 
-  function loadSettings() {
+  function loadConfiguration(jsonStr) {
+    var raw = jsonStr || cfg_configuration || (KDE_plasmoid.Plasmoid.configuration && KDE_plasmoid.Plasmoid.configuration.configuration) || ""
+    var configObj = {}
+    if (raw)
+    {
+      try
+      {
+        configObj = JSON.parse(raw) || {}
+      }
+      catch (e)
+      {}
+    }
+
+    if (configObj.heightWidthRatio !== undefined)
+    {
+      _Root.heightWidthRatio = configObj.heightWidthRatio
+    }
+    else if (KDE_plasmoid.Plasmoid.configuration && KDE_plasmoid.Plasmoid.configuration.heightWidthRatio !== undefined)
+    {
+      _Root.heightWidthRatio = KDE_plasmoid.Plasmoid.configuration.heightWidthRatio
+    }
+
+    if (configObj.sectionOrder !== undefined)
+    {
+      _Root.sectionOrder = configObj.sectionOrder
+    }
+    else if (KDE_plasmoid.Plasmoid.configuration && KDE_plasmoid.Plasmoid.configuration.sectionOrder !== undefined)
+    {
+      _Root.sectionOrder = KDE_plasmoid.Plasmoid.configuration.sectionOrder
+    }
+
+    if (configObj.sectionDateWidthWeight !== undefined)
+    {
+      _Root.sectionDateWidthWeight = configObj.sectionDateWidthWeight
+    }
+    else if (KDE_plasmoid.Plasmoid.configuration && KDE_plasmoid.Plasmoid.configuration.sectionDateWidthWeight !== undefined)
+    {
+      _Root.sectionDateWidthWeight = KDE_plasmoid.Plasmoid.configuration.sectionDateWidthWeight
+    }
+
+    if (configObj.sectionDesktopNameWidthWeight !== undefined)
+    {
+      _Root.sectionDesktopNameWidthWeight = configObj.sectionDesktopNameWidthWeight
+    }
+    else if (KDE_plasmoid.Plasmoid.configuration && KDE_plasmoid.Plasmoid.configuration.sectionDesktopNameWidthWeight !== undefined)
+    {
+      _Root.sectionDesktopNameWidthWeight = KDE_plasmoid.Plasmoid.configuration.sectionDesktopNameWidthWeight
+    }
+
+    if (configObj.sectionDesktopNumberWidthWeight !== undefined)
+    {
+      _Root.sectionDesktopNumberWidthWeight = configObj.sectionDesktopNumberWidthWeight
+    }
+    else if (KDE_plasmoid.Plasmoid.configuration && KDE_plasmoid.Plasmoid.configuration.sectionDesktopNumberWidthWeight !== undefined)
+    {
+      _Root.sectionDesktopNumberWidthWeight = KDE_plasmoid.Plasmoid.configuration.sectionDesktopNumberWidthWeight
+    }
+
     for (var l = 0; l < _STYLE_PROPERTIES.length; ++l)
     {
       var propName = _STYLE_PROPERTIES[l].prop
-      var cfgKey = "cfg_" + propName
-      var stored = _Root[cfgKey] || (KDE_plasmoid.Plasmoid.configuration && KDE_plasmoid.Plasmoid.configuration[propName])
-      syncListFromConfig(propName, stored)
+      if (configObj[propName] !== undefined)
+      {
+        syncListFromConfig(propName, configObj[propName])
+      }
+      else if (KDE_plasmoid.Plasmoid.configuration && KDE_plasmoid.Plasmoid.configuration[propName] !== undefined)
+      {
+        syncListFromConfig(propName, KDE_plasmoid.Plasmoid.configuration[propName])
+      }
+    }
+
+    loadSectionOrder()
+  }
+
+  function saveConfiguration() {
+    var configObj = {
+      heightWidthRatio: _Root.heightWidthRatio,
+      sectionOrder: _Root.sectionOrder,
+      sectionDateWidthWeight: _Root.sectionDateWidthWeight,
+      sectionDesktopNameWidthWeight: _Root.sectionDesktopNameWidthWeight,
+      sectionDesktopNumberWidthWeight: _Root.sectionDesktopNumberWidthWeight
+    }
+    for (var l = 0; l < _STYLE_PROPERTIES.length; ++l)
+    {
+      var propName = _STYLE_PROPERTIES[l].prop
+      configObj[propName] = _Root[propName]
+    }
+    var jsonStr = JSON.stringify(configObj)
+    if (_Root.cfg_configuration !== jsonStr)
+    {
+      _isSaving = true
+      _Root.cfg_configuration = jsonStr
+      _isSaving = false
     }
   }
 
@@ -349,20 +425,19 @@ QTQ.Item {
   function updateStyleProperty(propName, value) {
     if (linkToggle.checked)
     {
-      var count = Math.max(desktopModel.count || 0, (_Root[propName] && _Root[propName].length) || 0, 1)
+      var count = Math.max(desktopModel.count || 0, (_Root[propName] && _Root[propName].length ? _Root[propName].length - 1 : 0), 1)
       var arr = []
-      for (var i = 0; i < count; ++i)
+      for (var i = 0; i <= count; ++i)
       {
         arr.push(value)
       }
       _Root[propName] = arr
-      _Root["cfg_" + propName] = JSON.stringify(arr)
     }
     else
     {
-      _Root[propName] = setAt(_Root[propName], selectedDesktop - 1, value)
-      _Root["cfg_" + propName] = JSON.stringify(_Root[propName])
+      _Root[propName] = setAt(_Root[propName], selectedDesktop, value)
     }
+    saveConfiguration()
   }
 
   function getDesktopStyle(idx) {
@@ -371,8 +446,7 @@ QTQ.Item {
     for (var i = 0; i < _STYLE_PROPERTIES.length; ++i)
     {
       var item = _STYLE_PROPERTIES[i]
-      var list = _Root[item.prop]
-      var val = (list && list[deskIdx] !== undefined) ? list[deskIdx] : list[0]
+      var val = ensureDesktopProperty(item.prop, deskIdx)
       result[item.key] = val
     }
     return result
@@ -394,9 +468,9 @@ QTQ.Item {
       if (style[item.key] !== undefined)
       {
         _Root[item.prop] = setAt(_Root[item.prop], deskIdx, style[item.key])
-        _Root["cfg_" + item.prop] = JSON.stringify(_Root[item.prop])
       }
     }
+    saveConfiguration()
   }
 
   function applyStyleToAllDesktops(style) {
@@ -411,14 +485,14 @@ QTQ.Item {
       if (style[item.key] !== undefined)
       {
         var arr = []
-        for (var d = 0; d < count; ++d)
+        for (var d = 0; d <= count; ++d)
         {
           arr.push(style[item.key])
         }
         _Root[item.prop] = arr
-        _Root["cfg_" + item.prop] = JSON.stringify(arr)
       }
     }
+    saveConfiguration()
   }
 
   QTQ.TextEdit {
@@ -471,7 +545,7 @@ QTQ.Item {
   }
 
   function copySelectedDesktopStyle() {
-    var style = getDesktopStyle(selectedDesktop - 1)
+    var style = getDesktopStyle(selectedDesktop)
     clipboardHelper.text = JSON.stringify(style)
     clipboardHelper.selectAll()
     clipboardHelper.copy()
@@ -484,7 +558,7 @@ QTQ.Item {
     var style = parseStyleFromText(text) || lastCopiedStyle
     if (style)
     {
-      applyStyleToDesktop(style, selectedDesktop - 1)
+      applyStyleToDesktop(style, selectedDesktop)
     }
   }
 
@@ -513,8 +587,7 @@ QTQ.Item {
   }
 
   QTQ.Component.onCompleted: {
-    loadSettings()
-    loadSectionOrder()
+    loadConfiguration()
     checkClipboard()
   }
 
@@ -623,9 +696,10 @@ QTQ.Item {
       QTQ_C.SpinBox {
         from: 1
         to: 100
-        value: _Root.cfg_heightWidthRatio
+        value: _Root.heightWidthRatio
         onValueModified: {
-          _Root.cfg_heightWidthRatio = value
+          _Root.heightWidthRatio = value
+          _Root.saveConfiguration()
         }
         QTQ_L.Layout.preferredWidth: Kirigami.Units.gridUnit * 5
       }
@@ -696,7 +770,7 @@ QTQ.Item {
       id: largePreview
       QTQ_L.Layout.alignment: Qt.AlignHCenter
       QTQ_L.Layout.preferredHeight: Kirigami.Units.gridUnit * 6
-      QTQ_L.Layout.preferredWidth: QTQ_L.Layout.preferredHeight * (_Root.cfg_heightWidthRatio / 10)
+      QTQ_L.Layout.preferredWidth: QTQ_L.Layout.preferredHeight * (_Root.heightWidthRatio / 10)
       QTQ_L.Layout.maximumWidth: _Root.width - Kirigami.Units.largeSpacing * 2
       QTQ_L.Layout.margins: Kirigami.Units.largeSpacing * 2
       sourceComponent: widgetPreview
@@ -740,7 +814,7 @@ QTQ.Item {
           elide: QTQ.Text.ElideRight
         }
         QTQ.Loader {
-          QTQ_L.Layout.preferredWidth: Kirigami.Units.gridUnit * 2 * (_Root.cfg_heightWidthRatio / 10)
+          QTQ_L.Layout.preferredWidth: Kirigami.Units.gridUnit * 2 * (_Root.heightWidthRatio / 10)
           QTQ_L.Layout.preferredHeight: Kirigami.Units.gridUnit * 2
           sourceComponent: widgetPreview
           onLoaded: {
@@ -761,10 +835,10 @@ QTQ.Item {
     id: widgetPreview
     DesktopIndicator {
       anchors.fill: parent
-      heightWidthRatio: _Root.cfg_heightWidthRatio
-      sectionDateWidthWeight: _Root.cfg_sectionDateWidthWeight
-      sectionDesktopNameWidthWeight: _Root.cfg_sectionDesktopNameWidthWeight
-      sectionDesktopNumberWidthWeight: _Root.cfg_sectionDesktopNumberWidthWeight
+      heightWidthRatio: _Root.heightWidthRatio
+      sectionDateWidthWeight: _Root.sectionDateWidthWeight
+      sectionDesktopNameWidthWeight: _Root.sectionDesktopNameWidthWeight
+      sectionDesktopNumberWidthWeight: _Root.sectionDesktopNumberWidthWeight
       dateSectionOrder: _Root.sectionDateOrderIdx
       nameSectionOrder: _Root.sectionDesktopNameOrderIdx
       sectionDesktopNumberOrder: _Root.sectionDesktopNumberOrderIdx
@@ -795,12 +869,12 @@ QTQ.Item {
   function openStyle(target) {
     var targetKey = target === "numberText" ? "desktopNumber" : target
     var info = _STYLE_TARGETS[targetKey]
-    var deskIdx = selectedDesktop - 1
+    var deskIdx = selectedDesktop
     styleDialog.target = target
     styleDialog.title = info ? info.title : qsTr("Style")
-    styleDialog.fontName = (_Root[info.fontProp] && _Root[info.fontProp][deskIdx]) || info.defaultFont
-    styleDialog.selectedTextColor = (_Root[info.colorProp] && _Root[info.colorProp][deskIdx]) || info.defaultColor
-    styleDialog.scaleValue = Number((_Root[info.scaleProp] && _Root[info.scaleProp][deskIdx]) || 50)
+    styleDialog.fontName = (_Root.ensureDesktopProperty(info.fontProp, deskIdx)) || info.defaultFont
+    styleDialog.selectedTextColor = (_Root.ensureDesktopProperty(info.colorProp, deskIdx)) || info.defaultColor
+    styleDialog.scaleValue = Number((_Root.ensureDesktopProperty(info.scaleProp, deskIdx)) || 50)
     styleDialog.open()
   }
 

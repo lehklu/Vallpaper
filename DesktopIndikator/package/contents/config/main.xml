@@ -5,34 +5,27 @@
       https://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
 
     <group name="Settings">
-
-      <entry name="heightWidthRatio" type="Int"><default>60</default></entry>
-      <entry name="sectionDateWidthWeight" type="Int"><default>20</default></entry>
-      <entry name="sectionDesktopNameWidthWeight" type="Int"><default>30</default></entry>
-      <entry name="sectionDesktopNumberWidthWeight" type="Int"><default>10</default></entry>
-
-      <entry name="sectionOrder" type="String"><default>date,desktopName,desktopNumber</default></entry>
-
-      <!-- date -->
-      <entry name="dateBackgroundColors" type="String"><default>[#fff]</default></entry>
-      <entry name="dayNameFonts" type="String"><default>[Serif]</default></entry>
-      <entry name="dayNameColors" type="String"><default>[#071169]</default></entry>
-      <entry name="dayNameScales" type="String"><default>[30]</default></entry>
-      <entry name="dayDateFonts" type="String"><default>[Sans Serif]</default></entry>
-      <entry name="dayDateColors" type="String"><default>[#071169]</default></entry>
-      <entry name="dayDateScales" type="String"><default>[50]</default></entry>
-
-      <!-- desktopName -->
-      <entry name="desktopNameBackgroundColors" type="String"><default>[#eee]</default></entry>
-      <entry name="desktopNameFonts" type="String"><default>[Serif]</default></entry>
-      <entry name="desktopNameColors" type="String"><default>[#071169]</default></entry>
-      <entry name="desktopNameScales" type="String"><default>[30]</default></entry>
-
-      <!-- desktopNumber -->
-      <entry name="desktopNumberBackgroundColors" type="String"><default>[#071169]</default></entry>
-      <entry name="desktopNumberFonts" type="String"><default>[Serif]</default></entry>
-      <entry name="desktopNumberColors" type="String"><default>[#fff]</default></entry>
-      <entry name="desktopNumberScales" type="String"><default>[70]</default></entry>
-
+      <entry name="configuration" type="String"><default>{
+          "heightWidthRatio": 60,
+          "sectionDateWidthWeight": 20,
+          "sectionDesktopNameWidthWeight": 30,
+          "sectionDesktopNumberWidthWeight": 10,
+          "sectionOrder": "date,desktopName,desktopNumber",
+          "dateBackgroundColors": ["#fff"],
+          "dayNameFonts": ["Serif"],
+          "dayNameColors": ["#071169"],
+          "dayNameScales": [30],
+          "dayDateFonts": ["Sans Serif"],
+          "dayDateColors": ["#071169"],
+          "dayDateScales": [50],
+          "desktopNameBackgroundColors": ["#aaa"],
+          "desktopNameFonts": ["Serif"],
+          "desktopNameColors": ["#071169"],
+          "desktopNameScales": [30],
+          "desktopNumberBackgroundColors": ["#071169"],
+          "desktopNumberFonts": ["Serif"],
+          "desktopNumberColors": ["#fff"],
+          "desktopNumberScales": [70]
+          }</default></entry>
     </group>
 </kcfg>

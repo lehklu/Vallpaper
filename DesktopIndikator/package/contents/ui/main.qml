@@ -23,24 +23,72 @@ KDE_plasmoid.PlasmoidItem {
 
   property int _configurationRevision: 0
 
+  readonly property var _parsedConfiguration: {
+    var _rev = _configurationRevision
+    var raw = KDE_plasmoid.Plasmoid.configuration ? KDE_plasmoid.Plasmoid.configuration.configuration : ""
+    if (raw)
+    {
+      try
+      {
+        var parsed = JSON.parse(raw)
+        if (parsed && typeof parsed === "object")
+        {
+          return parsed
+        }
+      }
+      catch (e)
+      {}
+    }
+    return {}
+  }
+
   function getConfig(key, fallback) {
     var _rev = _configurationRevision
-    var val = KDE_plasmoid.Plasmoid.configuration[key]
+    if (_parsedConfiguration && _parsedConfiguration[key] !== undefined && _parsedConfiguration[key] !== null)
+    {
+      return _parsedConfiguration[key]
+    }
+    var val = KDE_plasmoid.Plasmoid.configuration ? KDE_plasmoid.Plasmoid.configuration[key] : undefined
     return val !== undefined && val !== null ? val : fallback
   }
 
   function getDesktopConfig(listName, deskIndex, fallback) {
     var _rev = _configurationRevision
-    var stored = KDE_plasmoid.Plasmoid.configuration[listName]
+    var values = _parsedConfiguration ? _parsedConfiguration[listName] : undefined
+    if (typeof values === "string")
+    {
+      try
+      {
+        values = JSON.parse(values)
+      }
+      catch (e)
+      {}
+    }
+    if (Array.isArray(values) && deskIndex > 0 && deskIndex < values.length &&
+        values[deskIndex] !== undefined && values[deskIndex] !== null && values[deskIndex] !== "")
+    {
+      return values[deskIndex]
+    }
+    if (Array.isArray(values) && values.length > 0 &&
+        values[0] !== undefined && values[0] !== null && values[0] !== "")
+    {
+      return values[0]
+    }
+    var stored = KDE_plasmoid.Plasmoid.configuration ? KDE_plasmoid.Plasmoid.configuration[listName] : undefined
     if (stored)
     {
       try
       {
-        var values = JSON.parse(stored)
-        if (Array.isArray(values) && deskIndex >= 0 && deskIndex < values.length &&
-            values[deskIndex] !== undefined && values[deskIndex] !== null && values[deskIndex] !== "")
+        var legacyValues = (typeof stored === "string") ? JSON.parse(stored) : stored
+        if (Array.isArray(legacyValues) && deskIndex > 0 && deskIndex < legacyValues.length &&
+            legacyValues[deskIndex] !== undefined && legacyValues[deskIndex] !== null && legacyValues[deskIndex] !== "")
         {
-          return values[deskIndex]
+          return legacyValues[deskIndex]
+        }
+        if (Array.isArray(legacyValues) && legacyValues.length > 0 &&
+            legacyValues[0] !== undefined && legacyValues[0] !== null && legacyValues[0] !== "")
+        {
+          return legacyValues[0]
         }
       }
       catch (e)
@@ -68,7 +116,7 @@ KDE_plasmoid.PlasmoidItem {
   property int _currentDesktopNo: 0
   property string _currentDesktopName: ""
 
-  readonly property int _currentDeskIndex: _currentDesktopNo - 1
+  readonly property int _currentDeskIndex: _currentDesktopNo
 
   property var _currentDeskColor: getDesktopConfig("dateBackgroundColors", _currentDeskIndex, _DEFAULT_LIGHT_COLOR)
   property var _currentNumberColor: getDesktopConfig("desktopNumberBackgroundColors", _currentDeskIndex, _DEFAULT_DARK_COLOR)

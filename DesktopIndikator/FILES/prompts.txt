@@ -205,3 +205,6 @@ Refactor
 Center the text 'Click an element to change its style'
 
 Rename getDesktopProperty() to ensureDesktopProperty(). Remove fallback parameter and use value from first desktop instead.
+
+Make the configuraiton a JSON string.
+Keep values at index 0 as default and save desktop specific values starting with index 1.
