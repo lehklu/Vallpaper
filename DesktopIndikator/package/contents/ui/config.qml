@@ -85,21 +85,21 @@ QTQ.Item {
   onCfg_desktopNumberScalesChanged: syncListFromConfig("desktopNumberScales", cfg_desktopNumberScales)
 
   readonly property var _STYLE_PROPERTIES: [
-    { prop: "dateBackgroundColors", key: "dateBackgroundColor", fallback: _DEFAULT_LIGHT_COLOR },
-    { prop: "dayNameColors", key: "dayNameColor", fallback: _DEFAULT_DARK_COLOR },
-    { prop: "dayDateColors", key: "dayDateColor", fallback: _DEFAULT_DARK_COLOR },
-    { prop: "dayNameFonts", key: "dayNameFont", fallback: "Sans Serif" },
-    { prop: "dayDateFonts", key: "dayDateFont", fallback: "Serif" },
-    { prop: "dayNameScales", key: "dayNameScale", fallback: 50 },
-    { prop: "dayDateScales", key: "dayDateScale", fallback: 50 },
-    { prop: "desktopNameBackgroundColors", key: "desktopNameBackgroundColor", fallback: _DEFAULT_LIGHT_COLOR },
-    { prop: "desktopNameColors", key: "desktopNameColor", fallback: _DEFAULT_DARK_COLOR },
-    { prop: "desktopNameFonts", key: "desktopNameFont", fallback: "Sans Serif" },
-    { prop: "desktopNameScales", key: "desktopNameScale", fallback: 50 },
-    { prop: "desktopNumberBackgroundColors", key: "desktopNumberBackgroundColor", fallback: _DEFAULT_DARK_COLOR },
-    { prop: "desktopNumberColors", key: "desktopNumberColor", fallback: _DEFAULT_LIGHT_COLOR },
-    { prop: "desktopNumberFonts", key: "desktopNumberFont", fallback: "Serif" },
-    { prop: "desktopNumberScales", key: "desktopNumberScale", fallback: 50 }
+    { prop: "dateBackgroundColors", key: "dateBackgroundColor" },
+    { prop: "dayNameColors", key: "dayNameColor" },
+    { prop: "dayDateColors", key: "dayDateColor" },
+    { prop: "dayNameFonts", key: "dayNameFont" },
+    { prop: "dayDateFonts", key: "dayDateFont" },
+    { prop: "dayNameScales", key: "dayNameScale" },
+    { prop: "dayDateScales", key: "dayDateScale" },
+    { prop: "desktopNameBackgroundColors", key: "desktopNameBackgroundColor" },
+    { prop: "desktopNameColors", key: "desktopNameColor" },
+    { prop: "desktopNameFonts", key: "desktopNameFont" },
+    { prop: "desktopNameScales", key: "desktopNameScale" },
+    { prop: "desktopNumberBackgroundColors", key: "desktopNumberBackgroundColor" },
+    { prop: "desktopNumberColors", key: "desktopNumberColor" },
+    { prop: "desktopNumberFonts", key: "desktopNumberFont" },
+    { prop: "desktopNumberScales", key: "desktopNumberScale" }
   ]
 
   readonly property var _STYLE_TARGETS: ({
@@ -372,8 +372,8 @@ QTQ.Item {
     {
       var item = _STYLE_PROPERTIES[i]
       var list = _Root[item.prop]
-      var val = (list && list[deskIdx] !== undefined) ? list[deskIdx] : item.fallback
-      result[item.key] = typeof item.fallback === "number" ? Number(val) : val
+      var val = (list && list[deskIdx] !== undefined) ? list[deskIdx] : list[0]
+      result[item.key] = val
     }
     return result
   }
