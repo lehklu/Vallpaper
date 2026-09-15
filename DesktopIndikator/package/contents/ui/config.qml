@@ -820,8 +820,8 @@ QTQ.Item { id: _Root
     QTQ.Loader {
       id: largePreview
       QTQ_L.Layout.alignment: Qt.AlignHCenter
-      QTQ_L.Layout.preferredHeight: Kirigami.Units.gridUnit * 6
-      QTQ_L.Layout.preferredWidth: QTQ_L.Layout.preferredHeight * (_Root.heightWidthRatio / 10)
+      QTQ_L.Layout.preferredHeight: QTQ_L.Layout.preferredWidth / (_Root.heightWidthRatio / 10)
+      QTQ_L.Layout.preferredWidth: _Root.width / 6 * 5
       QTQ_L.Layout.maximumWidth: _Root.width - Kirigami.Units.largeSpacing * 2
       QTQ_L.Layout.margins: Kirigami.Units.largeSpacing * 2
       sourceComponent: widgetPreview
