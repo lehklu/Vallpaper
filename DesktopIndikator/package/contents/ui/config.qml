@@ -668,7 +668,6 @@ QTQ.Item { id: _Root
       QTQ_C.Label {
         text: qsTr("Global")
         font.bold: true
-        QTQ_L.Layout.topMargin: Kirigami.Units.smallSpacing
         QTQ_L.Layout.fillWidth: true
       }
 
@@ -696,7 +695,7 @@ QTQ.Item { id: _Root
     }
 
     QTQ_L.RowLayout {
-      //QTQ_L.Layout.alignment: Qt.AlignHCenter
+      QTQ_L.Layout.alignment: Qt.AlignHCenter
 
       QTQ_C.Label {
         text: qsTr("Height/width ratio")
@@ -717,7 +716,8 @@ QTQ.Item { id: _Root
     }
 
     QTQ_C.GroupBox {
-      QTQ_L.Layout.fillWidth: true
+      QTQ_L.Layout.preferredWidth: Kirigami.Units.gridUnit * 25
+      QTQ_L.Layout.alignment: Qt.AlignHCenter
       contentItem: QTQ_L.ColumnLayout
       {
         QTQ.ListView {
@@ -757,15 +757,17 @@ QTQ.Item { id: _Root
 
     QTQ_L.RowLayout {
       QTQ_L.Layout.fillWidth: true
+      QTQ_L.Layout.topMargin: Kirigami.Units.largeSpacing
       spacing: Kirigami.Units.smallSpacing
 
       QTQ_C.Label {
         text: qsTr("Per desktop")
-        font.bold: true
+        font.bold: !linkToggle.checked
       }
 
       QTQ_C.Switch {
         id: linkToggle
+        font.bold: checked
         text: qsTr("Linked")
         QTQ_L.Layout.alignment: Qt.AlignVCenter
       }
@@ -778,6 +780,8 @@ QTQ.Item { id: _Root
         model: desktopModel
         textRole: "name"
         QTQ_L.Layout.fillWidth: true
+        QTQ_L.Layout.leftMargin: Kirigami.Units.largeSpacing
+        QTQ_L.Layout.rightMargin: Kirigami.Units.largeSpacing
         enabled: !linkToggle.checked
         implicitHeight: Kirigami.Units.gridUnit * 3
         delegate: desktopDelegate
