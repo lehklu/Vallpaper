@@ -947,7 +947,6 @@ QTQ.Item { id: _Root
     anchors.centerIn: undefined
     x: Math.round((largePreview.width - width) / 2)
     y: -height - Kirigami.Units.smallSpacing
-    standardButtons: QTQ_C.DialogButtonBox.Close
     property string target: ""
     property string fontName: "Serif"
     property var selectedTextColor
@@ -956,7 +955,6 @@ QTQ.Item { id: _Root
     {
       implicitWidth: Kirigami.Units.gridUnit * 18
       spacing: Kirigami.Units.largeSpacing
-      QTQ_C.Label { text: qsTr("Text appearance"); QTQ_L.Layout.fillWidth: true }
       QTQ_C.Button {
         text: qsTr("Choose font…")
         QTQ_L.Layout.fillWidth: true
