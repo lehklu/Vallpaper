@@ -15,6 +15,9 @@ import org.kde.taskmanager as KDE_taskmanager
 
 QTQ.Item { id: _Root
 
+  QTQ.FontMetrics { id: _FontMetrics
+  }
+
   property var title // for KDE Settings page
 
   property int selectedDesktop: desktopBox.currentIndex + 1
@@ -210,6 +213,7 @@ QTQ.Item { id: _Root
     QTQ_C.Label { text: parent.label; font.family: 'monospace'; QTQ_L.Layout.fillWidth: true }
     QTQ_C.Label { text: qsTr("Width weight") }
     QTQ_C.SpinBox {
+      QTQ_L.Layout.preferredWidth: _FontMetrics.averageCharacterWidth() * 7
       from: 0
       to: 100
       value: parent.widthValue
@@ -217,7 +221,6 @@ QTQ.Item { id: _Root
         parent.widthValue = value
         parent.widthSettingChanged(value)
       }
-      QTQ_L.Layout.preferredWidth: Kirigami.Units.gridUnit * 5
     }
   }
 
@@ -704,6 +707,7 @@ QTQ.Item { id: _Root
         text: "10 :"
       }
       QTQ_C.SpinBox {
+        QTQ_L.Layout.preferredWidth: _FontMetrics.averageCharacterWidth() * 7
         from: 1
         to: 100
         value: _Root.heightWidthRatio
@@ -711,7 +715,6 @@ QTQ.Item { id: _Root
           _Root.heightWidthRatio = value
           _Root.saveConfiguration()
         }
-        QTQ_L.Layout.preferredWidth: Kirigami.Units.gridUnit * 5
       }
     }
 
