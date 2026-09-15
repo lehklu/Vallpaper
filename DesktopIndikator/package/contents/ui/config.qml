@@ -695,6 +695,27 @@ QTQ.Item { id: _Root
       }
     }
 
+    QTQ_L.RowLayout {
+      //QTQ_L.Layout.alignment: Qt.AlignHCenter
+
+      QTQ_C.Label {
+        text: qsTr("Height/width ratio")
+      }
+      QTQ_C.Label {
+        text: "10 :"
+      }
+      QTQ_C.SpinBox {
+        from: 1
+        to: 100
+        value: _Root.heightWidthRatio
+        onValueModified: {
+          _Root.heightWidthRatio = value
+          _Root.saveConfiguration()
+        }
+        QTQ_L.Layout.preferredWidth: Kirigami.Units.gridUnit * 5
+      }
+    }
+
     QTQ_C.GroupBox {
       QTQ_L.Layout.fillWidth: true
       contentItem: QTQ_L.ColumnLayout
@@ -736,34 +757,21 @@ QTQ.Item { id: _Root
 
     QTQ_L.RowLayout {
       QTQ_L.Layout.fillWidth: true
-      QTQ_C.Label {
-        text: qsTr("Height/width ratio")
-        QTQ_L.Layout.fillWidth: true
-      }
-      QTQ_C.Label {
-        text: "10 :"
-      }
-      QTQ_C.SpinBox {
-        from: 1
-        to: 100
-        value: _Root.heightWidthRatio
-        onValueModified: {
-          _Root.heightWidthRatio = value
-          _Root.saveConfiguration()
-        }
-        QTQ_L.Layout.preferredWidth: Kirigami.Units.gridUnit * 5
-      }
-    }
-
-    QTQ_C.Label {
-      text: qsTr("Per desktop")
-      QTQ_L.Layout.fillWidth: true
-      font.bold: true
-    }
-
-    QTQ_L.RowLayout {
-      QTQ_L.Layout.fillWidth: true
       spacing: Kirigami.Units.smallSpacing
+
+      QTQ_C.Label {
+        text: qsTr("Per desktop")
+        font.bold: true
+      }
+
+      QTQ_C.Switch {
+        id: linkToggle
+        text: qsTr("Linked")
+        QTQ_L.Layout.alignment: Qt.AlignVCenter
+      }
+    }
+
+
 
       QTQ_C.ComboBox {
         id: desktopBox
@@ -790,13 +798,6 @@ QTQ.Item { id: _Root
           }
         }
       }
-
-      QTQ_C.Switch {
-        id: linkToggle
-        text: qsTr("Linked")
-        QTQ_L.Layout.alignment: Qt.AlignVCenter
-      }
-    }
 
     QTQ_L.RowLayout {
       QTQ_L.Layout.alignment: Qt.AlignHCenter
