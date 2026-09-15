@@ -1,6 +1,9 @@
 /*
  *  Copyright 2026  Werner Lechner <werner.lechner@lehklu.at>
  */
+/*
+ *  Copyright 2026  Werner Lechner <werner.lechner@lehklu.at>
+ */
 
 import QtQuick as QTQ
 import QtQuick.Controls as QTQ_C
@@ -660,10 +663,36 @@ QTQ.Item { id: _Root
     anchors.margins: Kirigami.Units.largeSpacing
     spacing: Kirigami.Units.largeSpacing
 
-    QTQ_C.Label {
-      text: qsTr("Global")
-      font.bold: true
-      QTQ_L.Layout.topMargin: Kirigami.Units.smallSpacing
+    QTQ_L.RowLayout {
+
+      QTQ_C.Label {
+        text: qsTr("Global")
+        font.bold: true
+        QTQ_L.Layout.topMargin: Kirigami.Units.smallSpacing
+        QTQ_L.Layout.fillWidth: true
+      }
+
+      QTQ_C.Button { id: _BtnDonate
+
+        text: 'Donate with PayPal'
+        leftPadding: 14
+        rightPadding: 14
+        topPadding: 8
+        bottomPadding: 8
+        contentItem: QTQ_C.Label {
+          text: _BtnDonate.text
+          font.pointSize: parent.font.pointSize * 0.8
+          font.bold: true
+          color: '#ffffff'
+          horizontalAlignment: QTQ.Text.AlignHCenter
+          verticalAlignment: QTQ.Text.AlignVCenter
+        }
+        background: QTQ.Rectangle {
+          radius: 4
+          color: _BtnDonate.pressed ? '#005a94' : (_BtnDonate.hovered ? '#005ea6' : '#0070ba')
+        }
+        onClicked: Qt.openUrlExternally('https://www.paypal.com/donate/?hosted_button_id=HCRS5TNRLE4QQ')
+      }
     }
 
     QTQ_C.GroupBox {
