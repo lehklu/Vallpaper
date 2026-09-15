@@ -207,7 +207,7 @@ QTQ.Item { id: _Root
       QTQ_L.Layout.preferredWidth: Kirigami.Units.gridUnit * 1.5
       onClicked: parent.moveDownRequested()
     }
-    QTQ_C.Label { text: parent.label; QTQ_L.Layout.fillWidth: true }
+    QTQ_C.Label { text: parent.label; font.family: 'monospace'; QTQ_L.Layout.fillWidth: true }
     QTQ_C.Label { text: qsTr("Width weight") }
     QTQ_C.SpinBox {
       from: 0
