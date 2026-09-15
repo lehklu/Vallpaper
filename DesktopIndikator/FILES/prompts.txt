@@ -215,3 +215,5 @@ rename _configurationRevision to _configurationChangedDependencyTrigger
 
 in main.xml change entry name="configuration" to entry name="desktopindikator601"
 propagate change to project.
+
+If 'Per Desktop' is clicked, it shall uncheck linkToggle

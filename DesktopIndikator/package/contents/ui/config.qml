@@ -763,6 +763,11 @@ QTQ.Item { id: _Root
       QTQ_C.Label {
         text: qsTr("Per desktop")
         font.bold: !linkToggle.checked
+
+        QTQ.MouseArea {
+          anchors.fill: parent
+          onClicked: linkToggle.checked = false
+        }
       }
 
       QTQ_C.Switch {
