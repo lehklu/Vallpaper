@@ -1,9 +1,6 @@
 /*
  *  Copyright 2026  Werner Lechner <werner.lechner@lehklu.at>
  */
-/*
- *  Copyright 2026  Werner Lechner <werner.lechner@lehklu.at>
- */
 
 import QtQuick as QTQ
 import QtQuick.Controls as QTQ_C
@@ -15,21 +12,19 @@ import org.kde.taskmanager as KDE_taskmanager
 
 QTQ.Item { id: _Root
 
-  QTQ.FontMetrics { id: _FontMetrics
-  }
-
   property var title // for KDE Settings page
 
-  property int selectedDesktop: desktopBox.currentIndex + 1
-
-  property string cfg_desktopindikator601: "{}"
-  property bool _isSaving: false
+  property string cfg_desktopindikator601
   onCfg_desktopindikator601Changed: {
-    if (!_isSaving)
-    {
-      loadConfiguration(cfg_desktopindikator601)
-    }
+
+    if(_isSaving) { return; }
+    //<--
+
+    loadConfiguration(cfg_desktopindikator601)
   }
+
+  property bool _isSaving: false
+  property int _selectedDesktop: desktopBox.currentIndex + 1
 
   property string sectionOrder: "date,desktopName,desktopNumber"
   onSectionOrderChanged: loadSectionOrder()
@@ -111,9 +106,9 @@ QTQ.Item { id: _Root
       defaultFont: "Sans Serif",
       defaultColor: "#071169",
       previewText: () => {
-        var idx = _Root.selectedDesktop - 1
+        var idx = _Root._selectedDesktop - 1
         return (idx >= 0 && idx < desktopModel.count && desktopModel.get(idx))
-            ? desktopModel.get(idx).name : qsTr("Desktop %1").arg(_Root.selectedDesktop)
+            ? desktopModel.get(idx).name : qsTr("Desktop %1").arg(_Root._selectedDesktop)
       }
     },
     "desktopNumber": {
@@ -123,7 +118,7 @@ QTQ.Item { id: _Root
       scaleProp: "desktopNumberScales",
       defaultFont: "Serif",
       defaultColor: "#ffffff",
-      previewText: () => String(_Root.selectedDesktop)
+      previewText: () => String(_Root._selectedDesktop)
     }
   })
 
@@ -133,6 +128,8 @@ QTQ.Item { id: _Root
     "number": "desktopNumberBackgroundColors",
     "desktopNumber": "desktopNumberBackgroundColors"
   })
+
+  QTQ.FontMetrics { id: _FontMetrics }
 
   function syncListFromConfig(propName, jsonStrOrArray) {
     if (jsonStrOrArray === undefined || jsonStrOrArray === null || jsonStrOrArray === "")
@@ -458,7 +455,7 @@ QTQ.Item { id: _Root
     }
     else
     {
-      _Root[propName] = setAt(_Root[propName], selectedDesktop, stringVal)
+      _Root[propName] = setAt(_Root[propName], _selectedDesktop, stringVal)
     }
     saveConfiguration()
   }
@@ -572,7 +569,7 @@ QTQ.Item { id: _Root
   }
 
   function copySelectedDesktopStyle() {
-    var style = getDesktopStyle(selectedDesktop)
+    var style = getDesktopStyle(_selectedDesktop)
     clipboardHelper.text = JSON.stringify(style)
     clipboardHelper.selectAll()
     clipboardHelper.copy()
@@ -585,7 +582,7 @@ QTQ.Item { id: _Root
     var style = parseStyleFromText(text) || lastCopiedStyle
     if (style)
     {
-      applyStyleToDesktop(style, selectedDesktop)
+      applyStyleToDesktop(style, _selectedDesktop)
     }
   }
 
@@ -609,20 +606,13 @@ QTQ.Item { id: _Root
     var styleTarget = target === "styleFont" ? styleDialog.target : target
     var targetKey = styleTarget === "numberText" ? "desktopNumber" : styleTarget
     var info = _STYLE_TARGETS[targetKey]
-    fontDialog.previewText = info ? info.previewText() : String(selectedDesktop)
+    fontDialog.previewText = info ? info.previewText() : String(_selectedDesktop)
     fontDialog.open()
   }
 
   QTQ.Component.onCompleted: {
     loadConfiguration()
     checkClipboard()
-  }
-
-  onSelectedDesktopChanged: {
-    if (largePreview.item)
-    {
-      largePreview.item.interactive = true
-    }
   }
 
   KDE_taskmanager.VirtualDesktopInfo {
