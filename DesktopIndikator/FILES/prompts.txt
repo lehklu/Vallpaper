@@ -217,3 +217,7 @@ in main.xml change entry name="configuration" to entry name="desktopindikator601
 propagate change to project.
 
 If 'Per Desktop' is clicked, it shall uncheck linkToggle
+
+Repair usage of property string sectionOrder
+
+Move functions to separate file

@@ -6,6 +6,8 @@ import QtQuick as QTQ
 import QtQuick.Controls as QTQ_C
 import org.kde.kirigami as Kirigami
 
+import "../js/v.js" as VJS
+
 QTQ.Item {
   id: _Root
 
@@ -25,9 +27,7 @@ QTQ.Item {
   property string sectionOrder: "date,desktopName,desktopNumber"
 
   function sectionOrderIndex(section, fallback) {
-    var order = String(_Root.sectionOrder || "date,desktopName,desktopNumber").split(",")
-    var index = order.indexOf(section)
-    return index >= 0 ? index : fallback
+    return VJS.sectionOrderIndex(_Root.sectionOrder, section, fallback)
   }
 
   readonly property int dateSectionOrder: sectionOrderIndex("date", 0)
@@ -56,37 +56,15 @@ QTQ.Item {
   signal styleRequested(string target)
 
   function totalSectionsWeight() {
-    var wDate = sectionDateWidthWeight > 0 ? sectionDateWidthWeight : 0
-    var wName = sectionDesktopNameWidthWeight > 0 ? sectionDesktopNameWidthWeight : 0
-    var wNum = sectionDesktopNumberWidthWeight > 0 ? sectionDesktopNumberWidthWeight : 0
-    return wDate + wName + wNum
+    return VJS.totalSectionsWeight(sectionDateWidthWeight, sectionDesktopNameWidthWeight, sectionDesktopNumberWidthWeight)
   }
 
   function sectionWidth(weight) {
-    var total = totalSectionsWeight()
-    return total > 0 && weight > 0 ? contentItem.width * weight / total : 0
+    return VJS.sectionWidth(contentItem.width, totalSectionsWeight(), weight)
   }
 
   function sectionOffset(order) {
-    var total = totalSectionsWeight()
-    if (total <= 0)
-    {
-      return 0
-    }
-    var offsetWeight = 0
-    if (dateSectionOrder < order && sectionDateWidthWeight > 0)
-    {
-      offsetWeight += sectionDateWidthWeight
-    }
-    if (nameSectionOrder < order && sectionDesktopNameWidthWeight > 0)
-    {
-      offsetWeight += sectionDesktopNameWidthWeight
-    }
-    if (sectionDesktopNumberOrder < order && sectionDesktopNumberWidthWeight > 0)
-    {
-      offsetWeight += sectionDesktopNumberWidthWeight
-    }
-    return contentItem.width * offsetWeight / total
+    return VJS.sectionOffset(contentItem.width, totalSectionsWeight(), dateSectionOrder, nameSectionOrder, sectionDesktopNumberOrder, sectionDateWidthWeight, sectionDesktopNameWidthWeight, sectionDesktopNumberWidthWeight, order)
   }
 
   QTQ.Item {

@@ -8,6 +8,8 @@ import QtQuick.Layouts as QTQ_L
 import org.kde.plasma.plasmoid as KDE_plasmoid
 import org.kde.taskmanager as KDE_taskmanager
 
+import "../js/v.js" as VJS
+
 KDE_plasmoid.PlasmoidItem {
   id: _Root
 
@@ -26,75 +28,17 @@ KDE_plasmoid.PlasmoidItem {
   readonly property var _parsedConfiguration: {
     var _rev = _configurationChangedDependencyTrigger
     var raw = KDE_plasmoid.Plasmoid.configuration ? KDE_plasmoid.Plasmoid.configuration.desktopindikator601 : ""
-    if (raw)
-    {
-      try
-      {
-        var parsed = JSON.parse(raw)
-        if (parsed && typeof parsed === "object")
-        {
-          return parsed
-        }
-      }
-      catch (e)
-      {}
-    }
-    return {}
+    return VJS.parseConfiguration(raw)
   }
 
   function getConfig(key, fallback) {
     var _rev = _configurationChangedDependencyTrigger
-    if (_parsedConfiguration && _parsedConfiguration[key] !== undefined && _parsedConfiguration[key] !== null)
-    {
-      return _parsedConfiguration[key]
-    }
-    var val = KDE_plasmoid.Plasmoid.configuration ? KDE_plasmoid.Plasmoid.configuration[key] : undefined
-    return val !== undefined && val !== null ? val : fallback
+    return VJS.getConfig(_parsedConfiguration, KDE_plasmoid.Plasmoid.configuration, key, fallback)
   }
 
   function getDesktopConfig(listName, deskIndex, fallback) {
     var _rev = _configurationChangedDependencyTrigger
-    var values = _parsedConfiguration ? _parsedConfiguration[listName] : undefined
-    if (typeof values === "string")
-    {
-      try
-      {
-        values = JSON.parse(values)
-      }
-      catch (e)
-      {}
-    }
-    if (Array.isArray(values) && deskIndex > 0 && deskIndex < values.length &&
-        values[deskIndex] !== undefined && values[deskIndex] !== null && values[deskIndex] !== "")
-    {
-      return values[deskIndex]
-    }
-    if (Array.isArray(values) && values.length > 0 &&
-        values[0] !== undefined && values[0] !== null && values[0] !== "")
-    {
-      return values[0]
-    }
-    var stored = KDE_plasmoid.Plasmoid.configuration ? KDE_plasmoid.Plasmoid.configuration[listName] : undefined
-    if (stored)
-    {
-      try
-      {
-        var legacyValues = (typeof stored === "string") ? JSON.parse(stored) : stored
-        if (Array.isArray(legacyValues) && deskIndex > 0 && deskIndex < legacyValues.length &&
-            legacyValues[deskIndex] !== undefined && legacyValues[deskIndex] !== null && legacyValues[deskIndex] !== "")
-        {
-          return legacyValues[deskIndex]
-        }
-        if (Array.isArray(legacyValues) && legacyValues.length > 0 &&
-            legacyValues[0] !== undefined && legacyValues[0] !== null && legacyValues[0] !== "")
-        {
-          return legacyValues[0]
-        }
-      }
-      catch (e)
-      {}
-    }
-    return fallback
+    return VJS.getDesktopConfig(_parsedConfiguration, KDE_plasmoid.Plasmoid.configuration, listName, deskIndex, fallback)
   }
 
   property real _heightWidthRatio: Number(getConfig("heightWidthRatio", 50))
@@ -168,10 +112,7 @@ KDE_plasmoid.PlasmoidItem {
     }
 
     function getCurrentDeskNo() {
-      const currentId = currentDesktop
-      const ids = desktopIds || []
-      const idx = ids.indexOf(currentId)
-      return idx >= 0 ? idx + 1 : 0
+      return VJS.GET_CURRENT_DESKNO(desktopInfo)
     }
   }
 
@@ -182,15 +123,7 @@ KDE_plasmoid.PlasmoidItem {
   }
 
   function handleOnDesktopChanged(newDeskNo) {
-    if (newDeskNo < 1)
-    {
-      return
-    }
-    _Root._currentDesktopNo = newDeskNo
-    var names = desktopInfo.desktopNames || []
-    _Root._currentDesktopName = (names && names[newDeskNo - 1])
-        ? names[newDeskNo - 1]
-        : qsTr("Desktop %1").arg(newDeskNo)
+    VJS.handleOnDesktopChanged(_Root, desktopInfo, newDeskNo)
   }
 
   QTQ.Timer {

@@ -10,6 +10,8 @@ import org.kde.kirigami as Kirigami
 import org.kde.plasma.plasmoid as KDE_plasmoid
 import org.kde.taskmanager as KDE_taskmanager
 
+import "../js/v.js" as VJS
+
 QTQ.Item { id: _Root
 
   property var title // for KDE Settings page
@@ -125,48 +127,15 @@ QTQ.Item { id: _Root
   })
 
   function syncListFromConfig(propName, jsonStrOrArray) {
-    if (jsonStrOrArray === undefined || jsonStrOrArray === null || jsonStrOrArray === "")
-    {
-      return
-    }
-    if (Array.isArray(jsonStrOrArray))
-    {
-      if (jsonStrOrArray.length > 0)
-      {
-        _Root[propName] = jsonStrOrArray.slice()
-      }
-      return
-    }
-    if (typeof jsonStrOrArray === "string")
-    {
-      try
-      {
-        var parsed = JSON.parse(jsonStrOrArray)
-        if (Array.isArray(parsed) && parsed.length > 0)
-        {
-          _Root[propName] = parsed
-          return
-        }
-      }
-      catch (e)
-      {}
-      _Root[propName] = [jsonStrOrArray]
-      return
-    }
-    _Root[propName] = [jsonStrOrArray]
+    VJS.syncListFromConfig(_Root, propName, jsonStrOrArray)
   }
 
   function ensureDesktopValue(list, desktopNo) {
-    var idx = desktopNo
-    if (list && idx > 0 && idx < list.length && list[idx] !== undefined && list[idx] !== null && list[idx] !== "")
-    {
-      return list[idx]
-    }
-    return (list && list.length > 0) ? list[0] : undefined
+    return VJS.ensureDesktopValue(list, desktopNo)
   }
 
   function ensureDesktopProperty(propName, desktopNo) {
-    return ensureDesktopValue(_Root[propName], desktopNo)
+    return VJS.ensureDesktopProperty(_Root, propName, desktopNo)
   }
 
   component SectionSettingsRow: QTQ_L.RowLayout
@@ -221,270 +190,47 @@ QTQ.Item { id: _Root
   }
 
   function sectionWidthValue(key) {
-    if (key === "date")
-    {
-      return sectionDateWidthWeight
-    }
-    if (key === "desktopName")
-    {
-      return sectionDesktopNameWidthWeight
-    }
-    return sectionDesktopNumberWidthWeight
+    return VJS.sectionWidthValue(_Root, key)
   }
 
   function setSectionWidth(key, value) {
-    if (key === "date")
-    {
-      sectionDateWidthWeight = value
-    }
-    else if (key === "desktopName")
-    {
-      sectionDesktopNameWidthWeight = value
-    }
-    else
-    {
-      sectionDesktopNumberWidthWeight = value
-    }
-    saveConfiguration()
+    VJS.setSectionWidth(_Root, key, value)
   }
 
   function updateSectionOrder() {
-    var order = []
-    for (var i = 0; i < sectionModel.count; ++i)
-    {
-      order.push(sectionModel.get(i).key)
-    }
-    _sectionOrder = order.join(",")
-    saveConfiguration()
+    VJS.updateSectionOrder(sectionModel, _Root)
   }
 
   function loadSectionOrder() {
-    var savedOrder = String(_sectionOrder || "date,desktopName,desktopNumber").split(",")
-    var valid = ["date", "desktopName", "desktopNumber"]
-    var ordered = []
-    for (var i = 0; i < savedOrder.length; ++i)
-    {
-      if (valid.indexOf(savedOrder[i]) >= 0 && ordered.indexOf(savedOrder[i]) < 0)
-      {
-        ordered.push(savedOrder[i])
-      }
-    }
-    for (var j = 0; j < valid.length; ++j)
-    {
-      if (ordered.indexOf(valid[j]) < 0)
-      {
-        ordered.push(valid[j])
-      }
-    }
-    for (var k = 0; k < ordered.length; ++k)
-    {
-      var currentIndex = -1
-      for (var n = 0; n < sectionModel.count; ++n)
-      {
-        if (sectionModel.get(n).key === ordered[k])
-        {
-          currentIndex = n
-          break
-        }
-      }
-      if (currentIndex >= 0 && currentIndex !== k)
-      {
-        sectionModel.move(currentIndex, k, 1)
-      }
-    }
+    VJS.loadSectionOrder(_Root, sectionModel)
   }
 
   function loadConfiguration(jsonStr) {
-    var raw = jsonStr || cfg_desktopindikator601 || (KDE_plasmoid.Plasmoid.configuration && KDE_plasmoid.Plasmoid.configuration.desktopindikator601) || ""
-    var configObj = {}
-    if (raw)
-    {
-      try
-      {
-        configObj = JSON.parse(raw) || {}
-      }
-      catch (e)
-      {}
-    }
-
-    if (configObj.heightWidthRatio !== undefined)
-    {
-      _Root.heightWidthRatio = configObj.heightWidthRatio
-    }
-    else if (KDE_plasmoid.Plasmoid.configuration && KDE_plasmoid.Plasmoid.configuration.heightWidthRatio !== undefined)
-    {
-      _Root.heightWidthRatio = KDE_plasmoid.Plasmoid.configuration.heightWidthRatio
-    }
-
-    if (configObj.sectionOrder !== undefined)
-    {
-      _Root._sectionOrder = configObj.sectionOrder
-    }
-    else if (KDE_plasmoid.Plasmoid.configuration && KDE_plasmoid.Plasmoid.configuration.sectionOrder !== undefined)
-    {
-      _Root._sectionOrder = KDE_plasmoid.Plasmoid.configuration.sectionOrder
-    }
-
-    if (configObj.sectionDateWidthWeight !== undefined)
-    {
-      _Root.sectionDateWidthWeight = configObj.sectionDateWidthWeight
-    }
-    else if (KDE_plasmoid.Plasmoid.configuration && KDE_plasmoid.Plasmoid.configuration.sectionDateWidthWeight !== undefined)
-    {
-      _Root.sectionDateWidthWeight = KDE_plasmoid.Plasmoid.configuration.sectionDateWidthWeight
-    }
-
-    if (configObj.sectionDesktopNameWidthWeight !== undefined)
-    {
-      _Root.sectionDesktopNameWidthWeight = configObj.sectionDesktopNameWidthWeight
-    }
-    else if (KDE_plasmoid.Plasmoid.configuration && KDE_plasmoid.Plasmoid.configuration.sectionDesktopNameWidthWeight !== undefined)
-    {
-      _Root.sectionDesktopNameWidthWeight = KDE_plasmoid.Plasmoid.configuration.sectionDesktopNameWidthWeight
-    }
-
-    if (configObj.sectionDesktopNumberWidthWeight !== undefined)
-    {
-      _Root.sectionDesktopNumberWidthWeight = configObj.sectionDesktopNumberWidthWeight
-    }
-    else if (KDE_plasmoid.Plasmoid.configuration && KDE_plasmoid.Plasmoid.configuration.sectionDesktopNumberWidthWeight !== undefined)
-    {
-      _Root.sectionDesktopNumberWidthWeight = KDE_plasmoid.Plasmoid.configuration.sectionDesktopNumberWidthWeight
-    }
-
-    for (var l = 0; l < _STYLE_PROPERTIES.length; ++l)
-    {
-      var propName = _STYLE_PROPERTIES[l].prop
-      if (configObj[propName] !== undefined)
-      {
-        syncListFromConfig(propName, configObj[propName])
-      }
-      else if (KDE_plasmoid.Plasmoid.configuration && KDE_plasmoid.Plasmoid.configuration[propName] !== undefined)
-      {
-        syncListFromConfig(propName, KDE_plasmoid.Plasmoid.configuration[propName])
-      }
-    }
-
-    loadSectionOrder()
+    VJS.loadConfiguration(_Root, jsonStr, KDE_plasmoid.Plasmoid.configuration)
   }
 
   function saveConfiguration() {
-    var configObj = {
-      heightWidthRatio: _Root.heightWidthRatio,
-      sectionOrder: _Root._sectionOrder,
-      sectionDateWidthWeight: _Root.sectionDateWidthWeight,
-      sectionDesktopNameWidthWeight: _Root.sectionDesktopNameWidthWeight,
-      sectionDesktopNumberWidthWeight: _Root.sectionDesktopNumberWidthWeight
-    }
-    for (var l = 0; l < _STYLE_PROPERTIES.length; ++l)
-    {
-      var propName = _STYLE_PROPERTIES[l].prop
-      var valList = _Root[propName]
-      if (Array.isArray(valList))
-      {
-        configObj[propName] = valList.map(v => (v && typeof v === "object" && v.toString) ? v.toString() : v)
-      }
-      else
-      {
-        configObj[propName] = valList
-      }
-    }
-    var jsonStr = JSON.stringify(configObj)
-    if (_Root.cfg_desktopindikator601 !== jsonStr)
-    {
-      _isSaving = true
-      _Root.cfg_desktopindikator601 = jsonStr
-      _isSaving = false
-    }
+    VJS.saveConfiguration(_Root)
   }
 
   function setAt(list, index, value) {
-    var copy = (list && Array.isArray(list)) ? list.slice() : []
-    var defaultVal = (copy.length > 0 && copy[0] !== undefined) ? copy[0] : value
-    while (copy.length <= index)
-    {
-      copy.push(defaultVal)
-    }
-    copy[index] = value
-    return copy
+    return VJS.setAt(list, index, value)
   }
 
   function updateStyleProperty(propName, value) {
-    var stringVal = (value && typeof value === "object" && value.toString) ? value.toString() : value
-    if (linkToggle.checked)
-    {
-      var count = Math.max(desktopModel.count || 0, (_Root[propName] && _Root[propName].length ? _Root[propName].length - 1 : 0), 1)
-      var arr = []
-      for (var i = 0; i <= count; ++i)
-      {
-        arr.push(stringVal)
-      }
-      _Root[propName] = arr
-    }
-    else
-    {
-      _Root[propName] = setAt(_Root[propName], _selectedDesktopNo, stringVal)
-    }
-    saveConfiguration()
+    VJS.updateStyleProperty(_Root, linkToggle.checked, desktopModel.count, _selectedDesktopNo, propName, value)
   }
 
   function getDesktopStyle(idx) {
-    var deskIdx = Math.max(0, idx)
-    var result = { type: "DesktopIndicatorStyle" }
-    for (var i = 0; i < _STYLE_PROPERTIES.length; ++i)
-    {
-      var item = _STYLE_PROPERTIES[i]
-      var val = ensureDesktopProperty(item.prop, deskIdx)
-      result[item.key] = (val && typeof val === "object" && val.toString) ? val.toString() : val
-    }
-    return result
+    return VJS.getDesktopStyle(_Root, idx)
   }
 
   function applyStyleToDesktop(style, deskIdx) {
-    if (!style)
-    {
-      return
-    }
-    if (linkToggle.checked)
-    {
-      applyStyleToAllDesktops(style)
-      return
-    }
-    for (var i = 0; i < _STYLE_PROPERTIES.length; ++i)
-    {
-      var item = _STYLE_PROPERTIES[i]
-      var val = style[item.key]
-      if (val !== undefined)
-      {
-        var stringVal = (val && typeof val === "object" && val.toString) ? val.toString() : val
-        _Root[item.prop] = setAt(_Root[item.prop], deskIdx, stringVal)
-      }
-    }
-    saveConfiguration()
+    VJS.applyStyleToDesktop(_Root, linkToggle.checked, desktopModel.count, style, deskIdx)
   }
 
   function applyStyleToAllDesktops(style) {
-    if (!style)
-    {
-      return
-    }
-    var count = Math.max(desktopModel.count || 0, 1)
-    for (var i = 0; i < _STYLE_PROPERTIES.length; ++i)
-    {
-      var item = _STYLE_PROPERTIES[i]
-      var val = style[item.key]
-      if (val !== undefined)
-      {
-        var stringVal = (val && typeof val === "object" && val.toString) ? val.toString() : val
-        var arr = []
-        for (var d = 0; d <= count; ++d)
-        {
-          arr.push(stringVal)
-        }
-        _Root[item.prop] = arr
-      }
-    }
-    saveConfiguration()
+    VJS.applyStyleToAllDesktops(_Root, desktopModel.count, style)
   }
 
   QTQ.TextEdit {
@@ -497,61 +243,23 @@ QTQ.Item { id: _Root
   property var lastCopiedStyle: null
 
   function getClipboardText() {
-    clipboardHelper.text = ""
-    clipboardHelper.selectAll()
-    clipboardHelper.paste()
-    return clipboardHelper.text
+    return VJS.getClipboardText(clipboardHelper)
   }
 
   function parseStyleFromText(str) {
-    if (!str || typeof str !== "string")
-    {
-      return null
-    }
-    try
-    {
-      var obj = JSON.parse(str)
-      if (obj && typeof obj === "object")
-      {
-        if (obj.type === "DesktopIndicatorStyle")
-        {
-          return obj
-        }
-        if (obj.dateBackgroundColor !== undefined ||
-            obj.dayNameColor !== undefined ||
-            obj.desktopNumberBackgroundColor !== undefined ||
-            obj.desktopNameColor !== undefined)
-        {
-          return obj
-        }
-      }
-    }
-    catch (e)
-    {}
-    return null
+    return VJS.parseStyleFromText(str)
   }
 
   function checkClipboard() {
-    var text = getClipboardText()
-    hasValidClipboardContent = parseStyleFromText(text) !== null
+    VJS.checkClipboard(clipboardHelper, _Root)
   }
 
   function copySelectedDesktopStyle() {
-    var style = getDesktopStyle(_selectedDesktopNo)
-    clipboardHelper.text = JSON.stringify(style)
-    clipboardHelper.selectAll()
-    clipboardHelper.copy()
-    lastCopiedStyle = style
-    checkClipboard()
+    VJS.copySelectedDesktopStyle(_Root, clipboardHelper, _selectedDesktopNo)
   }
 
   function pasteDesktopStyle() {
-    var text = getClipboardText()
-    var style = parseStyleFromText(text) || lastCopiedStyle
-    if (style)
-    {
-      applyStyleToDesktop(style, _selectedDesktopNo)
-    }
+    VJS.pasteDesktopStyle(_Root, clipboardHelper, _selectedDesktopNo, lastCopiedStyle)
   }
 
   QTQ.Timer {
@@ -563,19 +271,11 @@ QTQ.Item { id: _Root
   }
 
   function openColor(target, current) {
-    colorDialog.target = target
-    colorDialog.selectedColor = current
-    colorDialog.open()
+    VJS.openColor(colorDialog, target, current)
   }
 
   function openFont(target, current) {
-    fontDialog.target = target
-    fontDialog.selectedFamily = current
-    var styleTarget = target === "styleFont" ? styleDialog.target : target
-    var targetKey = styleTarget === "numberText" ? "desktopNumber" : styleTarget
-    var info = _STYLE_TARGETS[targetKey]
-    fontDialog.previewText = info ? info.previewText() : String(_selectedDesktopNo)
-    fontDialog.open()
+    VJS.openFont(fontDialog, styleDialog, _STYLE_TARGETS, target, current, _selectedDesktopNo)
   }
 
   QTQ.Component.onCompleted: {
@@ -602,19 +302,7 @@ QTQ.Item { id: _Root
   }
 
   function rebuildDesktops() {
-    var previousIndex = desktopBox.currentIndex
-    desktopModel.clear()
-    var ids = desktopInfo.desktopIds || []
-    var names = desktopInfo.desktopNames || []
-    var count = Math.max(desktopInfo.numberOfDesktops || 0,
-        ids.length || 0, names.length || 0, 1)
-    for (var i = 0; i < count; ++i)
-    {
-      var desktopName = (names && names[i])
-          ? names[i] : qsTr("Desktop %1").arg(i + 1)
-      desktopModel.append({name: desktopName, number: i + 1})
-    }
-    desktopBox.currentIndex = Math.min(Math.max(previousIndex, 0), count - 1)
+    VJS.rebuildDesktops(desktopBox, desktopModel, desktopInfo)
   }
 
   QTQ.ListModel { id: desktopModel }
@@ -885,15 +573,7 @@ QTQ.Item { id: _Root
   }
 
   function openStyle(target) {
-    var targetKey = target === "numberText" ? "desktopNumber" : target
-    var info = _STYLE_TARGETS[targetKey]
-    var deskIdx = _selectedDesktopNo
-    styleDialog.target = target
-    styleDialog.title = info ? info.title : qsTr("Style")
-    styleDialog.fontName = (_Root.ensureDesktopProperty(info.fontProp, deskIdx)) || (info ? info.defaultFont : "Sans Serif")
-    styleDialog.selectedTextColor = (_Root.ensureDesktopProperty(info.colorProp, deskIdx)) || (info ? info.defaultColor : "#071169")
-    styleDialog.scaleValue = Number((_Root.ensureDesktopProperty(info.scaleProp, deskIdx)) || 50)
-    styleDialog.open()
+    VJS.openStyle(styleDialog, _Root, _STYLE_TARGETS, _selectedDesktopNo, target)
   }
 
   QTQ_C.Dialog {
