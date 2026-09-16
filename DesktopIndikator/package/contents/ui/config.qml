@@ -24,7 +24,7 @@ QTQ.Item { id: _Root
   }
 
   property bool _isSaving: false
-  property int _selectedDesktop: desktopBox.currentIndex + 1
+  property int _selectedDesktopNo: desktopBox.currentIndex + 1
 
   property string sectionOrder: "date,desktopName,desktopNumber"
   onSectionOrderChanged: loadSectionOrder()
@@ -106,9 +106,9 @@ QTQ.Item { id: _Root
       defaultFont: "Sans Serif",
       defaultColor: "#071169",
       previewText: () => {
-        var idx = _Root._selectedDesktop - 1
+        var idx = _Root._selectedDesktopNo - 1
         return (idx >= 0 && idx < desktopModel.count && desktopModel.get(idx))
-            ? desktopModel.get(idx).name : qsTr("Desktop %1").arg(_Root._selectedDesktop)
+            ? desktopModel.get(idx).name : qsTr("Desktop %1").arg(_Root._selectedDesktopNo)
       }
     },
     "desktopNumber": {
@@ -118,7 +118,7 @@ QTQ.Item { id: _Root
       scaleProp: "desktopNumberScales",
       defaultFont: "Serif",
       defaultColor: "#ffffff",
-      previewText: () => String(_Root._selectedDesktop)
+      previewText: () => String(_Root._selectedDesktopNo)
     }
   })
 
@@ -455,7 +455,7 @@ QTQ.Item { id: _Root
     }
     else
     {
-      _Root[propName] = setAt(_Root[propName], _selectedDesktop, stringVal)
+      _Root[propName] = setAt(_Root[propName], _selectedDesktopNo, stringVal)
     }
     saveConfiguration()
   }
@@ -569,7 +569,7 @@ QTQ.Item { id: _Root
   }
 
   function copySelectedDesktopStyle() {
-    var style = getDesktopStyle(_selectedDesktop)
+    var style = getDesktopStyle(_selectedDesktopNo)
     clipboardHelper.text = JSON.stringify(style)
     clipboardHelper.selectAll()
     clipboardHelper.copy()
@@ -582,7 +582,7 @@ QTQ.Item { id: _Root
     var style = parseStyleFromText(text) || lastCopiedStyle
     if (style)
     {
-      applyStyleToDesktop(style, _selectedDesktop)
+      applyStyleToDesktop(style, _selectedDesktopNo)
     }
   }
 
@@ -606,7 +606,7 @@ QTQ.Item { id: _Root
     var styleTarget = target === "styleFont" ? styleDialog.target : target
     var targetKey = styleTarget === "numberText" ? "desktopNumber" : styleTarget
     var info = _STYLE_TARGETS[targetKey]
-    fontDialog.previewText = info ? info.previewText() : String(_selectedDesktop)
+    fontDialog.previewText = info ? info.previewText() : String(_selectedDesktopNo)
     fontDialog.open()
   }
 
@@ -829,11 +829,11 @@ QTQ.Item { id: _Root
       sourceComponent: widgetPreview
       onLoaded: {
         item.interactive = true
-        item.desktopNo = Qt.binding(function() { return _Root.selectedDesktop })
+        item.desktopNo = Qt.binding(function() { return _Root._selectedDesktopNo })
         item.desktopName = Qt.binding(function() {
-          var idx = _Root.selectedDesktop - 1
+          var idx = _Root._selectedDesktopNo - 1
           return (idx >= 0 && idx < desktopModel.count && desktopModel.get(idx))
-              ? desktopModel.get(idx).name : qsTr("Desktop %1").arg(_Root.selectedDesktop)
+              ? desktopModel.get(idx).name : qsTr("Desktop %1").arg(_Root._selectedDesktopNo)
         })
       }
 
@@ -922,7 +922,7 @@ QTQ.Item { id: _Root
   function openStyle(target) {
     var targetKey = target === "numberText" ? "desktopNumber" : target
     var info = _STYLE_TARGETS[targetKey]
-    var deskIdx = selectedDesktop
+    var deskIdx = _selectedDesktopNo
     styleDialog.target = target
     styleDialog.title = info ? info.title : qsTr("Style")
     styleDialog.fontName = (_Root.ensureDesktopProperty(info.fontProp, deskIdx)) || (info ? info.defaultFont : "Sans Serif")
