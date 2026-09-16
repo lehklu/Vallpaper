@@ -5,7 +5,7 @@
       https://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
 
     <group name="Settings">
-      <entry name="desktopindikator601" type="String"><default>{
+      <entry name="desktopindikator01" type="String"><default>{
           "heightWidthRatio": 60,
           "sectionDateWidthWeight": 20,
           "sectionDesktopNameWidthWeight": 30,

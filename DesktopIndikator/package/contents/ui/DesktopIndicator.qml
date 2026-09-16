@@ -6,7 +6,7 @@ import QtQuick as QTQ
 import QtQuick.Controls as QTQ_C
 import org.kde.kirigami as Kirigami
 
-import "../js/v.js" as VJS
+import "../js/desktopindikator.js" as VJS
 
 QTQ.Item {
   id: _Root

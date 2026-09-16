@@ -8,7 +8,7 @@ import QtQuick.Layouts as QTQ_L
 import org.kde.plasma.plasmoid as KDE_plasmoid
 import org.kde.taskmanager as KDE_taskmanager
 
-import "../js/v.js" as VJS
+import "../js/desktopindikator.js" as VJS
 
 KDE_plasmoid.PlasmoidItem {
   id: _Root
@@ -27,7 +27,7 @@ KDE_plasmoid.PlasmoidItem {
 
   readonly property var _parsedConfiguration: {
     var _rev = _configurationChangedDependencyTrigger
-    var raw = KDE_plasmoid.Plasmoid.configuration ? KDE_plasmoid.Plasmoid.configuration.desktopindikator601 : ""
+    var raw = KDE_plasmoid.Plasmoid.configuration ? KDE_plasmoid.Plasmoid.configuration.desktopindikator01 : ""
     return VJS.parseConfiguration(raw)
   }
 
@@ -77,7 +77,7 @@ KDE_plasmoid.PlasmoidItem {
       _Root._configurationChangedDependencyTrigger++
     }
 
-    function onDesktopindikator601Changed() {
+    function onDesktopindikator01Changed() {
       _Root._configurationChangedDependencyTrigger++
     }
 

@@ -142,6 +142,34 @@ const syncListFromConfig = function(root, propName, jsonStrOrArray) {
   root[propName] = [jsonStrOrArray];
 };
 
+const saveConfiguration = function(root) {
+  var configObj = {
+    heightWidthRatio: root.heightWidthRatio,
+    sectionOrder: root._sectionOrder,
+    sectionDateWidthWeight: root.sectionDateWidthWeight,
+    sectionDesktopNameWidthWeight: root.sectionDesktopNameWidthWeight,
+    sectionDesktopNumberWidthWeight: root.sectionDesktopNumberWidthWeight
+  };
+  var styleProps = root._STYLE_PROPERTIES || [];
+  for (var l = 0; l < styleProps.length; ++l) {
+    var propName = styleProps[l].prop;
+    var valList = root[propName];
+    if (Array.isArray(valList)) {
+      configObj[propName] = valList.map(function(v) {
+        return (v && typeof v === "object" && v.toString) ? v.toString() : v;
+      });
+    } else {
+      configObj[propName] = valList;
+    }
+  }
+  var jsonStr = JSON.stringify(configObj);
+  if (root.cfg_desktopindikator01 !== jsonStr) {
+    root._isSaving = true;
+    root.cfg_desktopindikator01 = jsonStr;
+    root._isSaving = false;
+  }
+};
+
 const sectionWidthValue = function(root, key) {
   if (key === "date") return root.sectionDateWidthWeight;
   if (key === "desktopName") return root.sectionDesktopNameWidthWeight;
@@ -193,7 +221,7 @@ const loadSectionOrder = function(root, sectionModel) {
 };
 
 const loadConfiguration = function(root, jsonStr, plasmoidConfiguration) {
-  var raw = jsonStr || root.cfg_desktopindikator601 || (plasmoidConfiguration && plasmoidConfiguration.desktopindikator601) || "";
+  var raw = jsonStr || root.cfg_desktopindikator01 || (plasmoidConfiguration && plasmoidConfiguration.desktopindikator01) || "";
   var configObj = {};
   if (raw) {
     try {
@@ -243,34 +271,6 @@ const loadConfiguration = function(root, jsonStr, plasmoidConfiguration) {
 
   if (root.loadSectionOrder) {
     root.loadSectionOrder();
-  }
-};
-
-const saveConfiguration = function(root) {
-  var configObj = {
-    heightWidthRatio: root.heightWidthRatio,
-    sectionOrder: root._sectionOrder,
-    sectionDateWidthWeight: root.sectionDateWidthWeight,
-    sectionDesktopNameWidthWeight: root.sectionDesktopNameWidthWeight,
-    sectionDesktopNumberWidthWeight: root.sectionDesktopNumberWidthWeight
-  };
-  var styleProps = root._STYLE_PROPERTIES || [];
-  for (var l = 0; l < styleProps.length; ++l) {
-    var propName = styleProps[l].prop;
-    var valList = root[propName];
-    if (Array.isArray(valList)) {
-      configObj[propName] = valList.map(function(v) {
-        return (v && typeof v === "object" && v.toString) ? v.toString() : v;
-      });
-    } else {
-      configObj[propName] = valList;
-    }
-  }
-  var jsonStr = JSON.stringify(configObj);
-  if (root.cfg_desktopindikator601 !== jsonStr) {
-    root._isSaving = true;
-    root.cfg_desktopindikator601 = jsonStr;
-    root._isSaving = false;
   }
 };
 

@@ -221,3 +221,6 @@ If 'Per Desktop' is clicked, it shall uncheck linkToggle
 Repair usage of property string sectionOrder
 
 Move functions to separate file
+
+Rename v.js to desktopindikator.js and entry name="desktopindikator601" to entry name="desktopindikator01"
+desktopindikator.js:155:3 Variable "saveConfiguration" is used before its declaration at 249:

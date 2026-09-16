@@ -10,19 +10,21 @@ import org.kde.kirigami as Kirigami
 import org.kde.plasma.plasmoid as KDE_plasmoid
 import org.kde.taskmanager as KDE_taskmanager
 
-import "../js/v.js" as VJS
+import "../js/desktopindikator.js" as VJS
 
 QTQ.Item { id: _Root
 
   property var title // for KDE Settings page
+  property var cfg_configuration // for Plasma
+  property var cfg_desktopindikator01Default // for Plasma
 
-  property string cfg_desktopindikator601
-  onCfg_desktopindikator601Changed: {
+  property string cfg_desktopindikator01
+  onCfg_desktopindikator01Changed: {
 
     if(_isSaving) { return; }
     //<--
 
-    loadConfiguration(cfg_desktopindikator601)
+    loadConfiguration(cfg_desktopindikator01)
   }
 
   property bool _isSaving: false
