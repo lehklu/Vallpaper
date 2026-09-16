@@ -31,13 +31,8 @@ QTQ.Item { id: _Root
 
   property int heightWidthRatio: 50
 
-  property int sectionDateOrderIdx: 0
   property int sectionDateWidthWeight: 50
-
-  property int sectionDesktopNameOrderIdx: 1
   property int sectionDesktopNameWidthWeight: 50
-
-  property int sectionDesktopNumberOrderIdx: 2
   property int sectionDesktopNumberWidthWeight: 50
 
   readonly property var _DEFAULT_COLORS_LIGHT: ["#ffffff"]
@@ -263,7 +258,6 @@ QTQ.Item { id: _Root
       order.push(sectionModel.get(i).key)
     }
     sectionOrder = order.join(",")
-    saveSectionOrderProperties()
     saveConfiguration()
   }
 
@@ -301,29 +295,6 @@ QTQ.Item { id: _Root
         sectionModel.move(currentIndex, k, 1)
       }
     }
-    saveSectionOrderProperties()
-  }
-
-  function saveSectionOrderProperties() {
-    var dateIdx = -1, nameIdx = -1, numIdx = -1
-    for (var i = 0; i < sectionModel.count; ++i)
-    {
-      if (sectionModel.get(i).key === "date")
-      {
-        dateIdx = i
-      }
-      else if (sectionModel.get(i).key === "desktopName")
-      {
-        nameIdx = i
-      }
-      else if (sectionModel.get(i).key === "desktopNumber")
-      {
-        numIdx = i
-      }
-    }
-    sectionDateOrderIdx = dateIdx >= 0 ? dateIdx : 0
-    sectionDesktopNameOrderIdx = nameIdx >= 0 ? nameIdx : 1
-    sectionDesktopNumberOrderIdx = numIdx >= 0 ? numIdx : 2
   }
 
   function loadConfiguration(jsonStr) {
@@ -892,9 +863,7 @@ QTQ.Item { id: _Root
       sectionDateWidthWeight: _Root.sectionDateWidthWeight
       sectionDesktopNameWidthWeight: _Root.sectionDesktopNameWidthWeight
       sectionDesktopNumberWidthWeight: _Root.sectionDesktopNumberWidthWeight
-      dateSectionOrder: _Root.sectionDateOrderIdx
-      nameSectionOrder: _Root.sectionDesktopNameOrderIdx
-      sectionDesktopNumberOrder: _Root.sectionDesktopNumberOrderIdx
+      sectionOrder: _Root.sectionOrder
 
       dateBackgroundColor: _Root.ensureDesktopValue(_Root.dateBackgroundColors, desktopNo)
       dayNameColor: _Root.ensureDesktopValue(_Root.dayNameColors, desktopNo)

@@ -22,9 +22,17 @@ QTQ.Item {
   property int sectionDesktopNameWidthWeight: 50
   property int sectionDesktopNumberWidthWeight: 50
 
-  property int dateSectionOrder: 0
-  property int nameSectionOrder: 1
-  property int sectionDesktopNumberOrder: 2
+  property string sectionOrder: "date,desktopName,desktopNumber"
+
+  function sectionOrderIndex(section, fallback) {
+    var order = String(_Root.sectionOrder || "date,desktopName,desktopNumber").split(",")
+    var index = order.indexOf(section)
+    return index >= 0 ? index : fallback
+  }
+
+  readonly property int dateSectionOrder: sectionOrderIndex("date", 0)
+  readonly property int nameSectionOrder: sectionOrderIndex("desktopName", 1)
+  readonly property int sectionDesktopNumberOrder: sectionOrderIndex("desktopNumber", 2)
 
   property var dateBackgroundColor: "#ffffff"
   property var dayNameColor: "#071169"

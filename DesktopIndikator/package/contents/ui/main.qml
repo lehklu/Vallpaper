@@ -97,20 +97,12 @@ KDE_plasmoid.PlasmoidItem {
     return fallback
   }
 
-  function sectionOrderIndex(section, fallback) {
-    var order = String(getConfig("sectionOrder", "date,desktopName,desktopNumber")).split(",")
-    var index = order.indexOf(section)
-    return index >= 0 ? index : fallback
-  }
-
   property real _heightWidthRatio: Number(getConfig("heightWidthRatio", 50))
   property int _fullWidth: Math.round(height * _heightWidthRatio / 10)
   property real _sectionDateWidthWeight: Number(getConfig("sectionDateWidthWeight", 50))
   property real _sectionDesktopNameWidthWeight: Number(getConfig("sectionDesktopNameWidthWeight", 50))
   property real _sectionDesktopNumberWidthWeight: Number(getConfig("sectionDesktopNumberWidthWeight", 50))
-  property int _dateSectionOrder: sectionOrderIndex("date", 0)
-  property int _nameSectionOrder: sectionOrderIndex("desktopName", 1)
-  property int _sectionDesktopNumberOrder: sectionOrderIndex("desktopNumber", 2)
+  property string _sectionOrder: String(getConfig("sectionOrder", "date,desktopName,desktopNumber"))
 
   property date _currentDate: new Date()
   property int _currentDesktopNo: 0
@@ -222,9 +214,7 @@ KDE_plasmoid.PlasmoidItem {
     sectionDesktopNameWidthWeight: _Root._sectionDesktopNameWidthWeight
     sectionDesktopNumberWidthWeight: _Root._sectionDesktopNumberWidthWeight
 
-    dateSectionOrder: _Root._dateSectionOrder
-    nameSectionOrder: _Root._nameSectionOrder
-    sectionDesktopNumberOrder: _Root._sectionDesktopNumberOrder
+    sectionOrder: _Root._sectionOrder
 
     dateBackgroundColor: _Root._currentDeskColor
     dayNameColor: _Root._currentDayNameColor
