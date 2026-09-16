@@ -26,8 +26,8 @@ QTQ.Item { id: _Root
   property bool _isSaving: false
   property int _selectedDesktopNo: desktopBox.currentIndex + 1
 
-  property string sectionOrder: "date,desktopName,desktopNumber"
-  onSectionOrderChanged: loadSectionOrder()
+  property string _sectionOrder
+  on_SectionOrderChanged: loadSectionOrder()
 
   property int heightWidthRatio: 50
 
@@ -124,8 +124,6 @@ QTQ.Item { id: _Root
     "desktopNumber": "desktopNumberBackgroundColors"
   })
 
-  QTQ.FontMetrics { id: _FontMetrics }
-
   function syncListFromConfig(propName, jsonStrOrArray) {
     if (jsonStrOrArray === undefined || jsonStrOrArray === null || jsonStrOrArray === "")
     {
@@ -205,7 +203,6 @@ QTQ.Item { id: _Root
     QTQ_C.Label { text: parent.label; font.family: 'monospace'; QTQ_L.Layout.fillWidth: true }
     QTQ_C.Label { text: qsTr("Width weight") }
     QTQ_C.SpinBox {
-      QTQ_L.Layout.preferredWidth: _FontMetrics.averageCharacterWidth() * 7
       from: 0
       to: 100
       value: parent.widthValue
@@ -257,12 +254,12 @@ QTQ.Item { id: _Root
     {
       order.push(sectionModel.get(i).key)
     }
-    sectionOrder = order.join(",")
+    _sectionOrder = order.join(",")
     saveConfiguration()
   }
 
   function loadSectionOrder() {
-    var savedOrder = String(sectionOrder || "date,desktopName,desktopNumber").split(",")
+    var savedOrder = String(_sectionOrder || "date,desktopName,desktopNumber").split(",")
     var valid = ["date", "desktopName", "desktopNumber"]
     var ordered = []
     for (var i = 0; i < savedOrder.length; ++i)
@@ -321,11 +318,11 @@ QTQ.Item { id: _Root
 
     if (configObj.sectionOrder !== undefined)
     {
-      _Root.sectionOrder = configObj.sectionOrder
+      _Root._sectionOrder = configObj.sectionOrder
     }
     else if (KDE_plasmoid.Plasmoid.configuration && KDE_plasmoid.Plasmoid.configuration.sectionOrder !== undefined)
     {
-      _Root.sectionOrder = KDE_plasmoid.Plasmoid.configuration.sectionOrder
+      _Root._sectionOrder = KDE_plasmoid.Plasmoid.configuration.sectionOrder
     }
 
     if (configObj.sectionDateWidthWeight !== undefined)
@@ -374,7 +371,7 @@ QTQ.Item { id: _Root
   function saveConfiguration() {
     var configObj = {
       heightWidthRatio: _Root.heightWidthRatio,
-      sectionOrder: _Root.sectionOrder,
+      sectionOrder: _Root._sectionOrder,
       sectionDateWidthWeight: _Root.sectionDateWidthWeight,
       sectionDesktopNameWidthWeight: _Root.sectionDesktopNameWidthWeight,
       sectionDesktopNumberWidthWeight: _Root.sectionDesktopNumberWidthWeight
@@ -668,7 +665,6 @@ QTQ.Item { id: _Root
         text: "10 :"
       }
       QTQ_C.SpinBox {
-        QTQ_L.Layout.preferredWidth: _FontMetrics.averageCharacterWidth() * 7
         from: 1
         to: 100
         value: _Root.heightWidthRatio
@@ -863,7 +859,7 @@ QTQ.Item { id: _Root
       sectionDateWidthWeight: _Root.sectionDateWidthWeight
       sectionDesktopNameWidthWeight: _Root.sectionDesktopNameWidthWeight
       sectionDesktopNumberWidthWeight: _Root.sectionDesktopNumberWidthWeight
-      sectionOrder: _Root.sectionOrder
+      sectionOrder: _Root._sectionOrder
 
       dateBackgroundColor: _Root.ensureDesktopValue(_Root.dateBackgroundColors, desktopNo)
       dayNameColor: _Root.ensureDesktopValue(_Root.dayNameColors, desktopNo)
