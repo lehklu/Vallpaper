@@ -8,7 +8,7 @@ import QtQuick.Layouts as QTQ_L
 import org.kde.plasma.plasmoid as KDE_plasmoid
 import org.kde.taskmanager as KDE_taskmanager
 
-import "../js/desktopindikator.js" as VJS
+import "../js/desktopindikator.js" as JSLIB
 
 KDE_plasmoid.PlasmoidItem {
   id: _Root
@@ -28,17 +28,17 @@ KDE_plasmoid.PlasmoidItem {
   readonly property var _parsedConfiguration: {
     var _rev = _configurationChangedDependencyTrigger
     var raw = KDE_plasmoid.Plasmoid.configuration ? KDE_plasmoid.Plasmoid.configuration.desktopindikator01 : ""
-    return VJS.parseConfiguration(raw)
+    return JSLIB.parseConfiguration(raw)
   }
 
   function getConfig(key, fallback) {
     var _rev = _configurationChangedDependencyTrigger
-    return VJS.getConfig(_parsedConfiguration, KDE_plasmoid.Plasmoid.configuration, key, fallback)
+    return JSLIB.getConfig(_parsedConfiguration, KDE_plasmoid.Plasmoid.configuration, key, fallback)
   }
 
   function getDesktopConfig(listName, deskIndex, fallback) {
     var _rev = _configurationChangedDependencyTrigger
-    return VJS.getDesktopConfig(_parsedConfiguration, KDE_plasmoid.Plasmoid.configuration, listName, deskIndex, fallback)
+    return JSLIB.getDesktopConfig(_parsedConfiguration, KDE_plasmoid.Plasmoid.configuration, listName, deskIndex, fallback)
   }
 
   property real _heightWidthRatio: Number(getConfig("heightWidthRatio", 50))
@@ -112,7 +112,7 @@ KDE_plasmoid.PlasmoidItem {
     }
 
     function getCurrentDeskNo() {
-      return VJS.GET_CURRENT_DESKNO(desktopInfo)
+      return JSLIB.GET_CURRENT_DESKNO(desktopInfo)
     }
   }
 
@@ -123,7 +123,7 @@ KDE_plasmoid.PlasmoidItem {
   }
 
   function handleOnDesktopChanged(newDeskNo) {
-    VJS.handleOnDesktopChanged(_Root, desktopInfo, newDeskNo)
+    JSLIB.handleOnDesktopChanged(_Root, desktopInfo, newDeskNo)
   }
 
   QTQ.Timer {

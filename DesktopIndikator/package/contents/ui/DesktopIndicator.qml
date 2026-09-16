@@ -6,7 +6,7 @@ import QtQuick as QTQ
 import QtQuick.Controls as QTQ_C
 import org.kde.kirigami as Kirigami
 
-import "../js/desktopindikator.js" as VJS
+import "../js/desktopindikator.js" as JSLIB
 
 QTQ.Item {
   id: _Root
@@ -27,7 +27,7 @@ QTQ.Item {
   property string sectionOrder: "date,desktopName,desktopNumber"
 
   function sectionOrderIndex(section, fallback) {
-    return VJS.sectionOrderIndex(_Root.sectionOrder, section, fallback)
+    return JSLIB.sectionOrderIndex(_Root.sectionOrder, section, fallback)
   }
 
   readonly property int dateSectionOrder: sectionOrderIndex("date", 0)
@@ -56,15 +56,15 @@ QTQ.Item {
   signal styleRequested(string target)
 
   function totalSectionsWeight() {
-    return VJS.totalSectionsWeight(sectionDateWidthWeight, sectionDesktopNameWidthWeight, sectionDesktopNumberWidthWeight)
+    return JSLIB.totalSectionsWeight(sectionDateWidthWeight, sectionDesktopNameWidthWeight, sectionDesktopNumberWidthWeight)
   }
 
   function sectionWidth(weight) {
-    return VJS.sectionWidth(contentItem.width, totalSectionsWeight(), weight)
+    return JSLIB.sectionWidth(contentItem.width, totalSectionsWeight(), weight)
   }
 
   function sectionOffset(order) {
-    return VJS.sectionOffset(contentItem.width, totalSectionsWeight(), dateSectionOrder, nameSectionOrder, sectionDesktopNumberOrder, sectionDateWidthWeight, sectionDesktopNameWidthWeight, sectionDesktopNumberWidthWeight, order)
+    return JSLIB.sectionOffset(contentItem.width, totalSectionsWeight(), dateSectionOrder, nameSectionOrder, sectionDesktopNumberOrder, sectionDateWidthWeight, sectionDesktopNameWidthWeight, sectionDesktopNumberWidthWeight, order)
   }
 
   QTQ.Item {

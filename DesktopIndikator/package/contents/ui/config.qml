@@ -10,7 +10,7 @@ import org.kde.kirigami as Kirigami
 import org.kde.plasma.plasmoid as KDE_plasmoid
 import org.kde.taskmanager as KDE_taskmanager
 
-import "../js/desktopindikator.js" as VJS
+import "../js/desktopindikator.js" as JSLIB
 
 QTQ.Item { id: _Root
 
@@ -129,15 +129,15 @@ QTQ.Item { id: _Root
   })
 
   function syncListFromConfig(propName, jsonStrOrArray) {
-    VJS.syncListFromConfig(_Root, propName, jsonStrOrArray)
+    JSLIB.syncListFromConfig(_Root, propName, jsonStrOrArray)
   }
 
   function ensureDesktopValue(list, desktopNo) {
-    return VJS.ensureDesktopValue(list, desktopNo)
+    return JSLIB.ensureDesktopValue(list, desktopNo)
   }
 
   function ensureDesktopProperty(propName, desktopNo) {
-    return VJS.ensureDesktopProperty(_Root, propName, desktopNo)
+    return JSLIB.ensureDesktopProperty(_Root, propName, desktopNo)
   }
 
   component SectionSettingsRow: QTQ_L.RowLayout
@@ -192,47 +192,47 @@ QTQ.Item { id: _Root
   }
 
   function sectionWidthValue(key) {
-    return VJS.sectionWidthValue(_Root, key)
+    return JSLIB.sectionWidthValue(_Root, key)
   }
 
   function setSectionWidth(key, value) {
-    VJS.setSectionWidth(_Root, key, value)
+    JSLIB.setSectionWidth(_Root, key, value)
   }
 
   function updateSectionOrder() {
-    VJS.updateSectionOrder(sectionModel, _Root)
+    JSLIB.updateSectionOrder(sectionModel, _Root)
   }
 
   function loadSectionOrder() {
-    VJS.loadSectionOrder(_Root, sectionModel)
+    JSLIB.loadSectionOrder(_Root, sectionModel)
   }
 
   function loadConfiguration(jsonStr) {
-    VJS.loadConfiguration(_Root, jsonStr, KDE_plasmoid.Plasmoid.configuration)
+    JSLIB.loadConfiguration(_Root, jsonStr, KDE_plasmoid.Plasmoid.configuration)
   }
 
   function saveConfiguration() {
-    VJS.saveConfiguration(_Root)
+    JSLIB.saveConfiguration(_Root)
   }
 
   function setAt(list, index, value) {
-    return VJS.setAt(list, index, value)
+    return JSLIB.setAt(list, index, value)
   }
 
   function updateStyleProperty(propName, value) {
-    VJS.updateStyleProperty(_Root, linkToggle.checked, desktopModel.count, _selectedDesktopNo, propName, value)
+    JSLIB.updateStyleProperty(_Root, linkToggle.checked, desktopModel.count, _selectedDesktopNo, propName, value)
   }
 
   function getDesktopStyle(idx) {
-    return VJS.getDesktopStyle(_Root, idx)
+    return JSLIB.getDesktopStyle(_Root, idx)
   }
 
   function applyStyleToDesktop(style, deskIdx) {
-    VJS.applyStyleToDesktop(_Root, linkToggle.checked, desktopModel.count, style, deskIdx)
+    JSLIB.applyStyleToDesktop(_Root, linkToggle.checked, desktopModel.count, style, deskIdx)
   }
 
   function applyStyleToAllDesktops(style) {
-    VJS.applyStyleToAllDesktops(_Root, desktopModel.count, style)
+    JSLIB.applyStyleToAllDesktops(_Root, desktopModel.count, style)
   }
 
   QTQ.TextEdit {
@@ -245,23 +245,23 @@ QTQ.Item { id: _Root
   property var lastCopiedStyle: null
 
   function getClipboardText() {
-    return VJS.getClipboardText(clipboardHelper)
+    return JSLIB.getClipboardText(clipboardHelper)
   }
 
   function parseStyleFromText(str) {
-    return VJS.parseStyleFromText(str)
+    return JSLIB.parseStyleFromText(str)
   }
 
   function checkClipboard() {
-    VJS.checkClipboard(clipboardHelper, _Root)
+    JSLIB.checkClipboard(clipboardHelper, _Root)
   }
 
   function copySelectedDesktopStyle() {
-    VJS.copySelectedDesktopStyle(_Root, clipboardHelper, _selectedDesktopNo)
+    JSLIB.copySelectedDesktopStyle(_Root, clipboardHelper, _selectedDesktopNo)
   }
 
   function pasteDesktopStyle() {
-    VJS.pasteDesktopStyle(_Root, clipboardHelper, _selectedDesktopNo, lastCopiedStyle)
+    JSLIB.pasteDesktopStyle(_Root, clipboardHelper, _selectedDesktopNo, lastCopiedStyle)
   }
 
   QTQ.Timer {
@@ -273,11 +273,11 @@ QTQ.Item { id: _Root
   }
 
   function openColor(target, current) {
-    VJS.openColor(colorDialog, target, current)
+    JSLIB.openColor(colorDialog, target, current)
   }
 
   function openFont(target, current) {
-    VJS.openFont(fontDialog, styleDialog, _STYLE_TARGETS, target, current, _selectedDesktopNo)
+    JSLIB.openFont(fontDialog, styleDialog, _STYLE_TARGETS, target, current, _selectedDesktopNo)
   }
 
   QTQ.Component.onCompleted: {
@@ -304,7 +304,7 @@ QTQ.Item { id: _Root
   }
 
   function rebuildDesktops() {
-    VJS.rebuildDesktops(desktopBox, desktopModel, desktopInfo)
+    JSLIB.rebuildDesktops(desktopBox, desktopModel, desktopInfo)
   }
 
   QTQ.ListModel { id: desktopModel }
@@ -575,7 +575,7 @@ QTQ.Item { id: _Root
   }
 
   function openStyle(target) {
-    VJS.openStyle(styleDialog, _Root, _STYLE_TARGETS, _selectedDesktopNo, target)
+    JSLIB.openStyle(styleDialog, _Root, _STYLE_TARGETS, _selectedDesktopNo, target)
   }
 
   QTQ_C.Dialog {
