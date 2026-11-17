@@ -384,7 +384,7 @@ import "../js/lib.js" as LJS
     QTQ_E.MultiEffect {
 
       source: _activeImage
-      anchors.fill: parent
+      anchors.fill: _activeImage
       visible: _activeImage ? _activeImage.source !== "" : false
 
       saturation: (_activeImage && _activeImage._slotCfg) ? -1 + _activeImage._slotCfg.saturatePct/100 : 0.0
