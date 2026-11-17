@@ -8,52 +8,73 @@ import QtQuick.Layouts as QTQ_L
 import QtQuick.Dialogs as QTQ_D
 
 import org.kde.taskmanager as KDE_taskmanager
+import org.kde.plasma.wallpapers.image as KDE_wallpapersImage
 
-import org.kde.plasma.wallpapers.image as KDE_wallpaper
-
-import "customqml" as CQ
-
-
-import "../js/v.js" as VJS
+import "subparts" as SUBPARTS
+import "../js/lib.js" as LJS
 
 QTQ_L.ColumnLayout { id: _Root
-
   property var title // for KDE Settings page
 
+/*MOD*/property var cfg_vrame602
 /*MOD*/property var cfg_vrame601
+/*MOD*/property var cfg_vrame602Default // for Plasma
+/*MOD*/property var cfg_vrame601Default // for Plasma
 
-  property var plasmacfgAdapter
+  readonly property bool _enableLogger: false
+  readonly property var _LOGGER: _LOGOVERLAY.item
 
-  property var currentDeskCfg
-  property var currentSlotCfg
+  readonly property var _qtqScreenName: QTQ.Screen.name
+  on_QtqScreenNameChanged: _SelectDesktop.init()
 
-  QTQ.FontMetrics { id: _FontMetrics
+  property var _plasmacfgAdapter
+  property var _currentDeskCfg
+  property var _currentSlotCfg
+
+  QTQ.Component.onCompleted: {
+
+/*MOD*/if ((!cfg_vrame602 || cfg_vrame602.length === 0) && (cfg_vrame601 && cfg_vrame601.length > 0)) { cfg_vrame602 = LJS.CFG_602_FROM_601(cfg_vrame601); }
+/*MOD*/_plasmacfgAdapter = new LJS.PlasmacfgAdapter(cfg_vrame602, ($newCfg) => { cfg_vrame602 = $newCfg; });
+
+    _SelectDesktop.init();
   }
+
+  QTQ.FontMetrics { id: _FontMetrics }
 
   QTQ.SystemPalette { id: _ActiveSystemPalette
     colorGroup: QTQ.SystemPalette.Active
   }
 
-  QTQ.Component.onCompleted: {
+  KDE_taskmanager.VirtualDesktopInfo { id: _VirtualDesktopInfo }
 
-/*MOD*/plasmacfgAdapter = new VJS.PlasmacfgAdapter(cfg_vrame601, $newCfg => { cfg_vrame601 = $newCfg; });
-    selectDesktop__init(VJS.GET_CURRENT_DESKNO(_VirtualDesktopInfo));
+  function buildSelectDesktopElement($deskNo) {
+
+    return {
+      'displayText': (LJS.DESKNO_GLOBAL === $deskNo ? LJS.DESKNO_GLOBAL_NAME : _VirtualDesktopInfo.desktopNames[$deskNo - 1]),
+      'deskNo': $deskNo
+    };
   }
 
-  KDE_taskmanager.VirtualDesktopInfo { id: _VirtualDesktopInfo }
+
+  function ensureIndexOfValue($model, $value) {
+
+    for (let idx = 0; idx < $model.length; ++idx)
+    {
+      if ($model[idx].value === $value) { return idx; }
+      //<--
+
+
+    }
+
+    return 0;
+  }
 
   QTQ_L.RowLayout { // Container
 
-    QTQ.Item { // left padding
-      width: _FontMetrics.averageCharacterWidth
-    }
+    /* left padding */ QTQ.Item { width: _FontMetrics.averageCharacterWidth}
 
     QTQ_L.ColumnLayout { // content
       QTQ_L.Layout.fillWidth: true
-
-      QTQ.Item { // top padding
-        height: _FontMetrics.height
-      }
 
       // S E L E C T   D E S K T O P - - - - - - - - - -
       // S E L E C T   D E S K T O P - - - - - - - - - -
@@ -62,31 +83,142 @@ QTQ_L.ColumnLayout { id: _Root
 
         QTQ_C.Label {
           text: "For desktop"
+          font.styleName: "Bold"
+
+          QTQ.MouseArea { id: _DimensionsLabelMouseArea
+            anchors.fill: parent
+            hoverEnabled: true
+          }
+
+          QTQ_C.ToolTip.visible: _DimensionsLabelMouseArea.containsMouse
+          QTQ_C.ToolTip.text: "Screen: " + QTQ.Screen.name
         }
 
         QTQ_C.ComboBox { id: _SelectDesktop
 
           QTQ_L.Layout.fillWidth: true
-          model: QTQ.ListModel {}
+          model: QTQ.ListModel { id: _ModelSelectDesktop }
           textRole: 'displayText'
 
-		      QTQ.Connections { id: _SelectDesktopConnections
+          QTQ.Connections { id: _SelectDesktopConnections
 
-            function onCurrentIndexChanged() { selectDesktop__handleCurrentIndexChanged(); }
-            function onCountChanged() { selectDesktop__updateButtonsState();}
-		      }
+            target: _SelectDesktop
+
+            function onCurrentIndexChanged() { _SelectDesktop.handleCurrentIndexChanged(); }
+            function onCountChanged() { _SelectDesktop.updateButtonsState(); }
+          }
+
+          function init() {
+
+            if ( ! (_plasmacfgAdapter && _ModelSelectDesktop)) { return; }
+            //<--
+
+
+            const deskNo = LJS.GET_CURRENT_DESKNO(_VirtualDesktopInfo, _qtqScreenName);
+
+            let activateNo = LJS.DESKNO_GLOBAL;
+
+            const memConnTarget = _SelectDesktopConnections.target;
+            _SelectDesktopConnections.target = null;
+
+            _ModelSelectDesktop.clear();
+            for (const $$cfg of _plasmacfgAdapter.getCfgs())
+            {
+              insertElement(buildSelectDesktopElement($$cfg.deskNo));
+
+              if ($$cfg.deskNo === deskNo) { activateNo = $$cfg.deskNo;}
+            }
+
+            _SelectDesktopConnections.target = memConnTarget;
+
+
+            let activateIndex = 0;
+            for (let i = 0; i < _ModelSelectDesktop.count; ++i)
+            {
+              if (_ModelSelectDesktop.get(i).deskNo === activateNo)
+              {
+                activateIndex = i;
+                break;
+              }
+            }
+
+            if (currentIndex === activateIndex)
+            {
+              handleCurrentIndexChanged();
+            }
+            else
+            {
+              currentIndex = activateIndex;
+            }
+          }
+
+          function handleCurrentIndexChanged() {
+
+            updateButtonsState();
+
+            const item = _ModelSelectDesktop.get(currentIndex);
+            _currentDeskCfg = _plasmacfgAdapter.getCfgForDeskNo(item.deskNo);
+          }
+
+          function updateButtonsState() {
+
+            _BtnAddDesktopConfig.enabled = _ModelSelectDesktop.count < _VirtualDesktopInfo.numberOfDesktops + 1;
+            _BtnRemoveDesktopConfig.enabled = currentIndex > 0;
+          }
+
+          function insertElement($desktopElement) {
+
+            let idx = 0;
+
+            if (_ModelSelectDesktop.count === 0)
+            {
+              _ModelSelectDesktop.append($desktopElement);
+            }
+            else
+            {
+              while (idx < _ModelSelectDesktop.count && $desktopElement.deskNo > _ModelSelectDesktop.get(idx).deskNo)
+              {
+                ++idx;
+              }
+
+              _ModelSelectDesktop.insert(idx, $desktopElement);
+            }
+
+            const memConnTarget = _SelectDesktopConnections.target;
+            _SelectDesktopConnections.target = null;
+
+            // reassign model, so dropdownbox shows correct order !?
+            _SelectDesktop.model=null;
+            _SelectDesktop.model=_ModelSelectDesktop;
+
+            _SelectDesktopConnections.target = memConnTarget;
+
+            currentIndex = idx;
+            handleCurrentIndexChanged();
+          }
+
+          function removeDesktopConfig() {
+
+            const currentItem = _ModelSelectDesktop.get(currentIndex);
+
+            _plasmacfgAdapter.deleteCfgDeskNo(currentItem.deskNo);
+            _ModelSelectDesktop.remove(currentIndex);
+
+            currentIndex = Math.min(currentIndex, _ModelSelectDesktop.count - 1);
+            handleCurrentIndexChanged();
+          }
         }
 
-        QTQ_C.Button { id: _BtnAddTimeslotDesktopConfig
+        QTQ_C.Button { id: _BtnAddDesktopConfig
           icon.name: "list-add"
 
-          onClicked: _DlgAddConfig.open()
+          onClicked: _DlgAddDesktopConfig.open()
         }
 
         QTQ_C.Button { id: _BtnRemoveDesktopConfig
           icon.name: "edit-delete-remove"
 
-          onClicked: selectDesktop__removeConfig()
+          onClicked: _SelectDesktop.removeDesktopConfig()
         }
       }
       // - - - - - - - - - - S E L E C T   D E S K T O P
@@ -120,45 +252,134 @@ QTQ_L.ColumnLayout { id: _Root
           onClicked: Qt.openUrlExternally('https://www.paypal.com/donate/?hosted_button_id=U5UKKNTXNPTLN')
         }
 
-        QTQ.Item {
-          QTQ_L.Layout.fillWidth: true
-        }
+        QTQ.Item { QTQ_L.Layout.fillWidth: true }
 
-        QTQ_C.Label {
-		      text: "Activated at"
-        }
+        QTQ_C.Label { text: "Activated at" }
 
         QTQ_C.ComboBox { id: _SelectSlot
-          model: QTQ.ListModel{}
+          model: QTQ.ListModel{ id: _ModelSelectSlot }
 
           QTQ.Connections { id: _SelectSlotConnections
 
-            function onCurrentIndexChanged() { selectSlot__handleCurrentIndexChanged(); }
-            function onCountChanged() { selectSlot__updateButtonsState();}
-		      }
+            target: _SelectSlot
 
-  				property alias desktopConfig: _Root.currentDeskCfg
-				  onDesktopConfigChanged: selectSlot__init()
+            function onCurrentIndexChanged() { _SelectSlot.handleCurrentIndexChanged(); }
+            function onCountChanged() { _SelectSlot.updateButtonsState(); }
+          }
+
+          property alias _currentDeskCfg: _Root._currentDeskCfg
+          on_CurrentDeskCfgChanged: {
+
+            const memConnTarget = _SelectSlotConnections.target;
+            _SelectSlotConnections.target = null;
+
+            _ModelSelectSlot.clear();
+            const nowTimeslotCfg = _currentDeskCfg.findNowActiveTimeslotCfg();
+            const orderedTimeslotCfgs = _currentDeskCfg.getOrderedTimeslots();
+
+            let activateIdx = 0;
+            for (let $$i = 0; $$i < orderedTimeslotCfgs.length; ++$$i)
+            {
+              const timeslotCfg = orderedTimeslotCfgs[$$i];
+              insertSlot({ "slotmarker": timeslotCfg.slotmarker });
+
+              if (timeslotCfg === nowTimeslotCfg) { activateIdx = $$i; }
+            }
+
+            _SelectSlotConnections.target = memConnTarget;
+
+            if (_SelectSlot.currentIndex === activateIdx)
+            {
+              handleCurrentIndexChanged();
+            }
+            else
+            {
+              currentIndex = activateIdx;
+            }
+          }
+
+          function insertSlot($slot) {
+
+            let idx = 0;
+
+            if (_ModelSelectSlot.count === 0)
+            {
+              _ModelSelectSlot.append($slot);
+            }
+            else
+            {
+              while (idx < _ModelSelectSlot.count && $slot.slotmarker > _ModelSelectSlot.get(idx).slotmarker)
+              {
+                ++idx;
+              }
+
+              _ModelSelectSlot.insert(idx, $slot);
+            }
+
+
+            const memConnTarget = _SelectSlotConnections.target;
+            _SelectSlotConnections.target = null;
+
+            // reassign model, so dropdownbox shows correct order !?
+            _SelectSlot.model=null;
+            _SelectSlot.model=_ModelSelectSlot;
+
+            _SelectSlotConnections.target = memConnTarget;
+
+            currentIndex = idx;
+            handleCurrentIndexChanged();
+          }
+
+          function addTimeslotFromDialog(newSlotMarker, currentSlotMarker) {
+
+            _plasmacfgAdapter.atCfg_newTimeslotForMarker_cloneMarker(_currentDeskCfg, newSlotMarker, currentSlotMarker);
+            insertSlot({ "slotmarker": newSlotMarker });
+          }
+
+          function handleCurrentIndexChanged() {
+
+            updateButtonsState();
+
+            const item = _ModelSelectSlot.get(currentIndex);
+            _currentSlotCfg = _currentDeskCfg.getTimeslotForSlotmarker(item.slotmarker);
+          }
+
+          function updateButtonsState() {
+
+            _BtnAddTimeslot.enabled = _ModelSelectSlot.count < 60 * 24;
+            _BtnRemoveTimeslot.enabled = currentIndex > 0;
+          }
+
+          function removeTimeslot() {
+
+            const currentItem = _ModelSelectSlot.get(currentIndex);
+
+            _plasmacfgAdapter.atCfg_deleteTimeslot(_currentDeskCfg, currentItem.slotmarker);
+            _ModelSelectSlot.remove(currentIndex);
+
+            currentIndex = Math.min(currentIndex, _ModelSelectSlot.count - 1);
+            handleCurrentIndexChanged();
+          }
         }
 
-		    QTQ_C.Button { id: _BtnAddTimeslotTimeslot
+        QTQ_C.Button { id: _BtnAddTimeslot
           icon.name: "list-add"
 
-          onClicked: _DlgAddTimeslot.open()
-		    }
+          onClicked: _DlgCreateTimeslot.open()
+        }
 
-		    QTQ_C.Button { id: _BtnRemoveTimeslot
+        QTQ_C.Button { id: _BtnRemoveTimeslot
           icon.name: "edit-delete-remove"
 
-          onClicked: selectSlot__removeTimeslot()
-  		  }
+          onClicked: _SelectSlot.removeTimeslot()
+        }
       }
       // - - - - - - - - - -  S E L E C T   S L O T
       // - - - - - - - - - -  S E L E C T   S L O T
       // - - - - - - - - - -  S E L E C T   S L O T
 
       QTQ_C.Frame {
-	      QTQ_L.Layout.fillWidth: true
+        QTQ_L.Layout.fillWidth: true
         QTQ_L.Layout.fillHeight: true
 
         background: QTQ.Rectangle { // group box border
@@ -170,7 +391,7 @@ QTQ_L.ColumnLayout { id: _Root
         }
 
         QTQ_L.ColumnLayout {
-		      anchors.fill: parent
+          anchors.fill: parent
 
           // B A C K G R O U N D   - - - - - - - - - -
           // B A C K G R O U N D   - - - - - - - - - -
@@ -183,6 +404,7 @@ QTQ_L.ColumnLayout { id: _Root
               QTQ_L.Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 15
 
               text: 'Background'
+              font.styleName: "Bold"
             }
 
             // a0-2
@@ -195,62 +417,48 @@ QTQ_L.ColumnLayout { id: _Root
             QTQ_C.Switch {
               text: 'display source'
 
-              property alias myCfg: _Root.currentSlotCfg
-              onMyCfgChanged: checked = myCfg.displayCurrentSource
-              onClicked: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-        	      myCfg.displayCurrentSource = checked?1:0;
-              });
+              property alias _cfg: _Root._currentSlotCfg
+              on_CfgChanged: checked = _cfg.displayCurrentSource
+              onClicked: _plasmacfgAdapter.propagateCfgChange_preprocess(() => { _cfg.displayCurrentSource = checked; });
             }
 
             // a1-2
-		        QTQ_L.RowLayout {
+            QTQ_L.RowLayout {
 
-              property var myHeight: QTQ.Screen.height
-              property var myWidth: QTQ.Screen.width
-
-			        QTQ_C.SpinBox {
+              QTQ_C.SpinBox {
                 stepSize: 1
-                to: parent.myHeight
+                to: QTQ.Screen.height
 
-                property alias myCfg: _Root.currentSlotCfg
-                onMyCfgChanged: value = myCfg.paddingTop
+                property alias _cfg: _Root._currentSlotCfg
+                on_CfgChanged: value = _cfg.paddingTop
+                onValueModified: _plasmacfgAdapter.propagateCfgChange_preprocess(() => { _cfg.paddingTop = value; });
+              }
 
-                onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-          	      myCfg.paddingTop = value;
-                });
-			        }
-
-			        QTQ_C.Label {
-				        text: 'px padding top'
-			        }
-  				  }
+              QTQ_C.Label {
+                text: 'px padding top'
+              }
+            }
 
             // a1-3
             QTQ.Item {}
 
             // a2-1
-		        QTQ_L.RowLayout {
+            QTQ_L.RowLayout {
               QTQ_L.Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 12
 
-              property var myHeight: QTQ.Screen.height
-              property var myWidth: QTQ.Screen.width
-
-			        QTQ_C.SpinBox {
+              QTQ_C.SpinBox {
                 stepSize: 1
-                to: parent.myWidth
+                to: QTQ.Screen.width
 
-                property alias myCfg: _Root.currentSlotCfg
-                onMyCfgChanged: value = myCfg.paddingLeft
+                property alias _cfg: _Root._currentSlotCfg
+                on_CfgChanged: value = _cfg.paddingLeft
+                onValueModified: _plasmacfgAdapter.propagateCfgChange_preprocess(() => { _cfg.paddingLeft = value; });
+              }
 
-                onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-          	      myCfg.paddingLeft = value;
-                });
-			        }
-
-			        QTQ_C.Label {
-				        text: 'left'
-			        }
-  				  }
+              QTQ_C.Label {
+                text: 'left'
+              }
+            }
 
             // a2-2
             QTQ_L.RowLayout {
@@ -258,89 +466,67 @@ QTQ_L.ColumnLayout { id: _Root
                 QTQ_L.Layout.preferredHeight: _FontMetrics.height * 2.5
                 QTQ_L.Layout.preferredWidth: QTQ_L.Layout.preferredHeight
 
-                property alias myCfg: _Root.currentSlotCfg
-                onMyCfgChanged: myColor = myCfg.background
+                property string _color
 
-                property string myColor
-                onMyColorChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-        	        myCfg.background = myColor;
-                });
+                property alias _cfg: _Root._currentSlotCfg
+                on_CfgChanged: _color = _cfg.background
 
                 onClicked: {
 
-	                _DlgSelectColor.selectedColor = myColor;
+                  _DlgSelectColor.selectedColor = _color;
 /*MOD*/           _DlgSelectColor.options = QTQ_D.ColorDialog.ShowAlphaChannel;
-	                _DlgSelectColor.handleOnAccepted = ($$selectedColor) => {
-  	                myColor = $$selectedColor.toString();
-	                };
+                  _DlgSelectColor._OnAccepted = ($$selectedColor) => {
+                    _color = $$selectedColor.toString();
+                    _plasmacfgAdapter.propagateCfgChange_preprocess(() => { _cfg.background = _color; });
+                  };
 
-	                _DlgSelectColor.open();
+                  _DlgSelectColor.open();
                 }
 
-  				      QTQ.Rectangle {
+                QTQ.Rectangle {
                   width: parent.height * 0.6
                   height: width
                   anchors.centerIn: parent
 
-                  color: parent.myColor
-	  		        }
+                  color: parent._color
+                }
               }
 
-              QTQ_C.Label {
-				        text:  '[' + QTQ.Screen.width + 'x' + QTQ.Screen.height + ']'
-			        }
+              QTQ_C.Label { text:  '[' + QTQ.Screen.width + 'x' + QTQ.Screen.height + ']' }
             }
 
             // a2-3
-		        QTQ_L.RowLayout {
+            QTQ_L.RowLayout {
 
-              property var myHeight: QTQ.Screen.height
-              property var myWidth: QTQ.Screen.width
-
-			        QTQ_C.SpinBox {
+              QTQ_C.SpinBox {
                 stepSize: 1
-                to: parent.myWidth
+                to: QTQ.Screen.width
 
-                property alias myCfg: _Root.currentSlotCfg
-                onMyCfgChanged: value = myCfg.paddingRight
+                property alias _cfg: _Root._currentSlotCfg
+                on_CfgChanged: value = _cfg.paddingRight
+                onValueModified: _plasmacfgAdapter.propagateCfgChange_preprocess(() => { _cfg.paddingRight = value; });
+              }
 
-                onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-          	      myCfg.paddingRight = value;
-                });
-			        }
-
-			        QTQ_C.Label {
-				        text: 'right'
-			        }
-  				  }
-
-            // a3-1
-            QTQ.Item {
-              QTQ_L.Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 12
+              QTQ_C.Label { text: 'right' }
             }
 
+            // a3-1
+            QTQ.Item { QTQ_L.Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 12 }
+
             // a3-2
-		        QTQ_L.RowLayout {
+            QTQ_L.RowLayout {
 
-              property var myHeight: QTQ.Screen.height
-              property var myWidth: QTQ.Screen.width
-
-			        QTQ_C.SpinBox {
+              QTQ_C.SpinBox {
                 stepSize: 1
-                to: parent.myHeight
+                to: QTQ.Screen.height
 
-                property alias myCfg: _Root.currentSlotCfg
-                onMyCfgChanged: value = myCfg.paddingBottom
+                property alias _cfg: _Root._currentSlotCfg
+                on_CfgChanged: value = _cfg.paddingBottom
+                onValueModified: _plasmacfgAdapter.propagateCfgChange_preprocess(() => { _cfg.paddingBottom = value; });
+              }
 
-                onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-          	      myCfg.paddingBottom = value;
-                });
-			        }
-
-			        QTQ_C.Label {
-				        text: 'bottom'
-			        }
-  				  }
+              QTQ_C.Label { text: 'bottom' }
+            }
 
             // a3-3
             QTQ.Item {}
@@ -349,428 +535,295 @@ QTQ_L.ColumnLayout { id: _Root
           // - - - - - - - - - -  B A C K G R O U N D
           // - - - - - - - - - -  B A C K G R O U N D
 
-        QTQ.Rectangle {
-          QTQ_L.Layout.preferredWidth: parent.width
-          QTQ_L.Layout.preferredHeight: _FontMetrics.height
+          SUBPARTS.HorizontalDivider {}
 
-          color: "transparent"
+          // I M A G E  - - - - - - - - - -
+          // I M A G E  - - - - - - - - - -
+          // I M A G E  - - - - - - - - - -
+          QTQ_L.GridLayout {
+            columns: 3
 
-          QTQ.Rectangle {
-            anchors.centerIn: parent
-            width: parent.width * .95
-            height: 1
-
-            color: _ActiveSystemPalette.mid
-          }
-        }
-
-        // I M A G E  - - - - - - - - - -
-        // I M A G E  - - - - - - - - - -
-        // I M A G E  - - - - - - - - - -
-        QTQ_L.GridLayout {
-          columns: 3
-
-          // b1-1
-          QTQ_C.Label {
-            QTQ_L.Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 10
-
-            text: 'Image'
-          }
-
-          // b1-2
-    		  QTQ_L.RowLayout {
-
+            // b1-1
             QTQ_C.Label {
-              text: 'interval'
-			      }
+              QTQ_L.Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 10
 
-            QTQ_C.SpinBox { id: _Interval
-
-              stepSize: 1
-              to: VJS.PLASMA_SLIDETIMER_MAXVALUE
-
-              property alias myCfg: _Root.currentSlotCfg
-              onMyCfgChanged: value = myCfg.interval
-
-              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-        	      myCfg.interval = value;
-              });
-			      }
-
-			      QTQ_C.Label {
-              QTQ_L.Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 8
-  				    text: _Interval.value==0?(VJS.IS_USE_URL(_ImageSources.myCfg.imagesources)?'infinite':'1 week'):(_Interval.value==1?'second':'seconds')
-              font.italic: _Interval.value==0
-	  		    }
-          }
-
-          // b1-3
-		      QTQ_L.RowLayout {
-
-			      QTQ_C.Label {
-				      text: 'fill mode'
-			      }
-
-			      QTQ_C.ComboBox {
-				      currentIndex: 0
-              textRole: 'text'
-
-              property alias myCfg: _Root.currentSlotCfg
-              onMyCfgChanged: currentIndex = indexFromFillMode(myCfg.fillMode)
-
-              onCurrentIndexChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-        	      myCfg.fillMode = model[currentIndex].value;
-              });
-
-				      model:
-        	      [
-                  { 'text': 'Stretch',            'value': QTQ.Image.Stretch },
-                  { 'text': 'Fit',                'value': QTQ.Image.PreserveAspectFit },
-                  { 'text': 'Crop',               'value': QTQ.Image.PreserveAspectCrop },
-                  { 'text': 'Tile',               'value': QTQ.Image.Tile },
-                  { 'text': 'Tile vertically',    'value': QTQ.Image.TileVertically },
-                  { 'text': 'Tile horizontally',  'value': QTQ.Image.TileHorizontally },
-                  { 'text': 'As is',              'value': QTQ.Image.Pad }
-                ]
-
-              function indexFromFillMode($mode) {
-
-          	    let idx;
-
-					      for(idx in model)
-                {
-          	      if(model[idx].value===$mode)
-          	      {
- 							      break;
- 							      //<--
-          	      }
-					      }
-
-        	      return idx;
-              }
-			      }
-		      }
-
-          // b2-1
-          QTQ.Item {
-            QTQ_L.Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 10
-          }
-
-          // b2-2, b2-3
-          QTQ_L.RowLayout {
-            QTQ_L.Layout.columnSpan: 2
-
-            QTQ_C.SpinBox {
-              stepSize: 1
-              to: 100
-
-              property alias myCfg: _Root.currentSlotCfg
-              onMyCfgChanged: value = 100 - myCfg.desaturate * 100
-
-              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-          	    myCfg.desaturate = 1 - value/100;
-              });
-			      }
-            QTQ_C.Label {
-					    text: '% saturate '
-				    }
-
-            CQ.VerticalDivider {
-
+              text: 'Image'
+              font.styleName: "Bold"
             }
 
-            QTQ_C.SpinBox {
-              stepSize: 1
-              to: 100
+            // b1-2
+            QTQ_L.RowLayout {
 
-              property alias myCfg: _Root.currentSlotCfg
-              onMyCfgChanged: value = myCfg.blur * 100
+              QTQ_C.Label { text: 'interval' }
 
-              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-          	    myCfg.blur = value/100;
-              });
-			      }
-            QTQ_C.Label {
-		  			  text: '% blur '
-				    }
+              QTQ_C.SpinBox { id: _Interval
 
-            CQ.VerticalDivider {
+                stepSize: 1
+                to: LJS.KDE_IMAGEBACKEND_SLIDETIMER_MAXVALUE
 
-            }
-
-            QTQ_C.SpinBox {
-              stepSize: 1
-              to: 100
-
-              property alias myCfg: _Root.currentSlotCfg
-              onMyCfgChanged: value = myCfg.colorize * 100
-
-              onValueChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-          	    myCfg.colorize = value / 100;
-                effects__updateColorizeValue(myCfg);
-              });
-			      }
-            QTQ_C.Label {
-					    text: '% colorize'
-				    }
-			      QTQ_C.Button {
-
-              property alias myCfg: _Root.currentSlotCfg
-              onMyCfgChanged: myColor = myCfg.colorizeColor
-
-              property string myColor
-              onMyColorChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-        	      myCfg.colorizeColor = myColor;
-                effects__updateColorizeValue(myCfg);
-              });
-
-              onClicked: {
-
-	              _DlgSelectColor.selectedColor = myColor;
-                _DlgSelectColor.options = 0;
-	              _DlgSelectColor.handleOnAccepted = ($$selectedColor) => {
-	                myColor = $$selectedColor.toString();
-	              };
-
-	              _DlgSelectColor.open();
+                property alias _cfg: _Root._currentSlotCfg
+                on_CfgChanged: value = _cfg.interval
+                onValueModified: _plasmacfgAdapter.propagateCfgChange_preprocess(() => { _cfg.interval = value; });
               }
 
-  				    QTQ.Rectangle {
-                anchors.centerIn: parent
-                width: 20
-                height: 20
-
-                color: parent.myColor
-  				    }
-			      }
-		      }
-        }
-
-        // - - - - - - - - - -  I M A G E
-        // - - - - - - - - - -  I M A G E
-        // - - - - - - - - - -  I M A G E
-
-        QTQ.Rectangle {
-          QTQ_L.Layout.preferredWidth: parent.width
-          QTQ_L.Layout.preferredHeight: _FontMetrics.height
-
-          color: "transparent"
-
-          QTQ.Rectangle {
-            anchors.centerIn: parent
-            width: parent.width * .95
-            height: 1
-
-            color: _ActiveSystemPalette.mid
-          }
-        }
-
-        // S O U R C E S  - - - - - - - - - -
-        // S O U R C E S  - - - - - - - - - -
-        // S O U R C E S  - - - - - - - - - -
-        QTQ_L.GridLayout {
-          columns: 3
-
-          // c1-1
-			    QTQ_C.Label {
-            QTQ_L.Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 10
-
-            text: 'Sources'
-			    }
-
-          // c1-2, c1-3
-    		  QTQ_L.RowLayout {
-            QTQ_L.Layout.columnSpan: 2
-
-				    QTQ_C.Button { id: _BtnAddTimeslotFolder
-              icon.name: "list-add"
-					    text: 'Folder'
-
-              onClicked: imagesources__addPathUsingDlg(_DlgAddFolder);
-				    }
-
-            QTQ_C.Label {
-					    text: 'shuffle'
-				    }
-
-			      QTQ_C.ComboBox { id: _ComboShuffleMode
-				      currentIndex: 0
-              textRole: 'text'
-
-              property alias myCfg: _Root.currentSlotCfg
-              onMyCfgChanged: currentIndex = indexFromShuffleMode(myCfg.shuffleMode)
-
-              onCurrentIndexChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-        	      myCfg.shuffleMode = model[currentIndex].value;
-              });
-
-				      model:
-        	      [
-                  { 'text': 'Random',       'value': KDE_wallpaper.SortingMode.Random },
-                  { 'text': 'A to Z',       'value': KDE_wallpaper.SortingMode.Alphabetical },
-                  { 'text': 'Z to A',       'value': KDE_wallpaper.SortingMode.AlphabeticalReversed },
-                  { 'text': 'Newest first', 'value': KDE_wallpaper.SortingMode.ModifiedReversed },
-                  { 'text': 'Oldest first', 'value': KDE_wallpaper.SortingMode.Modified }
-                ]
-
-              function indexFromShuffleMode($mode) {
-
-          	    let idx;
-
-					      for(idx in model)
-                {
-          	      if(model[idx].value===$mode)
-          	      {
- 							      break;
- 							      //<--
-          	      }
-					      }
-
-        	      return idx || 0;
+              QTQ_C.Label {
+                QTQ_L.Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 8
+                text: _Interval.value===0?(LJS.IS_USE_URL(_ImageSources._cfg.imagesources)?'infinite':'1 week'):(_Interval.value===1?'second':'seconds')
+                font.italic: _Interval.value===0
               }
-			      }
-
-            CQ.VerticalDivider {
-
             }
 
-				    QTQ_C.Button { id: _BtnSetUrl
-              icon.name: "internet-web-browser-symbolic"
-					   text: 'Use url'
+            // b1-3
+            QTQ_L.RowLayout {
 
-              onClicked: imagesources__setUrl();
-				    }
+              QTQ_C.Label { text: 'fill mode' }
+
+              QTQ_C.ComboBox {
+                currentIndex: 0
+                textRole: 'text'
+
+                property alias _cfg: _Root._currentSlotCfg
+                on_CfgChanged: currentIndex = ensureIndexOfValue(model, _cfg.fillMode)
+                onActivated: ($$index) => _plasmacfgAdapter.propagateCfgChange_preprocess(() => { _cfg.fillMode = model[$$index].value; })
+
+                model:
+                  [
+                    { 'text': 'Stretch',            'value': QTQ.Image.Stretch },
+                    { 'text': 'Fit',                'value': QTQ.Image.PreserveAspectFit },
+                    { 'text': 'Crop',               'value': QTQ.Image.PreserveAspectCrop },
+                    { 'text': 'Tile',               'value': QTQ.Image.Tile },
+                    { 'text': 'Tile vertically',    'value': QTQ.Image.TileVertically },
+                    { 'text': 'Tile horizontally',  'value': QTQ.Image.TileHorizontally },
+                    { 'text': 'As is',              'value': QTQ.Image.Pad }
+                  ]
+              }
+            }
+
+            // b2-1
+            QTQ.Item { QTQ_L.Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 10 }
+
+            // b2-2, b2-3
+            QTQ_L.RowLayout {
+              QTQ_L.Layout.columnSpan: 2
+
+              QTQ_C.SpinBox {
+                stepSize: 1
+                to: 200
+
+                property alias _cfg: _Root._currentSlotCfg
+                on_CfgChanged: value = _cfg.saturatePct
+                onValueModified: _plasmacfgAdapter.propagateCfgChange_preprocess(() => { _cfg.saturatePct = value; });
+              }
+              QTQ_C.Label {
+                text: '% saturate '
+              }
+
+              QTQ_C.ToolSeparator {}
+
+              QTQ_C.SpinBox {
+                stepSize: 1
+                to: 100
+
+                property alias _cfg: _Root._currentSlotCfg
+                on_CfgChanged: value = _cfg.blurPct
+                onValueModified: _plasmacfgAdapter.propagateCfgChange_preprocess(() => { _cfg.blurPct = value; });
+              }
+              QTQ_C.Label {
+                text: '% blur '
+              }
+
+              QTQ_C.ToolSeparator {}
+
+              QTQ_C.SpinBox {
+                stepSize: 1
+                to: 100
+
+                property alias _cfg: _Root._currentSlotCfg
+                on_CfgChanged: value = _cfg.colorizePct
+                onValueModified: _plasmacfgAdapter.propagateCfgChange_preprocess(() => { _cfg.colorizePct = value; });
+              }
+
+              QTQ_C.Label { text: '% colorize' }
+
+              QTQ_C.Button {
+
+                property string _color
+
+                property alias _cfg: _Root._currentSlotCfg
+                on_CfgChanged: _color = _cfg.colorizeColor
+
+                onClicked: {
+
+                  _DlgSelectColor.selectedColor = _color;
+                  _DlgSelectColor.options = 0;
+                  _DlgSelectColor._OnAccepted = ($$selectedColor) => {
+                    _color = $$selectedColor.toString();
+                    _plasmacfgAdapter.propagateCfgChange_preprocess(() => { _cfg.colorizeColor = _color; });
+                  };
+                  _DlgSelectColor.open();
+                }
+
+                QTQ.Rectangle {
+                  anchors.centerIn: parent
+                  width: 20
+                  height: 20
+
+                  color: parent._color
+                }
+              }
+            }
+          }
+
+          // - - - - - - - - - -  I M A G E
+          // - - - - - - - - - -  I M A G E
+          // - - - - - - - - - -  I M A G E
+
+          SUBPARTS.HorizontalDivider {}
+
+          // S O U R C E S  - - - - - - - - - -
+          // S O U R C E S  - - - - - - - - - -
+          // S O U R C E S  - - - - - - - - - -
+          QTQ_L.GridLayout {
+            columns: 3
+
+            // c1-1
+            QTQ_C.Label {
+              QTQ_L.Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 10
+
+              text: 'Sources'
+              font.styleName: "Bold"
+            }
+
+            // c1-2, c1-3
+            QTQ_L.RowLayout {
+              QTQ_L.Layout.columnSpan: 2
+
+              QTQ_C.Button { id: _BtnAddTimeslotFolder
+                icon.name: "list-add"
+                text: 'Folder'
+
+                onClicked: _DlgAddFolder.open()
+              }
+
+              QTQ_C.Label { text: 'shuffle' }
+
+              QTQ_C.ComboBox { id: _ComboShuffleMode
+                currentIndex: 0
+                textRole: 'text'
+
+                property alias _cfg: _Root._currentSlotCfg
+                on_CfgChanged: currentIndex = ensureIndexOfValue(model, _cfg.shuffleMode)
+                onActivated: ($$index) => _plasmacfgAdapter.propagateCfgChange_preprocess(() => { _cfg.shuffleMode = model[$$index].value; })
+
+                model:
+                  [
+                    { 'text': 'Random',       'value': KDE_wallpapersImage.SortingMode.Random },
+                    { 'text': 'A to Z',       'value': KDE_wallpapersImage.SortingMode.Alphabetical },
+                    { 'text': 'Z to A',       'value': KDE_wallpapersImage.SortingMode.AlphabeticalReversed },
+                    { 'text': 'Newest first', 'value': KDE_wallpapersImage.SortingMode.ModifiedReversed },
+                    { 'text': 'Oldest first', 'value': KDE_wallpapersImage.SortingMode.Modified }
+                  ]
+              }
+
+              QTQ_C.ToolSeparator {}
+
+              QTQ_C.Button { id: _BtnSetUrl
+                icon.name: "internet-web-browser-symbolic"
+                text: 'Use URL'
+
+                onClicked: _DlgSetUrl.open()
+              }
+            }
+          }
+
+          // - - - - - - - - - -   S O U R C E S
+          // - - - - - - - - - -   S O U R C E S
+          // - - - - - - - - - -   S O U R C E S
+
+          QTQ.ListView { id: _ImageSources
+            QTQ_L.Layout.fillWidth: true
+            QTQ_L.Layout.fillHeight: true
+            QTQ_L.Layout.minimumHeight: _FontMetrics.height * 2.5
+            clip: true
+            QTQ_C.ScrollBar.vertical: QTQ_C.ScrollBar { policy: QTQ_C.ScrollBar.AlwaysOn } // ?!?? no effect from 'policy: QTQ_C.ScrollBar.AlwaysOn'
+
+            property alias _cfg: _Root._currentSlotCfg
+            on_CfgChanged: {
+
+              _ModelImagesources.clear();
+              for(let $$source of _cfg.imagesources)
+              {
+                _ModelImagesources.append({path: $$source});
+              }
+
+              updateButtonsState();
+            }
+
+            QTQ.Rectangle { // listview background
+              z: -1
+              anchors.fill: parent
+              color: _ActiveSystemPalette.light
+            }
+
+            model: QTQ.ListModel { id: _ModelImagesources }
+
+            delegate: QTQ_L.RowLayout {
+
+              QTQ_C.Button {
+                icon.name: "edit-delete-remove"
+
+                onClicked: _ImageSources.removeSource(index)
+              }
+
+              QTQ.Text {
+                QTQ_L.Layout.fillWidth: true
+                text: model.path
+              }
+            }
+
+            function addSource($path) {
+
+              _ModelImagesources.append({ path: $path });
+              syncSourcesToConfig();
+            }
+
+            function removeSource($index) {
+
+              _ModelImagesources.remove($index);
+              syncSourcesToConfig();
+            }
+
+            function syncSourcesToConfig() {
+
+              _plasmacfgAdapter.propagateCfgChange_preprocess(() => {
+
+                const sources = [];
+                for (let i = 0; i < _ModelImagesources.count; ++i) { sources.push(_ModelImagesources.get(i).path); }
+                _currentSlotCfg.imagesources = sources;
+
+                _ImageSources.updateButtonsState();
+              });
+            }
+
+            function updateButtonsState() {
+
+              _BtnAddTimeslotFolder.enabled = !LJS.IS_USE_URL(_currentSlotCfg.imagesources);
+              _ComboShuffleMode.enabled = _BtnAddTimeslotFolder.enabled;
+              _BtnSetUrl.enabled = _ModelImagesources.count === 0;
+            }
           }
         }
-
-        // - - - - - - - - - -   S O U R C E S
-        // - - - - - - - - - -   S O U R C E S
-        // - - - - - - - - - -   S O U R C E S
-
-
-
-        QTQ.ListView { id: _ImageSources
-          QTQ_L.Layout.fillWidth: true
-          QTQ_L.Layout.fillHeight: true
-          QTQ_L.Layout.minimumHeight: _FontMetrics.height * 2.5
-          clip: true // !!!!!! aarrgh
-          QTQ_C.ScrollBar.vertical: QTQ_C.ScrollBar { policy: QTQ_C.ScrollBar.AlwaysOn } // ?!?? no effect from 'policy: QTQ_C.ScrollBar.AlwaysOn'
-
-          property alias myCfg: _Root.currentSlotCfg
-          onMyCfgChanged: {
-
-            inceptSources(myCfg.imagesources)
-
-            imagesources__updateButtonsState();
-          }
-
-          QTQ.Rectangle {
-            z: -1
-            anchors.fill: parent
-            color: _ActiveSystemPalette.light
-          }
-
-          model: QTQ.ListModel {
-
-            onCountChanged: plasmacfgAdapter.propagateCfgChange_afterAction(() => {
-
-              _ImageSources.extractSourcesToModel();
-
-              imagesources__updateButtonsState();
-            })
-          }
-
-		      function extractSourcesToModel() {
-
-            const sources = [];
-
-            for(let i = 0; i < model.count; ++i)
-            {
-              sources.push(model.get(i).path);
-            }
-
-            myCfg.imagesources = sources;
-		      }
-
-					function inceptSources($sources) {
-
-            model.clear();
-
-            for(let $$source of $sources)
-						{
-              model.append({path: $$source});
-            }
-		      }
-
-          delegate: QTQ_L.RowLayout {
-
-            QTQ_C.Button {
-              icon.name: "edit-delete-remove"
-
-              onClicked: imagesources__removeSource(model.index);
-            }
-
-						QTQ.Text {
-              QTQ_L.Layout.fillWidth: true
-              text: model.path
-						}
-					}
-				}
       }
     }
 
-/* Dev *
-QTQ.Rectangle { id: _LogBackground
-  color: '#00ff0000'
-  QTQ_L.Layout.fillWidth: true
-  height: 300
+    QTQ.Loader { id: _LOGOVERLAY
+      source: _enableLogger?"subparts/LogOverlay.qml":""
 
-  QTQ_C.ScrollView {
-    anchors.fill: parent
-    background: QTQ.Rectangle {
-                  color: '#0000ff00'
+      anchors.fill: parent
+      enabled: false // let clicks through
     }
 
-    QTQ_C.TextArea { id: _Log
-      background: QTQ.Rectangle {
-                    color: '#88ffffff'
-                  }
-      wrapMode: QTQ_C.TextEdit.Wrap
-      horizontalAlignment: QTQ_C.TextEdit.AlignRight
-
-      property int autoclear:0
-
-      function clear() {
-
-        text='';
-        autoclear=0;
-      }
-
-      function sayo($o) {
-
-        say(JSON.stringify($o));
-      }
-
-      function say($text) {
-
-        text=text+'\n'+$text;
-        autoclear++;
-
-        if(autoclear>30)
-        {
-          clear();
-        }
-      }
-    }
-  }
-}
-/* /Dev */
-
-    }
-
-    QTQ.Item { // right padding
-      width: _FontMetrics.averageCharacterWidth
-    }
+    /* right padding */ QTQ.Item { width: _FontMetrics.averageCharacterWidth }
   }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -778,447 +831,204 @@ QTQ.Rectangle { id: _LogBackground
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-QTQ_D.FolderDialog { id: _DlgAddFolder
-		title: "Choose a folder"
+  QTQ_D.FolderDialog { id: _DlgAddFolder
+    title: "Choose a folder"
 
-	  property var handleOnAccepted
-  	onAccepted: handleOnAccepted([currentFolder])
-	}
+    onAccepted: {
+      const targetFolder = selectedFolder.toString() || currentFolder.toString();
+      const desanitized = decodeURI(targetFolder);
+      _ImageSources.addSource(desanitized.substring("file://".length));
+    }
+  }
 
-QTQ_C.Dialog { id: _DlgSetUrl
+  //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  QTQ_C.Dialog { id: _DlgSetUrl
 
-	width: _Root.width * 0.6
+    width: _Root.width * 0.6
 
-	title: 'Use Url'
-  standardButtons: QTQ_C.Dialog.Ok | QTQ_C.Dialog.Cancel
+    title: 'Enter URL'
+    standardButtons: QTQ_C.Dialog.Ok | QTQ_C.Dialog.Cancel
 
-  property var handleOnAccepted
-  onAccepted: handleOnAccepted(_TfUrl.text);
+    onAccepted: _ImageSources.addSource(_TfUrl.validUrl())
 
-  contentItem: QTQ_L.ColumnLayout {
+    contentItem: QTQ_L.ColumnLayout {
 
-    QTQ.Rectangle {
+      QTQ.Rectangle {
 
-      QTQ_L.Layout.alignment: Qt.AlignHCenter
-      QTQ_L.Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 10
-      QTQ_L.Layout.preferredHeight: QTQ_L.Layout.preferredWidth
+        QTQ_L.Layout.alignment: Qt.AlignHCenter
+        QTQ_L.Layout.preferredWidth: _FontMetrics.averageCharacterWidth * 10
+        QTQ_L.Layout.preferredHeight: QTQ_L.Layout.preferredWidth
 
-      color: (_ImgUrl.status == QTQ.Image.Ready)?"transparent":_ActiveSystemPalette.mid
+        color: (_ImgUrl.status === QTQ.Image.Ready)?"transparent":_ActiveSystemPalette.mid
 
-      QTQ.Image { id: _ImgUrl
-        autoTransform: true
+        QTQ.Image { id: _ImgUrl
+          autoTransform: true
 
-        anchors.fill: parent
-        fillMode: QTQ.Image.PreserveAspectFit
+          anchors.fill: parent
+          fillMode: QTQ.Image.PreserveAspectFit
 
-        source: _TfUrl.text
+          source: _TfUrl.validUrl()
+        }
+      }
+
+      QTQ_C.TextField { id: _TfUrl
+        focus: _DlgSetUrl.visible
+        QTQ_L.Layout.fillWidth: true
+        placeholderText: "https://... | file://..."
+
+        function validUrl() {
+
+          if(!text) { return text; }
+          //<--
+
+
+          return text.startsWith("http://") || text.startsWith("https://") || text.startsWith("file://")?text:"file://"+text;
+        }
       }
     }
-
-    QTQ_C.TextField { id: _TfUrl
-		  focus: _DlgSetUrl.visible
-
-      QTQ_L.Layout.fillWidth: true
-  	}
-  }
-}
-
-QTQ_D.ColorDialog { id: _DlgSelectColor
-
-  title: "Select color"
-  modality: Qt.WindowModal
-
-  property var handleOnAccepted
-  onAccepted: handleOnAccepted(selectedColor)
-}
-
-
-QTQ_C.Dialog { id: _DlgAddTimeslot
-
-	title: 'Add Settings activated at'
-  standardButtons: QTQ_C.Dialog.Cancel
-
-  property var excludeSlots: []
-  property string newSlot
-
-  onAccepted: {
-
-    const element = {"slotmarker": newSlot};
-
-		plasmacfgAdapter.atCfg_newTimeslotForMarker_cloneMarker(currentDeskCfg, element.slotmarker, _SelectSlot.model.get(_SelectSlot.currentIndex).slotmarker);
-
-    selectSlot__insertSlot(element);
-	}
-
-  QTQ.Component.onCompleted: initModels();
-
-  onVisibleChanged: {
-
-  	if(!visible)
-  		return;
-  		// <--
-
-
-	  let slots = [];
-	  for(let i = 0; i < _SelectSlot.model.count; ++i)
-	  {
-		  slots.push( _SelectSlot.model.get(i).slotmarker);
-	  }
-	  _DlgAddTimeslot.excludeSlots = slots;
-
-		buildNewSlot();
-		}
-
-	QTQ_L.RowLayout {
-
-		QTQ_C.ComboBox { id: _ComboHour
-      model: QTQ.ListModel {}
-      textRole: 'text'
-
-			onCurrentIndexChanged: _DlgAddTimeslot.buildNewSlot();
-		}
-
-		QTQ_C.Label {
-    	text: ':'
-		}
-
-		QTQ_C.ComboBox { id: _ComboMinute
-      model: QTQ.ListModel {}
-      textRole: 'text'
-
-			onCurrentIndexChanged: _DlgAddTimeslot.buildNewSlot();
-		}
-
-		QTQ_C.Button { id: _BtnAddTimeslot
-  		text: 'Add'
-
-  		onClicked: _DlgAddTimeslot.accept()
-		}
   }
 
-  function initModels() {
+  //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  QTQ_D.ColorDialog { id: _DlgSelectColor
 
-  	const mh = _ComboHour.model;
-  	for(let i = 0; i < 24; ++i)
-  	{
-  		const text = ('00'+i).slice(-2);
-  		mh.append({'text': text});
-  	}
-    _ComboHour.currentIndex = 0;
+    title: "Select color"
+    modality: Qt.WindowModal
 
-		const mm = _ComboMinute.model;
-  	for(let i = 0; i < 60; ++i)
-  	{
-  		let text = ('00'+i).slice(-2);
-  		mm.append({'text': text});
-  	}
-    _ComboMinute.currentIndex = 0;
+    property var _OnAccepted
+    onAccepted: _OnAccepted(selectedColor)
   }
 
-  function buildNewSlot() {
+  //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  QTQ_C.Dialog { id: _DlgAddDesktopConfig
+    width: _Root.width * 0.6
 
-  	if(_ComboHour.currentIndex < 0 || _ComboMinute.currentIndex < 0)
-  		return;
-  		//<--
+    title: '"For desktop" add'
+    standardButtons: QTQ_C.Dialog.Ok | QTQ_C.Dialog.Cancel
 
+    onAccepted: {
 
-  	const hh = _ComboHour.model.get(_ComboHour.currentIndex).text;
-  	const mm = _ComboMinute.model.get(_ComboMinute.currentIndex).text;
+      const element = _ComboDesktopConfigAdd.model[_ComboDesktopConfigAdd.currentIndex];
+      const currentDesktopConfigDeskNo = _ModelSelectDesktop.get(_SelectDesktop.currentIndex).deskNo;
 
-  	newSlot = hh + ':' + mm;
-  	_BtnAddTimeslot.enabled = !excludeSlots.includes(newSlot);
-  }
-}
+      _plasmacfgAdapter.newCfgForDeskNo_cloneDeskNo(element.deskNo, currentDesktopConfigDeskNo);
+      _SelectDesktop.insertElement(element);
+    }
 
+    onVisibleChanged: {
 
-
-QTQ_C.Dialog { id: _DlgAddConfig
-  width: _Root.width * 0.6
-
-	title: 'Add Settings for'
-  standardButtons: QTQ_C.Dialog.Ok | QTQ_C.Dialog.Cancel
-
-  onAccepted: {
-
-    const element = _ComboAddConfig.model[_ComboAddConfig.currentIndex];
-    const currentDesktopConfigDeskNo = _SelectDesktop.model.get(_SelectDesktop.currentIndex).deskNo;
-
-    plasmacfgAdapter.newCfgForDeskNo_cloneDeskNo(element.deskNo, currentDesktopConfigDeskNo);
-
-    selectDesktop__insertElement(element);
-	}
-
-  onVisibleChanged: {
-
-  	if(!visible) { return; }
-    // <--
-
-
-	  const existingDeskNos = [];
-	  for(let i = 0; i < _SelectDesktop.model.count; ++i)
-	  {
-		  existingDeskNos.push(_SelectDesktop.model.get(i).deskNo);
-	  }
-
-		const myModel = [];
-		for(let i=0; i<_VirtualDesktopInfo.numberOfDesktops+1; ++i)
-    {
-      const deskNo = i;
-      if(existingDeskNos.includes(deskNo)) { continue; }
+      if(!visible) { return; }
       //<--
 
 
-      myModel.push(selectDesktop__buildElement(deskNo));
-		}
-
-  	_ComboAddConfig.model = myModel;
-	}
-
-	QTQ_C.ComboBox { id: _ComboAddConfig
-		width: parent.width
-    textRole: 'displayText'
-	}
-}
-
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-function selectSlot__init() {
-
-	const memConnTarget = _SelectSlotConnections.target;
-	_SelectSlotConnections.target = null;
-
-	_SelectSlot.model.clear();
-	const nowTimeslotCfg = currentDeskCfg.findAppropiateSlotCfgFor_now();
-	const orderedTimeslotCfgs = currentDeskCfg.getOrderedTimeslots();
-
-	let activateIdx = 0;
-	for(let $$i in orderedTimeslotCfgs)
-	{
-		const timeslotCfg = orderedTimeslotCfgs[$$i];
-
-		selectSlot__insertSlot({"slotmarker": timeslotCfg.slotmarker});
-
-    if(timeslotCfg===nowTimeslotCfg)
-    {
-      activateIdx = $$i;
+      _ComboDesktopConfigAdd.buildModel();
     }
-	}
 
-	_SelectSlotConnections.target = memConnTarget;
+    QTQ_C.ComboBox { id: _ComboDesktopConfigAdd
+      width: parent.width
+      textRole: 'displayText'
 
+      function buildModel() {
 
-	// activate
-	if(_SelectSlot.currentIndex == activateIdx)
-	{
-		selectSlot__handleCurrentIndexChanged();
-	}
-	else
-	{
-		_SelectSlot.currentIndex = activateIdx;
-	}
+        const existingDeskNos = [];
+        for (let i = 0; i < _ModelSelectDesktop.count; ++i)
+        {
+          existingDeskNos.push(_ModelSelectDesktop.get(i).deskNo);
+        }
 
+        const available = [];
+        for (let deskNo = 0; deskNo < _VirtualDesktopInfo.numberOfDesktops + 1; ++deskNo)
+        {
+          if (existingDeskNos.includes(deskNo)) { continue; }
+          //<--
 
-}
 
-function selectSlot__insertSlot($slot) {
+          available.push(buildSelectDesktopElement(deskNo));
+        }
 
-  const model = _SelectSlot.model;
+        model = available;
+      }
+    }
+  }
 
-	let idx = 0;
-	while(idx < model.count && $slot > model.get(idx))
-	{
-		++idx;
-	}
+  //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  QTQ_C.Dialog { id: _DlgCreateTimeslot
 
-	if(model.count===0)
-	{
-		model.append($slot);
-	}
-	else
-	{
-		model.insert(idx, $slot);
-	}
+    title: '"Activated at" add'
+    standardButtons: QTQ_C.Dialog.Ok | QTQ_C.Dialog.Cancel
+    readonly property var _okButton: standardButton(QTQ_C.Dialog.Ok)
 
-	_SelectSlot.currentIndex = idx;
-}
+    property var _slotsToExclude: []
+    property string _newSlot
 
-function selectSlot__handleCurrentIndexChanged() {
+    onAccepted: {
+      const currentSlotmarker = _ModelSelectSlot.get(_SelectSlot.currentIndex).slotmarker;
+      _SelectSlot.addTimeslotFromDialog(_newSlot, currentSlotmarker);
+    }
 
-	selectSlot__updateButtonsState();
+    QTQ.Component.onCompleted: initModels()
 
-	currentSlotCfg = currentDeskCfg.getTimeslotForSlotmarker(_SelectSlot.model.get(_SelectSlot.currentIndex).slotmarker);
-}
+    onVisibleChanged: {
 
-function selectSlot__updateButtonsState() {
+      if(!visible) { return; }
+      // <--
 
-	_BtnAddTimeslotTimeslot.enabled = _SelectSlot.model.count < 60 * 24;
 
-	_BtnRemoveTimeslot.enabled = _SelectSlot.currentIndex > 0;
-}
+      _DlgCreateTimeslot._slotsToExclude = Object.keys(_currentDeskCfg.timeslots);
 
-function selectSlot__removeTimeslot() {
+      buildNewSlot();
+    }
 
-	plasmacfgAdapter.atCfg_deleteTimeslot(currentDeskCfg, _SelectSlot.model.get(_SelectSlot.currentIndex).slotmarker);
+    QTQ_L.RowLayout {
 
-	_SelectSlot.model.remove(_SelectSlot.currentIndex);
+      QTQ_C.ComboBox { id: _ComboHour
+        model: QTQ.ListModel { id: _ModelComboHour }
+        textRole: 'text'
 
-	_SelectSlot.currentIndex = Math.max(0, _SelectSlot.currentIndex - 1);
-}
+        onCurrentIndexChanged: _DlgCreateTimeslot.buildNewSlot();
+      }
 
+      QTQ_C.Label {
+        text: ':'
+      }
 
+      QTQ_C.ComboBox { id: _ComboMinute
+        model: QTQ.ListModel { id: _ModelComboMinute }
+        textRole: 'text'
 
+        onCurrentIndexChanged: _DlgCreateTimeslot.buildNewSlot();
+      }
+    }
 
+    function initModels() {
 
-function selectDesktop__removeConfig() {
+      const mh = _ComboHour.model;
+      for(let i = 0; i < 24; ++i)
+      {
+        const text = ('00'+i).slice(-2);
+        mh.append({'text': text});
+      }
+      _ComboHour.currentIndex = 0;
 
-	plasmacfgAdapter.deleteCfgDeskNo(_SelectDesktop.model.get(_SelectDesktop.currentIndex).deskNo);
+      const mm = _ComboMinute.model;
+      for(let i = 0; i < 60; ++i)
+      {
+        let text = ('00'+i).slice(-2);
+        mm.append({'text': text});
+      }
+      _ComboMinute.currentIndex = 0;
+    }
 
-	_SelectDesktop.model.remove(_SelectDesktop.currentIndex);
+    function buildNewSlot() {
 
-	_SelectDesktop.currentIndex = Math.min(_SelectDesktop.currentIndex, _SelectDesktop.model.count - 1);
-}
+      if(_ComboHour.currentIndex < 0 || _ComboMinute.currentIndex < 0) { return; }
+      //<--
 
-function selectDesktop__updateButtonsState() {
 
-	_BtnAddTimeslotDesktopConfig.enabled = _SelectDesktop.model.count < _VirtualDesktopInfo.numberOfDesktops+1;
+      const hh = _ModelComboHour.get(_ComboHour.currentIndex).text;
+      const mm = _ModelComboMinute.get(_ComboMinute.currentIndex).text;
 
-	_BtnRemoveDesktopConfig.enabled = _SelectDesktop.currentIndex > 0;
-}
-
-
-function selectDesktop__handleCurrentIndexChanged() {
-
-	selectDesktop__updateButtonsState();
-
-	currentDeskCfg = plasmacfgAdapter.getCfgForDeskNo(_SelectDesktop.model.get(_SelectDesktop.currentIndex).deskNo);
-}
-
-function selectDesktop__init($deskNo) {
-
-	let activateNo = VJS.DESKNO_GLOBAL;
-
-	// fill model
-	const memConnTarget = _SelectDesktopConnections.target;
-	_SelectDesktopConnections.target = null;
-
-	for(const $$cfg of plasmacfgAdapter.getCfgs())
-	{
-		selectDesktop__insertElement(selectDesktop__buildElement($$cfg.deskNo));
-
-		if($$cfg.deskNo === $deskNo)
-		{
-			activateNo = $$cfg.deskNo;
-		}
-	}
-
-	_SelectDesktopConnections.target = memConnTarget;
-
-
-  // activate current
-  const model = _SelectDesktop.model;
-
-	let activateIndex = 0;
-	for(let i = 0; i < model.count; ++i)
-	{
-		if(model.get(i).deskNo === activateNo)
-		{
-			activateIndex = i;
-			break;
-			// <--
-		}
-	}
-
-	if(_SelectDesktop.currentIndex == activateIndex)
-	{
-		selectDesktop__handleCurrentIndexChanged();
-	}
-	else
-	{
-		_SelectDesktop.currentIndex = activateIndex;
-	}
-}
-
-function selectDesktop__buildElement($deskNo) {
-
-	const orderText = '#' + ('  '+$deskNo).slice(-3);
-
-	return {
-		'displayText': (VJS.DESKNO_GLOBAL===$deskNo?VJS.DESKNO_GLOBAL_NAME:_VirtualDesktopInfo.desktopNames[$deskNo-1]),
-    'deskNo': $deskNo,
-    'orderText': orderText
-		}
-}
-
-function selectDesktop__insertElement($desktopElement) {
-
-  const model = _SelectDesktop.model;
-
-	let idx = 0;
-	while(idx < model.count && $desktopElement.orderText > model.get(idx).orderText)
-	{
-		++idx;
-	}
-
-	if(model.count===0)
-	{
-		model.append($desktopElement);
-	}
-	else
-	{
-		model.insert(idx, $desktopElement);
-	}
-
-	_SelectDesktop.currentIndex = idx;
-}
-
-function effects__updateColorizeValue($slot) {
-
-	let alpha = Math.round(255 * $slot.colorize);
-	$slot.colorizeValue = '#' + ("00" + alpha.toString(16)).substr(-2) + $slot.colorizeColor.substr(-6);
-}
-
-function imagesources__updateButtonsState() {
-
-	_BtnAddTimeslotFolder.enabled = ! VJS.IS_USE_URL(_ImageSources.myCfg.imagesources);
-  _ComboShuffleMode.enabled = _BtnAddTimeslotFolder.enabled;
-
-	_BtnSetUrl.enabled = ! _ImageSources.model.count > 0;
-}
-
-function imagesources__addPathUsingDlg($$dlg) {
-
-	$$dlg.handleOnAccepted = ($$resultUrls) => {
-
-		for(let i=0; i<$$resultUrls.length; ++i)
-		{
-			const desanitized = VJS.AS_URISAFE($$resultUrls[i].toString(), false);
-			_ImageSources.model.append({ path: desanitized.substring("file://".length) });
-		}
-	};
-
-
-	$$dlg.open();
-}
-
-function imagesources__setUrl() {
-
-	_DlgSetUrl.handleOnAccepted = ($$text) => {
-
-		_ImageSources.model.append({ path: $$text });
-	};
-
-	_DlgSetUrl.open();
-}
-
-function imagesources__removeSource($index) {
-
-	_ImageSources.model.remove($index);
-}
-
+      _newSlot = hh + ':' + mm;
+      _okButton.enabled = !_slotsToExclude.includes(_newSlot);
+    }
+  }
 }

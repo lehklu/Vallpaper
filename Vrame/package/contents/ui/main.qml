@@ -4,139 +4,228 @@
 
 import QtQuick as QTQ
 import QtQuick.Controls as QTQ_C
-import org.kde.plasma.core as KDE_pc
+import org.kde.plasma.core as KDE_core
 import org.kde.plasma.plasmoid as KDE_plasmoid
 
-import Qt5Compat.GraphicalEffects as QT5_ge
+import QtQuick.Effects as QTQ_E
 
 import org.kde.taskmanager as KDE_taskmanager
+import org.kde.plasma.wallpapers.image as KDE_wallpapersImage
 
-import org.kde.plasma.wallpapers.image as KDE_wallpaper
+
+import "../js/lib.js" as LJS
+
+/*MOD*/KDE_plasmoid.PlasmoidItem { id: _Root
+
+  readonly property bool _enableLogger: false
+  readonly property var _LOGGER: _LOGOVERLAY.item
+
+/*MOD*/KDE_plasmoid.Plasmoid.backgroundHints: KDE_core.Types.NoBackground
+/*MOD*/readonly property var _config: KDE_plasmoid.Plasmoid.configuration.vrame602
+/*MOD*/readonly property var _prefixActionText: '' // empty
+
+  on_ConfigChanged: {
+
+    let configToUse = _config;
+    if( ! configToUse || configToUse.length===0)
+    {
+/*MOD*/configToUse = LJS.CFG_602_FROM_601(KDE_plasmoid.Plasmoid.configuration.vrame601);
+    }
+
+    const configJson = JSON.stringify(configToUse);
+    if (_previousConfigJson === configJson) { return; }
+
+    _previousConfigJson = configJson;
+    _configAdapter = new LJS.PlasmacfgAdapter(configToUse);
+    handleSituationChanged();
+  }
 
 
-import "../js/v.js" as VJS
+  readonly property var _qtqScreen: QTQ.Screen
 
-/*MOD*/KDE_plasmoid.PlasmoidItem {
-	id: _Root
+  property var _activeImage: null
+  property int _desktopModelCount: 1
+  property var _configAdapter
+  property bool _repeaterReady: false
+  property var _previousConfigJson
+  property var _activeDeskNo
 
-/*MOD*/property var config: KDE_plasmoid.Plasmoid.configuration.vrame601
-/*MOD*/KDE_plasmoid.Plasmoid.backgroundHints: KDE_pc.Types.NoBackground
-/*MOD*/property var prefixActionText: '' // empty
+  KDE_core.Action { id: _ActionOpen
+    text: _prefixActionText + "Open image"
+    icon.name: "document-open"
+    priority: KDE_plasmoid.Plasmoid.LowPriorityAction
+    visible: true
+    enabled: _activeImage ? _activeImage._imageCount > 0 : false
+    onTriggered: actionOpen()
+  }
 
-  property var previousConfigJson
-  property var configAdapter
-
-  property var activeImage
-  property bool repeaterReady: false
+  KDE_core.Action { id: _ActionNext
+    text: _prefixActionText + "Next image"
+    icon.name: "user-desktop"
+    priority: KDE_plasmoid.Plasmoid.LowPriorityAction
+    visible: true
+    enabled: _activeImage ? (_activeImage._imageCount > 1 || _activeImage._usingUrl) : false
+    onTriggered: actionNext()
+  }
 
 /*MOD*/KDE_plasmoid.Plasmoid.contextualActions: [
-    KDE_pc.Action {
-        text: prefixActionText + "Open image"
-        icon.name: "document-open"
-        priority: KDE_plasmoid.Plasmoid.LowPriorityAction
-        visible: true
-        enabled: activeImage.getCount()>0
-        onTriggered: { _Canvas.actionOpen(); }
-    },
-    KDE_pc.Action {
-        text: prefixActionText + "Next image"
-        icon.name: "user-desktop"
-        priority: KDE_plasmoid.Plasmoid.LowPriorityAction
-        visible: true
-        enabled: activeImage.getCount()>1 || !activeImage.cache
-        onTriggered: { _Canvas.actionNext(); }
-    }
+    _ActionOpen,
+    _ActionNext
   ]
 
-  onConfigChanged: {
+  QTQ.MouseArea {
+    anchors.fill: parent
 
-    const configJson = JSON.stringify(config);
-    if(previousConfigJson==configJson) { return;}
-    //<--
-
-
-    previousConfigJson=configJson;
-    configAdapter = new VJS.PlasmacfgAdapter(config);
+    onDoubleClicked: actionOpen()
+    onPressAndHold: actionNext()
   }
 
   KDE_taskmanager.VirtualDesktopInfo { id: _VirtualDesktopInfo
 
     QTQ.Component.onCompleted: {
 
-      broadcastNumberOfDesktopsChanged()
-      broadcastDesktopChanged();
+      updateDeskNo();
+      broadcastNumberOfDesktopsChanged();
+      handleSituationChanged();
     }
 
-    onCurrentDesktopChanged: broadcastDesktopChanged();
+    onCurrentDesktopChanged: {
+
+      if (LJS.IS_PER_SCREEN_SUPPORTED(_VirtualDesktopInfo)) { return; } // KDE Plasma 6.7+
+      //<--
+
+
+      updateDeskNo();
+    }
+
+    // KDE Plasma 6.7+ per-screen signal
+    onCurrentDesktopForScreenChanged: ($changedScreenName) => {
+
+      if ($changedScreenName !== _qtqScreen.name) { return; }
+      //<--
+
+
+      updateDeskNo();
+    }
 
     onNumberOfDesktopsChanged: {
 
       broadcastNumberOfDesktopsChanged();
     }
 
-	  function broadcastDesktopChanged() {
+    function updateDeskNo() {
 
-      if( ! repeaterReady) { return; }
-	    //<--
-
-
-      const newActiveImage = _ImageRepeater.imageFor(VJS.GET_CURRENT_DESKNO(_VirtualDesktopInfo));
-      newActiveImage.refresh();
-      activeImage = newActiveImage;
-	  }
-
-	  function broadcastNumberOfDesktopsChanged() {
-
-      _ImageRepeater.model = _VirtualDesktopInfo.numberOfDesktops + 1; // +1 =^= shared image
-	  }
-  }
-
-  QTQ.Timer {
-	  id: _Timer
-    interval: 1000 * 1 // sec
-    repeat: true
-    running: true
-    onTriggered: {
-
-      if( ! activeImage) { return; }
-	    //<--
-
-
-      activeImage.refresh();
+      _activeDeskNo = LJS.GET_CURRENT_DESKNO(_VirtualDesktopInfo, _qtqScreen.name);
+      handleSituationChanged();
     }
   }
 
+  QTQ.Timer { id: _Timer
+
+    onTriggered: {
+
+      if (!_activeImage) { return; }
+      //<--
+
+
+      _activeImage.updateStateAndFetchNext();
+      updateTimerInterval();
+    }
+  }
+
+  function actionOpen() {
+
+    if( ! (_activeImage && _activeImage.source)) { return; }
+    //<--
+
+    Qt.openUrlExternally(_activeImage.source);
+  }
+
+  function actionNext() {
+
+    if( ! _activeImage) { return; }
+    //<--
+
+    _activeImage.imgRequestNext(true);
+    updateTimerInterval();
+  }
+
+  function broadcastNumberOfDesktopsChanged() {
+
+    _desktopModelCount = _VirtualDesktopInfo.numberOfDesktops + 1; // +1 =^= shared image
+  }
+
+  function handleSituationChanged() {
+
+    if (!(_repeaterReady && _activeDeskNo && _ImageRepeater)) { return; }
+    //<--
+
+
+    _activeImage = imageFor(_activeDeskNo);
+    if( ! _activeImage) { return }
+    //<--
+
+
+    _activeImage.updateStateAndFetchNext();
+    updateTimerInterval();
+  }
+
+  function updateTimerInterval() {
+
+    if (!(_Timer && _activeDeskNo && _activeImage && _configAdapter)) { return; }
+    //<--
+
+
+    const deskCfg = _configAdapter.ensureCfgForDeskNo(_activeDeskNo);
+    if (!deskCfg || !_activeImage._slotCfg) { return; }
+    //<--
+
+
+    const timeslotDelta = deskCfg.getMillisToNextTimeslot(_activeImage._slotCfg.slotmarker);
+    const slideDelta = _activeImage.getMillisToNextSlide();
+    const nextDelta = Math.min(timeslotDelta, slideDelta);
+
+    if (nextDelta > 0 && isFinite(nextDelta))
+    {
+      _Timer.interval = nextDelta;
+      _Timer.restart();
+    }
+    else
+    {
+      _Timer.stop();
+    }
+  }
+
+  function imageFor($deskNo) {
+
+    if (!_configAdapter) { return null; }
+    //<--
+
+
+    const deskCfg = _configAdapter.ensureCfgForDeskNo($deskNo);
+    const imageIdx = deskCfg.deskNo;
+    return _ImageRepeater.itemAt(imageIdx);
+  }
+
   // C A N V A S - - - - - - - - - - - - - - - - - -
   // C A N V A S - - - - - - - - - - - - - - - - - -
   // C A N V A S - - - - - - - - - - - - - - - - - -
-  QTQ.Rectangle {
-    id: _Canvas
+  QTQ.Rectangle { id: _Canvas
 
     anchors.fill: parent
-    color: activeImage.slotCfg.background
+    color: (_activeImage && _activeImage._slotCfg) ? _activeImage._slotCfg.background : "#ffff00"
 
-    QTQ.Repeater {
-	    id: _ImageRepeater
+    QTQ.Repeater { id: _ImageRepeater
 
+      model: _desktopModelCount
       onModelChanged: {
 
-        if(model==0) { return; };
+        if (model === 0 || !_configAdapter) { return; }
         //<--
 
 
-        repeaterReady=true;
-
-        activeImage = _ImageRepeater.imageFor(VJS.GET_CURRENT_DESKNO(_VirtualDesktopInfo));
-        activeImage.refresh();
-      }
-
-      function imageFor($deskNo) {
-
-        const deskCfg = configAdapter.findAppropiateDeskCfgFor_deskNo($deskNo);
-
-        const imageIdx = deskCfg.deskNo;
-
-        return itemAt(imageIdx);
+        _repeaterReady = true;
+        handleSituationChanged();
       }
 
       // I M A G E - - - - - - - - - - - - - - - - - -
@@ -152,69 +241,110 @@ import "../js/v.js" as VJS
         sourceSize.width: width
 
         asynchronous: true
-        autoTransform: true
+        autoTransform: true // This property holds whether the image should automatically apply image transformation metadata such as EXIF orientation.
 
-        property var slotCfg
+        property var _slotCfg
 
-        property string infoText
-		    property var timestampFetched
-        property var wpBackend: KDE_wallpaper.ImageBackend {
+        property string _infoText
+		    property var _timestampFetched: null
+        property int _imageCount: 0
+        readonly property var _usingUrl: !cache
+
+        property var _kdeWpBackend: KDE_wallpapersImage.ImageBackend {
           usedInConfig: false
-          renderingMode: KDE_wallpaper.ImageBackend.SlideShow
-          slideTimer: VJS.PLASMA_SLIDETIMER_MAXVALUE // don't let ImageBackend do its slideshow
+          renderingMode: KDE_wallpapersImage.ImageBackend.SlideShow
+          slideTimer: LJS.KDE_IMAGEBACKEND_SLIDETIMER_MAXVALUE // don't let ImageBackend do its slideshow
+
+          onImageChanged: updateCount()
+          onLoadingChanged: updateCount()
         }
 
-		    QTQ.Component.onCompleted: { refresh(); }
+        QTQ.Connections {
+          target: _kdeWpBackend.slideFilterModel
 
-        function getCount() { return VJS.IS_USE_URL(slotCfg.imagesources)?1:wpBackend.slideFilterModel.rowCount(); }
+          function onRowsInserted()   { updateCountAndImage(); }
+          function onRowsRemoved()    { updateCount(); }
+          function onModelReset()     { updateCountAndImage(); }
+          function onLayoutChanged()  { updateCountAndImage(); }
+        }
 
-		    function refresh() {
+		    QTQ.Component.onCompleted: { updateStateAndFetchNext(); }
 
-          if( ! configAdapter) { return; }
+        function getCount() {
+
+          const count =  _slotCfg ? (LJS.IS_USE_URL(_slotCfg.imagesources) ? 1 : (_kdeWpBackend && _kdeWpBackend.slideFilterModel ? _kdeWpBackend.slideFilterModel.rowCount() : 0)) : 0;
+          return count;
+        }
+
+        function updateCount() { _imageCount = getCount(); }
+
+        function updateCountAndImage() {
+
+          updateCount();
+
+          if (!_timestampFetched && _imageCount > 0) {
+            imgRequestNext();
+          }
+        }
+
+        function getMillisToNextSlide() {
+
+          if (!_slotCfg || _slotCfg.interval === 0 || _imageCount <= 1) { return Infinity; }
+          if(!_timestampFetched) { return 0;}
+          //<--
+
+
+          const nextTimestamp = _timestampFetched + (_slotCfg.interval * 1000);
+          const remaining = nextTimestamp - Date.now();
+          return remaining;
+        }
+
+		    function updateStateAndFetchNext() {
+
+          if( ! _configAdapter) { return; }
 	        //<--
 
 
-          const deskCfg = configAdapter.findAppropiateDeskCfgFor_deskNo(index); // 'index' defined by Repeater
-          const appropiateSlotCfg = deskCfg.findAppropiateSlotCfgFor_now();
+          const deskCfg = _configAdapter.ensureCfgForDeskNo(index); // 'index' defined by Repeater
+          const applicableSlotCfg = deskCfg.findNowActiveTimeslotCfg();
 
-          if(appropiateSlotCfg!=slotCfg)
+          if(applicableSlotCfg !== _slotCfg)
           {
             source = "";
-            infoText = source;
-			      timestampFetched = -1;
-			      slotCfg = appropiateSlotCfg;
+            _infoText = source;
+			      _timestampFetched = null;
+			      _slotCfg = applicableSlotCfg;
 
-			      anchors.topMargin =     slotCfg.paddingTop;
-            anchors.bottomMargin =  slotCfg.paddingBottom;
-            anchors.leftMargin =    slotCfg.paddingLeft;
-            anchors.rightMargin =   slotCfg.paddingRight;
+			      anchors.topMargin =     _slotCfg.paddingTop;
+            anchors.bottomMargin =  _slotCfg.paddingBottom;
+            anchors.leftMargin =    _slotCfg.paddingLeft;
+            anchors.rightMargin =   _slotCfg.paddingRight;
 
-            fillMode = slotCfg.fillMode;
+            fillMode = _slotCfg.fillMode;
 
-            wpBackend.slidePaths = [];
+            _kdeWpBackend.slidePaths = [];
 
-            if( ! VJS.IS_USE_URL(slotCfg.imagesources) && slotCfg.imagesources.length>0)
+            if( ! LJS.IS_USE_URL(_slotCfg.imagesources) && _slotCfg.imagesources.length>0)
             {
               let newPaths = [];
-              for(let $$path of slotCfg.imagesources)
+              for(let $$path of _slotCfg.imagesources)
 			        {
-                const safePath = VJS.AS_URISAFE($$path);
-				        newPaths.push(safePath);
+				        newPaths.push($$path);
 			        }
-              wpBackend.slidePaths = newPaths;
+              _kdeWpBackend.slidePaths = newPaths;
 
-              wpBackend.slideshowMode = slotCfg.shuffleMode;
+              _kdeWpBackend.slideshowMode = _slotCfg.shuffleMode;
             }
           }
 
-          imgFetchNext();
+          imgRequestNext();
 		    }
 
-		    function imgFetchNext($force=false) {
+		    function imgRequestNext($force=false) {
 
           if( ! $force &&
-              ! (timestampFetched===-1) &&
-              (slotCfg.interval==0 || (Date.now() < (timestampFetched + slotCfg.interval*1000)))
+              _timestampFetched &&
+              (_slotCfg.interval === 0 || (Date.now() < (_timestampFetched + _slotCfg.interval*1000)))
           ) { return; }
           //<--
 
@@ -223,23 +353,24 @@ import "../js/v.js" as VJS
           //<--
 
 
-          if(VJS.IS_USE_URL(slotCfg.imagesources))
+          if(LJS.IS_USE_URL(_slotCfg.imagesources))
           {
             cache = false;
 
             source = ""; // trigger reload
-            source = VJS.GET_URL(slotCfg.imagesources);
+            source = LJS.GET_URL(_slotCfg.imagesources);
           }
           else
           {
             cache = true;
 
-            if(timestampFetched !== -1) { wpBackend.nextSlide(); }
-            source = wpBackend.image;
+            _kdeWpBackend.nextSlide();
+            source = _kdeWpBackend.image;
           }
 
-          infoText = source;
-          timestampFetched = Date.now();
+          _infoText = QTQ.Screen.name + ' / ' + _Root._qtqScreen.name + ' ' + source;
+          _timestampFetched = Date.now();
+          updateTimerInterval();
 		    }
 	    }
       // - - - - - - - - - - - - - I M A G E
@@ -247,126 +378,52 @@ import "../js/v.js" as VJS
       // - - - - - - - - - - - - - I M A G E
     }
 
-    // D I S P L A Y C H A I N - - - - - - - - - - - - - - - - - -
-    // D I S P L A Y C H A I N - - - - - - - - - - - - - - - - - -
-    // D I S P L A Y C H A I N - - - - - - - - - - - - - - - - - -
-    QT5_ge.Desaturate {
-	    id: dcDesaturate
+    // D I S P L A Y - - - - - - - - - - - - - - - - - -
+    // D I S P L A Y - - - - - - - - - - - - - - - - - -
+    // D I S P L A Y - - - - - - - - - - - - - - - - - -
+    QTQ_E.MultiEffect {
 
-      source: activeImage
-      anchors.fill: activeImage
-      visible: activeImage.source!=""
+      source: _activeImage
+      anchors.fill: parent
+      visible: _activeImage ? _activeImage.source !== "" : false
 
-      desaturation: activeImage.slotCfg.desaturate
+      saturation: (_activeImage && _activeImage._slotCfg) ? -1 + _activeImage._slotCfg.saturatePct/100 : 0.0
+
+      blurEnabled: blur > 0.0
+      blur: (_activeImage && _activeImage._slotCfg) ? _activeImage._slotCfg.blurPct/100 : 0.0
+      blurMax: 32
+
+      colorization: (_activeImage && _activeImage._slotCfg) ? _activeImage._slotCfg.colorizePct/100 : 0.0
+      colorizationColor: (_activeImage && _activeImage._slotCfg) ? _activeImage._slotCfg.colorizeColor : "#ffffff"
     }
-
-    QT5_ge.FastBlur {
-	    id: dcBlur
-
-      source: dcDesaturate
-      anchors.fill: dcDesaturate
-      visible: dcDesaturate.visible
-
-      radius: activeImage.slotCfg.blur * 100
-    }
-
-    QT5_ge.ColorOverlay {
-	    id: dcColorOverlay
-
-      source: dcBlur
-      anchors.fill: dcBlur
-      visible: dcBlur.visible
-
-      color: activeImage.slotCfg.colorizeValue
-    }
-    // - - - - - - - - - - - - - D I S P L A Y C H A I N
-    // - - - - - - - - - - - - - D I S P L A Y C H A I N
-    // - - - - - - - - - - - - - D I S P L A Y C H A I N
 
     QTQ.Rectangle {
-      visible: activeImage.slotCfg.displayCurrentSource
+      visible: Boolean(_activeImage && _activeImage._slotCfg && _activeImage._slotCfg.displayCurrentSource)
 	    width: labelInfo.contentWidth
       height: labelInfo.contentHeight
       anchors.top: parent.top
       anchors.left: parent.left
-      color: '#ff1d1d85'
+      color: '#ff071169'
 
 	    QTQ_C.Label {
 		    id: labelInfo
   	    color: "#ffffffff"
-  	    text: activeImage.infoText
+  	    text: (_activeImage ? _activeImage._infoText : "? ? ?") + " @" + _qtqScreen.name + " #" + _activeDeskNo
       }
     }
-
-    function actionNext() {
-
-	    activeImage.imgFetchNext(true);
-    }
-
-    function actionOpen() {
-
-	    Qt.openUrlExternally(activeImage.source)
-    }
-
-/* Dev *
-    QTQ.Rectangle {
-      id: _LogBackground
-      color: '#00ff0000'
-      anchors.fill: parent
-
-      QTQ_C.ScrollView {
-        anchors.fill: parent
-        background: QTQ.Rectangle {
-          color: '#0000ff00'
-        }
-
-        QTQ_C.TextArea {
-          id: _Log
-          readOnly: true
-
-          background: QTQ.Rectangle {
-            color: '#88ffffff'
-          }
-          wrapMode: QTQ.TextEdit.Wrap
-          horizontalAlignment: QTQ.TextEdit.AlignRight
-
-          property int autoclear:0
-
-          function clear() {
-
-            text='';
-            autoclear=0;
-          }
-
-          function sayo($o) {
-
-        	  say(JSON.stringify($o));
-          }
-
-          function say($text) {
-
-              text=text+'\n'+$text;
-              autoclear++;
-
-              if(autoclear>30)
-              {
-                  clear();
-              }
-          }
-        }
-    }
-  }
-/* /Dev */
+    // - - - - - - - - - - - - - D I S P L A Y
+    // - - - - - - - - - - - - - D I S P L A Y
+    // - - - - - - - - - - - - - D I S P L A Y
   }
   // - - - - - - - - - - - - - C A N V A S
   // - - - - - - - - - - - - - C A N V A S
   // - - - - - - - - - - - - - C A N V A S
 
+  QTQ.Loader {
+    id: _LOGOVERLAY
+    source: _enableLogger?"subparts/LogOverlay.qml":""
 
-  QTQ.MouseArea {
     anchors.fill: parent
-
-    onPressAndHold: { _Canvas.actionNext(); }
-    onDoubleClicked: { _Canvas.actionOpen(); }
+    enabled: false // let clicks through
   }
 }

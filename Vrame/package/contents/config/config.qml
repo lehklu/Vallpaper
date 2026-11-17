@@ -5,6 +5,6 @@ ConfigModel {
   ConfigCategory {
     name: "Settings"
     icon: "settings-configure"
-    source: "config.qml"
+    source: "config.qml" /* must be "config.qml" for vallpaper */
   }
 }
