@@ -77,8 +77,22 @@ import "../js/lib.js" as LJS
   QTQ.MouseArea {
     anchors.fill: parent
 
-    onDoubleClicked: actionOpen()
-    onPressAndHold: actionNext()
+    acceptedButtons: Qt.LeftButton
+    propagateComposedEvents: true
+
+    onClicked: (mouse) => { mouse.accepted = false; }
+
+    onDoubleClicked: (mouse) => {
+
+      if (mouse.button === Qt.LeftButton) { actionOpen(); }
+      else { mouse.accepted = false; }
+    }
+
+    onPressAndHold: (mouse) => {
+
+      if (mouse.button === Qt.LeftButton) { actionNext(); }
+      else { mouse.accepted = false; }
+    }
   }
 
   KDE_taskmanager.VirtualDesktopInfo { id: _VirtualDesktopInfo
