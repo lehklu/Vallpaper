@@ -2,10 +2,10 @@
 <kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
-      http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
+      https://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
 
   <group name="Settings">
-<!--MOD--><entry name="vallpaper602" type="StringList"></entry>
-<!--MOD--><entry name="vallpaper601" type="StringList"></entry>
+    <entry name="vallpaper602" type="StringList"><default></default></entry>
+    <entry name="vallpaper601" type="StringList"><default></default></entry>
   </group>
 </kcfg>
