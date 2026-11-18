@@ -330,7 +330,7 @@ import "../js/lib.js" as LJS
           if(applicableSlotCfg !== _slotCfg)
           {
             source = "";
-            _infoText = source;
+            _infoText = "";
 			      _timestampFetched = null;
 			      _slotCfg = applicableSlotCfg;
 
@@ -387,7 +387,7 @@ import "../js/lib.js" as LJS
             source = _kdeWpBackend.image;
           }
 
-          _infoText = QTQ.Screen.name + ' / ' + _Root._qtqScreen.name + ' ' + source;
+          _infoText = source;
           _timestampFetched = Date.now();
           updateTimerInterval();
 		    }
@@ -427,7 +427,7 @@ import "../js/lib.js" as LJS
 	    QTQ_C.Label {
 		    id: labelInfo
   	    color: "#ffffffff"
-  	    text: (_activeImage ? _activeImage._infoText : "? ? ?") + " @" + _qtqScreen.name + " #" + _activeDeskNo
+  	    text: !_activeImage?"? ? ?":"[[" + _qtqScreen.name + "#" + _activeDeskNo + "]] " + _activeImage._infoText
       }
     }
     // - - - - - - - - - - - - - D I S P L A Y
