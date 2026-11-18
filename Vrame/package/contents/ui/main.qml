@@ -235,7 +235,7 @@ import "../js/lib.js" as LJS
       // I M A G E - - - - - - - - - - - - - - - - - -
       // I M A G E - - - - - - - - - - - - - - - - - -
       // I M A G E - - - - - - - - - - - - - - - - - -
-      QTQ.Image {
+      QTQ.Image { id: _DelegateImage
         anchors.fill: parent
 
         visible: false // displayed through Graphical effects
@@ -260,17 +260,17 @@ import "../js/lib.js" as LJS
           renderingMode: KDE_wallpapersImage.ImageBackend.SlideShow
           slideTimer: LJS.KDE_IMAGEBACKEND_SLIDETIMER_MAXVALUE // don't let ImageBackend do its slideshow
 
-          onImageChanged: updateCount()
-          onLoadingChanged: updateCount()
+          onImageChanged: _DelegateImage.updateCount()
+          onLoadingChanged: _DelegateImage.updateCount()
         }
 
         QTQ.Connections {
           target: _kdeWpBackend.slideFilterModel
 
-          function onRowsInserted()   { updateCountAndImage(); }
-          function onRowsRemoved()    { updateCount(); }
-          function onModelReset()     { updateCountAndImage(); }
-          function onLayoutChanged()  { updateCountAndImage(); }
+          function onRowsInserted()   { _DelegateImage.updateCountAndImage(); }
+          function onRowsRemoved()    { _DelegateImage.updateCount(); }
+          function onModelReset()     { _DelegateImage.updateCountAndImage(); }
+          function onLayoutChanged()  { _DelegateImage.updateCountAndImage(); }
         }
 
 		    QTQ.Component.onCompleted: { updateStateAndFetchNext(); }
