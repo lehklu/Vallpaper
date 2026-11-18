@@ -37,6 +37,7 @@ import "../js/lib.js" as LJS
 
     _previousConfigJson = configJson;
     _configAdapter = new LJS.PlasmacfgAdapter(configToUse);
+    _desktopConfigs = _configAdapter.getCfgs();
     handleSituationChanged();
   }
 
@@ -44,7 +45,7 @@ import "../js/lib.js" as LJS
   readonly property var _qtqScreen: QTQ.Screen
 
   property var _activeImage: null
-  property int _desktopModelCount: 1
+  property var _desktopConfigs: []
   property var _configAdapter
   property bool _repeaterReady: false
   property var _previousConfigJson
@@ -85,7 +86,6 @@ import "../js/lib.js" as LJS
     QTQ.Component.onCompleted: {
 
       updateDeskNo();
-      broadcastNumberOfDesktopsChanged();
       handleSituationChanged();
     }
 
@@ -110,7 +110,7 @@ import "../js/lib.js" as LJS
 
     onNumberOfDesktopsChanged: {
 
-      broadcastNumberOfDesktopsChanged();
+      updateDeskNo();
     }
 
     function updateDeskNo() {
@@ -148,11 +148,6 @@ import "../js/lib.js" as LJS
 
     _activeImage.imgRequestNext(true);
     updateTimerInterval();
-  }
-
-  function broadcastNumberOfDesktopsChanged() {
-
-    _desktopModelCount = _VirtualDesktopInfo.numberOfDesktops + 1; // +1 =^= shared image
   }
 
   function handleSituationChanged() {
@@ -203,8 +198,17 @@ import "../js/lib.js" as LJS
 
 
     const deskCfg = _configAdapter.ensureCfgForDeskNo($deskNo);
-    const imageIdx = deskCfg.deskNo;
-    return _ImageRepeater.itemAt(imageIdx);
+    const targetDeskNo = deskCfg.deskNo;
+    for (let i = 0; i < _ImageRepeater.count; ++i)
+    {
+      const item = _ImageRepeater.itemAt(i);
+      if (item._deskNo === targetDeskNo) { return item; }
+      //<--
+
+
+    }
+
+    return null;
   }
 
   // C A N V A S - - - - - - - - - - - - - - - - - -
@@ -217,10 +221,10 @@ import "../js/lib.js" as LJS
 
     QTQ.Repeater { id: _ImageRepeater
 
-      model: _desktopModelCount
+      model: _desktopConfigs
       onModelChanged: {
 
-        if (model === 0 || !_configAdapter) { return; }
+        if (!model || model.length === 0 || !_configAdapter) { return; }
         //<--
 
 
@@ -243,6 +247,7 @@ import "../js/lib.js" as LJS
         asynchronous: true
         autoTransform: true // This property holds whether the image should automatically apply image transformation metadata such as EXIF orientation.
 
+        readonly property int _deskNo: modelData.deskNo
         property var _slotCfg
 
         property string _infoText
@@ -305,7 +310,7 @@ import "../js/lib.js" as LJS
 	        //<--
 
 
-          const deskCfg = _configAdapter.ensureCfgForDeskNo(index); // 'index' defined by Repeater
+          const deskCfg = _configAdapter.ensureCfgForDeskNo(_deskNo);
           const applicableSlotCfg = deskCfg.findNowActiveTimeslotCfg();
 
           if(applicableSlotCfg !== _slotCfg)
