@@ -474,7 +474,7 @@ QTQ_L.ColumnLayout { id: _Root
                 onClicked: {
 
                   _DlgSelectColor.selectedColor = _color;
-/*MOD*/           _DlgSelectColor.options = 0; // all options off
+/*MOD*/           // _DlgSelectColor.options = QTQ_D.ColorDialog.ShowAlphaChannel;
                   _DlgSelectColor._OnAccepted = ($$selectedColor) => {
                     _color = $$selectedColor.toString();
                     _plasmacfgAdapter.propagateCfgChange_preprocess(() => { _cfg.background = _color; });
@@ -655,7 +655,7 @@ QTQ_L.ColumnLayout { id: _Root
                 onClicked: {
 
                   _DlgSelectColor.selectedColor = _color;
-                  _DlgSelectColor.options = 0; // all options off
+/*MOD*/           // _DlgSelectColor.options = 0; // all options off
                   _DlgSelectColor._OnAccepted = ($$selectedColor) => {
                     _color = $$selectedColor.toString();
                     _plasmacfgAdapter.propagateCfgChange_preprocess(() => { _cfg.colorizeColor = _color; });
