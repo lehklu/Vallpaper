@@ -254,7 +254,10 @@ QTQ_L.ColumnLayout { id: _Root
 
         QTQ.Item { QTQ_L.Layout.fillWidth: true }
 
-        QTQ_C.Label { text: "Activated at" }
+        QTQ_C.Label {
+          text: "Activated at"
+          font.styleName: _ModelSelectSlot.count>1?"Bold":""
+        }
 
         QTQ_C.ComboBox { id: _SelectSlot
           model: QTQ.ListModel{ id: _ModelSelectSlot }
