@@ -118,14 +118,7 @@ import "../js/lib.js" as LJS
     }
 
     // KDE Plasma 6.7+ per-screen signal
-    onCurrentDesktopForScreenChanged: ($changedScreenName) => {
-
-      if ($changedScreenName !== _qtqScreen.name) { return; }
-      //<--
-
-
-      updateDeskNo();
-    }
+    // onCurrentDesktopForScreenChanged: --> Connections for KDE Plasma < 6.7
 
     onNumberOfDesktopsChanged: {
 
@@ -136,6 +129,21 @@ import "../js/lib.js" as LJS
 
       _activeDeskNo = LJS.GET_CURRENT_DESKNO(_VirtualDesktopInfo, _qtqScreen.name);
       handleSituationChanged();
+    }
+  }
+
+  QTQ.Connections {
+    target: _VirtualDesktopInfo
+    ignoreUnknownSignals: true
+
+    // KDE Plasma 6.7+ per-screen signal
+    function onCurrentDesktopForScreenChanged($changedScreenName) {
+
+      if ($changedScreenName !== _qtqScreen.name) { return; }
+      //<--
+
+
+      _VirtualDesktopInfo.updateDeskNo();
     }
   }
 
