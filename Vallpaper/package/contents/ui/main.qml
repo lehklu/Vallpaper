@@ -37,7 +37,12 @@ import "../js/lib.js" as LJS
 
     _previousConfigJson = configJson;
     _configAdapter = new LJS.PlasmacfgAdapter(configToUse);
-    _desktopConfigs = _configAdapter.getCfgs();
+
+    // Avoid unwanted handlings during change of repeater model--v
+    _Timer.stop();
+    _activeImage = null;
+    _repeaterModel = _configAdapter.getCfgs();
+    //--^
     handleSituationChanged();
   }
 
@@ -45,7 +50,7 @@ import "../js/lib.js" as LJS
   readonly property var _qtqScreen: QTQ.Screen
 
   property var _activeImage: null
-  property var _desktopConfigs: []
+  property var _repeaterModel: []
   property var _configAdapter
   property bool _repeaterReady: false
   property var _previousConfigJson
@@ -235,7 +240,7 @@ import "../js/lib.js" as LJS
 
     QTQ.Repeater { id: _ImageRepeater
 
-      model: _desktopConfigs
+      model: _repeaterModel
       onModelChanged: {
 
         if (!model || model.length === 0 || !_configAdapter) { return; }
@@ -301,8 +306,10 @@ import "../js/lib.js" as LJS
 
           updateCount();
 
-          if (!_timestampFetched && _imageCount > 0) {
-            imgRequestNext();
+          if(!_timestampFetched && _imageCount > 0)
+          {
+            // Run async, so if triggered by multiple events, execute only once (on first !_timestampFetched)
+            Qt.callLater(() => { if(!_timestampFetched && _imageCount > 0) { imgRequestNext(); }});
           }
         }
 
