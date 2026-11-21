@@ -194,7 +194,7 @@ import "../js/lib.js" as LJS
     const slideDelta = _activeImage.getMillisToNextSlide();
     const nextDelta = Math.min(timeslotDelta, slideDelta);
 
-    if (nextDelta > 0 && isFinite(nextDelta))
+    if(isFinite(nextDelta))
     {
       _Timer.interval = nextDelta;
       _Timer.restart();
@@ -287,7 +287,7 @@ import "../js/lib.js" as LJS
           function onLayoutChanged()  { _DelegateImage.updateCountAndImage(); }
         }
 
-		    QTQ.Component.onCompleted: { updateStateAndFetchNext(); }
+        QTQ.Component.onCompleted: { updateStateAndFetchNext(); }
 
         function getCount() {
 
@@ -308,14 +308,14 @@ import "../js/lib.js" as LJS
 
         function getMillisToNextSlide() {
 
-          if (!_slotCfg || _slotCfg.interval === 0 || _imageCount <= 1) { return Infinity; }
+          if (!_slotCfg || _slotCfg.interval === 0 || (_imageCount <= 1 && !LJS.IS_USE_URL(_slotCfg.imagesources))) { return Infinity; }
           if(!_timestampFetched) { return 0;}
           //<--
 
 
           const nextTimestamp = _timestampFetched + (_slotCfg.interval * 1000);
           const remaining = nextTimestamp - Date.now();
-          return remaining;
+          return Math.max(LJS.MILLIS_TO_NEXT_MIN_ms, remaining);
         }
 
 		    function updateStateAndFetchNext() {
@@ -359,7 +359,7 @@ import "../js/lib.js" as LJS
           imgRequestNext();
 		    }
 
-		    function imgRequestNext($force=false) {
+        function imgRequestNext($force=false) {
 
           if( ! $force &&
               _timestampFetched &&
